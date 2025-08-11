@@ -25,7 +25,7 @@ const Header = () => {
 
           {/* Logo */}
           <div className="flex items-center space-x-3 animate-fadeIn">
-            <img src={Logo2} alt="" className='w-[10rem] h-auto' />
+            <img src={Logo2} alt="" className='w-[6rem] h-auto' />
             {/* <div>
               <span className="text-xl font-bold gradient-text">RENTHIVE</span>
             </div> */}
