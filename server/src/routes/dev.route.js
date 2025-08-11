@@ -12,6 +12,29 @@ const {
   confirmOrder
 } = require('../controllers/order.controller');
 
+// Import upload middleware for handling image uploads
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const cloudinary = require('cloudinary').v2;
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+// Configure multer for Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'renthive_products',
+    allowed_formats: ['jpg', 'png', 'jpeg', 'webp']
+  }
+});
+
+const upload = multer({ storage });
+
 const router = express.Router();
 
 /**
@@ -77,6 +100,39 @@ router.post('/products', createProduct);
 router.put('/products/:id', updateProduct);
 router.delete('/products/:id', hardDeleteProduct); // Hard delete for development
 router.get('/products/all', getAllProductsIncludingInactive);
+
+// Image upload route
+router.post('/products/upload-images', upload.array('images', 5), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'No images provided'
+      });
+    }
+
+    const imageUrls = req.files.map(file => file.path);
+
+    res.json({
+      success: true,
+      message: `${req.files.length} images uploaded successfully`,
+      data: {
+        imageUrls,
+        uploadedFiles: req.files.map(file => ({
+          url: file.path,
+          publicId: file.filename
+        }))
+      }
+    });
+  } catch (error) {
+    console.error('Image upload error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error uploading images',
+      error: error.message
+    });
+  }
+});
 
 // Simple order operations (bypass auth for development)
 router.get('/orders', async (req, res) => {

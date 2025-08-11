@@ -85,6 +85,18 @@ const Reports = () => {
     }
   }
 
+  // Handle report export
+  const handleExportReport = (reportType) => {
+    // Mock export functionality - in real app, this would download actual reports
+    const reportNames = {
+      revenue: 'Revenue Report',
+      products: 'Product Performance Report',
+      customers: 'Customer Analysis Report'
+    }
+    
+    alert(`Exporting ${reportNames[reportType]}... This would download a ${reportType} report in your preferred format.`)
+  }
+
   useEffect(() => {
     fetchReportsData()
   }, [selectedPeriod])
@@ -300,21 +312,30 @@ const Reports = () => {
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Export Reports</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <button 
+            onClick={() => handleExportReport('revenue')}
+            className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          >
             <div className="text-center">
               <div className="text-2xl mb-2">📊</div>
               <p className="text-sm font-medium text-gray-700">Revenue Report</p>
               <p className="text-xs text-gray-500">PDF, Excel, CSV</p>
             </div>
           </button>
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <button 
+            onClick={() => handleExportReport('products')}
+            className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          >
             <div className="text-center">
               <div className="text-2xl mb-2">📦</div>
               <p className="text-sm font-medium text-gray-700">Product Performance</p>
               <p className="text-xs text-gray-500">PDF, Excel, CSV</p>
             </div>
           </button>
-          <button className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors">
+          <button 
+            onClick={() => handleExportReport('customers')}
+            className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+          >
             <div className="text-center">
               <div className="text-2xl mb-2">👥</div>
               <p className="text-sm font-medium text-gray-700">Customer Analysis</p>

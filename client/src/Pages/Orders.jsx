@@ -13,6 +13,10 @@ const Orders = () => {
     pending: 0,
     cancelled: 0
   })
+  const [showViewModal, setShowViewModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [generatingInvoice, setGeneratingInvoice] = useState(false)
 
   // Fetch orders and related data
   const fetchOrdersData = async () => {
@@ -48,6 +52,34 @@ const Orders = () => {
       console.error('Orders data fetch error:', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Handle view order
+  const handleViewOrder = (order) => {
+    setSelectedOrder(order)
+    setShowViewModal(true)
+  }
+
+  // Handle edit order
+  const handleEditOrder = (order) => {
+    setSelectedOrder(order)
+    setShowEditModal(true)
+  }
+
+  // Handle generate invoice
+  const handleGenerateInvoice = async (order) => {
+    try {
+      setGeneratingInvoice(true)
+      // Mock invoice generation - in real app, this would call the backend
+      setTimeout(() => {
+        setGeneratingInvoice(false)
+        alert(`Invoice generated for order ${order.orderId}`)
+      }, 2000)
+    } catch (err) {
+      setGeneratingInvoice(false)
+      console.error('Error generating invoice:', err)
+      alert('Failed to generate invoice')
     }
   }
 
@@ -242,9 +274,25 @@ const Orders = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">
-                      <button className="text-blue-600 hover:text-blue-900">View</button>
-                      <button className="text-green-600 hover:text-green-900">Invoice</button>
-                      <button className="text-gray-600 hover:text-gray-900">Edit</button>
+                      <button 
+                        onClick={() => handleViewOrder(order)}
+                        className="text-blue-600 hover:text-blue-900 transition-colors"
+                      >
+                        View
+                      </button>
+                      <button 
+                        onClick={() => handleGenerateInvoice(order)}
+                        disabled={generatingInvoice}
+                        className="text-green-600 hover:text-green-900 transition-colors disabled:opacity-50"
+                      >
+                        {generatingInvoice ? 'Generating...' : 'Invoice'}
+                      </button>
+                      <button 
+                        onClick={() => handleEditOrder(order)}
+                        className="text-gray-600 hover:text-gray-900 transition-colors"
+                      >
+                        Edit
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -254,6 +302,182 @@ const Orders = () => {
           </div>
         )}
       </div>
+
+      {/* View Order Modal */}
+      {showViewModal && selectedOrder && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Order Details - {selectedOrder.orderId}</h2>
+              <button
+                onClick={() => {setShowViewModal(false); setSelectedOrder(null)}}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Order Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-gray-900">Order Information</h3>
+                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Order ID</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedOrder.orderId}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Customer</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedOrder.customer}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Order Date</label>
+                    <p className="mt-1 text-sm text-gray-900">{selectedOrder.orderDate}</p>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Total Amount</label>
+                    <p className="mt-1 text-sm font-bold text-gray-900">{selectedOrder.totalAmount}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Status Information */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-medium text-gray-900">Status Information</h3>
+                <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Order Status</label>
+                    <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${
+                      ['reserved', 'picked_up'].includes(selectedOrder.status) ? 'bg-green-100 text-green-800' :
+                      selectedOrder.status === 'quotation' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {selectedOrder.status}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Payment Status</label>
+                    <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${
+                      selectedOrder.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                      selectedOrder.paymentStatus === 'partial' ? 'bg-blue-100 text-blue-800' :
+                      'bg-yellow-100 text-yellow-800'
+                    }`}>
+                      {selectedOrder.paymentStatus}
+                    </span>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Delivery Status</label>
+                    <span className={`inline-block mt-1 px-2 py-1 text-xs font-medium rounded-full ${
+                      selectedOrder.deliveryStatus === 'Delivered' ? 'bg-green-100 text-green-800' :
+                      selectedOrder.deliveryStatus === 'Scheduled' ? 'bg-blue-100 text-blue-800' :
+                      'bg-gray-100 text-gray-800'
+                    }`}>
+                      {selectedOrder.deliveryStatus}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Products */}
+            <div className="mt-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">Products</h3>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="space-y-2">
+                  {selectedOrder.products.map((product, index) => (
+                    <div key={index} className="flex items-center justify-between py-2 border-b border-gray-200 last:border-b-0">
+                      <span className="text-sm text-gray-900">{product}</span>
+                      <span className="text-xs text-gray-500">Qty: 1</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            
+            <div className="mt-6 flex justify-end space-x-3">
+              <button
+                onClick={() => handleGenerateInvoice(selectedOrder)}
+                disabled={generatingInvoice}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {generatingInvoice ? 'Generating...' : 'Generate Invoice'}
+              </button>
+              <button
+                onClick={() => {setShowViewModal(false); setSelectedOrder(null)}}
+                className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Order Modal */}
+      {showEditModal && selectedOrder && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-semibold text-gray-900">Edit Order</h2>
+              <button
+                onClick={() => {setShowEditModal(false); setSelectedOrder(null)}}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <form className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Order Status</label>
+                <select 
+                  defaultValue={selectedOrder.status}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="quotation">Quotation</option>
+                  <option value="reserved">Reserved</option>
+                  <option value="picked_up">Picked Up</option>
+                  <option value="returned">Returned</option>
+                  <option value="late">Late</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Payment Status</label>
+                <select 
+                  defaultValue={selectedOrder.paymentStatus}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="pending">Pending</option>
+                  <option value="partial">Partial</option>
+                  <option value="paid">Paid</option>
+                </select>
+              </div>
+              
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {setShowEditModal(false); setSelectedOrder(null)}}
+                  className="flex-1 bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
