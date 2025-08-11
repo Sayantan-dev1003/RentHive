@@ -48,6 +48,7 @@ const Customers = () => {
 
   return (
     <div className="w-full space-y-6">
+      
       {/* Page Header */}
       <div className="text-center lg:text-left">
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">Customer Management</h1>

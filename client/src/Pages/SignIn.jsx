@@ -43,7 +43,7 @@ const SignIn = () => {
       localStorage.setItem('user', JSON.stringify(data.data.user));
 
       // Redirect to dashboard
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message);
     } finally {

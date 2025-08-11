@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 const gradientButtonClass =
@@ -9,7 +9,10 @@ const inputClass =
   'block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 shadow-sm focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100'
 
 const SignUp = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,7 +51,7 @@ const SignUp = () => {
       localStorage.setItem('user', JSON.stringify(data.data.user));
 
       // Redirect to dashboard
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -72,6 +75,12 @@ const SignUp = () => {
                 Sign in
               </Link>
             </p>
+
+            {error && (
+              <div className="mt-4 p-4 text-red-700 bg-red-100 rounded-xl">
+                {error}
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
               <div>
@@ -165,8 +174,12 @@ const SignUp = () => {
               </div>
 
               <div className="pt-2">
-                <button type="submit" className={gradientButtonClass}>
-                  Create account
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className={gradientButtonClass}
+                >
+                  {loading ? 'Creating account...' : 'Create account'}
                 </button>
               </div>
 
