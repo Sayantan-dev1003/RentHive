@@ -69,13 +69,7 @@ const HowItWorks = () => {
           })}
         </div>
 
-        {/* Bottom CTA */}
-        <div className="mt-16 text-center">
-          <p className="text-gray-600 mb-6">Ready to get started?</p>
-          <button className="bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 hover:scale-105 transition-all duration-200 shadow-lg">
-            Create Your Account
-          </button>
-        </div>
+  
       </div>
     </section>
   );

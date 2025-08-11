@@ -28,10 +28,7 @@ const Hero = () => {
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Link>
-              <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-xl hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 flex items-center justify-center">
-                <Play className="mr-2 h-5 w-5" />
-                Learn More
-              </button>
+              
             </div>
 
             {/* Trust Indicators */}

@@ -8,24 +8,20 @@ const { emitProductUpdate } = require('../utils/socket');
  * POST /api/products
  */
 const createProduct = asyncHandler(async (req, res) => {
-  const {
-    name,
-    category,
-    description,
-    rentable,
-    pricing,
-    stock,
-    images,
-    specifications
-  } = req.body;
+  // Use req.body directly as the frontend sends form data
+  const { name, category, description, rentable, pricing, stock, specifications } = req.body;
+
+  // Extract image URLs from uploaded files
+  const imageUrls = req.files.map(file => file.path);
 
   // Validate required fields
   if (!name || !category || !description || !pricing) {
     throw createValidationError('Name, category, description, and pricing are required');
   }
 
-  // Validate pricing object
-  if (!pricing.hour || !pricing.day || !pricing.week || !pricing.month) {
+  // Since pricing is a string from FormData, parse it to an object
+  const parsedPricing = JSON.parse(pricing);
+  if (!parsedPricing.hour || !parsedPricing.day || !parsedPricing.week || !parsedPricing.month) {
     throw createValidationError('All pricing tiers (hour, day, week, month) are required');
   }
 
@@ -34,16 +30,16 @@ const createProduct = asyncHandler(async (req, res) => {
     name: name.trim(),
     category,
     description: description.trim(),
-    rentable: rentable !== undefined ? rentable : true,
+    rentable: rentable === 'true', // Convert string to boolean
     pricing: {
-      hour: parseFloat(pricing.hour),
-      day: parseFloat(pricing.day),
-      week: parseFloat(pricing.week),
-      month: parseFloat(pricing.month)
+      hour: parseFloat(parsedPricing.hour),
+      day: parseFloat(parsedPricing.day),
+      week: parseFloat(parsedPricing.week),
+      month: parseFloat(parsedPricing.month)
     },
     stock: parseInt(stock) || 1,
-    images: images || [],
-    specifications: specifications || {}
+    images: imageUrls,
+    specifications: specifications ? JSON.parse(specifications) : {}
   });
 
   await product.save();
@@ -116,11 +112,11 @@ const getProducts = asyncHandler(async (req, res) => {
   if (startDate && endDate) {
     const start = new Date(startDate);
     const end = new Date(endDate);
-    
+
     if (start >= end) {
       throw createValidationError('Start date must be before end date');
     }
-    
+
     dateFilter = { start, end };
   }
 
@@ -140,7 +136,7 @@ const getProducts = asyncHandler(async (req, res) => {
   const productsWithAvailability = await Promise.all(products.map(async product => {
     const productObj = product.toObject();
     productObj.currentAvailableStock = product.currentAvailableStock;
-    
+
     // If date filter is provided, check availability for that period
     if (dateFilter) {
       const availableQty = await getAvailableQuantity(
@@ -151,7 +147,7 @@ const getProducts = asyncHandler(async (req, res) => {
       productObj.availableForPeriod = availableQty;
       productObj.isAvailableForPeriod = availableQty > 0;
     }
-    
+
     return productObj;
   }));
 
@@ -178,6 +174,29 @@ const getProducts = asyncHandler(async (req, res) => {
           }
         ])
       }
+    }
+  });
+});
+
+/**
+ * Get product categories
+ * GET /api/products/categories
+ */
+const getCategories = asyncHandler(async (req, res) => {
+  const categories = await Product.distinct('category', { isActive: true });
+
+  // Get category counts
+  const categoryCounts = await Product.aggregate([
+    { $match: { isActive: true } },
+    { $group: { _id: '$category', count: { $sum: 1 } } },
+    { $sort: { count: -1 } }
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      categories,
+      categoryCounts
     }
   });
 });
@@ -225,37 +244,63 @@ const updateProduct = asyncHandler(async (req, res) => {
     isActive
   } = req.body;
 
+  // Find the existing product
   const product = await Product.findById(id);
-
   if (!product) {
-    throw createNotFoundError('Product');
+    throw createNotFoundError('Product not found');
   }
 
-  // Build update object
-  const updateData = {};
+  // Extract new image URLs from uploaded files if any
+  const newImageUrls = req.files ? req.files.map(file => file.path) : [];
+
+  // Build the update object, initializing with the existing product's values
+  const updateData = { ...product.toObject() };
+
+  // Update fields if provided in the request body
   if (name) updateData.name = name.trim();
   if (category) updateData.category = category;
   if (description) updateData.description = description.trim();
-  if (rentable !== undefined) updateData.rentable = rentable;
-  if (stock !== undefined) updateData.stock = parseInt(stock);
-  if (images) updateData.images = images;
-  if (specifications) updateData.specifications = specifications;
-  if (isActive !== undefined) updateData.isActive = isActive;
+  if (rentable !== undefined) updateData.rentable = rentable === 'true'; // Parse string to boolean
+  if (stock !== undefined) updateData.stock = parseInt(stock); // Parse string to number
+  if (isActive !== undefined) updateData.isActive = isActive === 'true'; // Parse string to boolean
 
-  // Update pricing if provided
+  // Update pricing if provided, and parse string to JSON
   if (pricing) {
+    const parsedPricing = JSON.parse(pricing);
     updateData.pricing = {};
-    if (pricing.hour) updateData.pricing.hour = parseFloat(pricing.hour);
-    if (pricing.day) updateData.pricing.day = parseFloat(pricing.day);
-    if (pricing.week) updateData.pricing.week = parseFloat(pricing.week);
-    if (pricing.month) updateData.pricing.month = parseFloat(pricing.month);
+    if (parsedPricing.hour) updateData.pricing.hour = parseFloat(parsedPricing.hour);
+    if (parsedPricing.day) updateData.pricing.day = parseFloat(parsedPricing.day);
+    if (parsedPricing.week) updateData.pricing.week = parseFloat(parsedPricing.week);
+    if (parsedPricing.month) updateData.pricing.month = parseFloat(parsedPricing.month);
   }
+
+  // Combine existing images with new images
+  if (newImageUrls.length > 0) {
+    // If images are provided in the body, it means the user wants to replace them.
+    // If not, we just append to the existing images.
+    const existingImages = images ? JSON.parse(images) : product.images;
+    updateData.images = [...existingImages, ...newImageUrls];
+  } else if (images) {
+      // If no new files are uploaded, but 'images' field is in the body,
+      // it means the user sent a new array of URLs to replace the old ones
+      updateData.images = JSON.parse(images);
+  }
+
+  // Update specifications if provided
+  if (specifications) {
+    updateData.specifications = JSON.parse(specifications);
+  }
+
 
   const updatedProduct = await Product.findByIdAndUpdate(
     id,
     updateData,
     { new: true, runValidators: true }
   );
+
+  if (!updatedProduct) {
+    throw createNotFoundError('Product not found or failed to update');
+  }
 
   res.status(200).json({
     success: true,
@@ -315,7 +360,7 @@ const getAllProductsIncludingInactive = asyncHandler(async (req, res) => {
   const allProducts = await Product.find({});
   const activeProducts = await Product.find({ isActive: true });
   const inactiveProducts = await Product.find({ isActive: false });
-  
+
   res.status(200).json({
     success: true,
     data: {
@@ -358,7 +403,7 @@ const checkAvailability = asyncHandler(async (req, res) => {
     throw createValidationError('End date must be after start date');
   }
 
-  const availableQuantity = getAvailableQuantity(product, startDate, endDate);
+  const availableQuantity = await getAvailableQuantity(product, startDate, endDate);
   const isAvailable = availableQuantity >= parseInt(quantity);
 
   res.status(200).json({
@@ -405,29 +450,6 @@ const getAvailabilityCalendar = asyncHandler(async (req, res) => {
         start: startDate,
         end: endDate
       }
-    }
-  });
-});
-
-/**
- * Get product categories
- * GET /api/products/categories
- */
-const getCategories = asyncHandler(async (req, res) => {
-  const categories = await Product.distinct('category', { isActive: true });
-
-  // Get category counts
-  const categoryCounts = await Product.aggregate([
-    { $match: { isActive: true } },
-    { $group: { _id: '$category', count: { $sum: 1 } } },
-    { $sort: { count: -1 } }
-  ]);
-
-  res.status(200).json({
-    success: true,
-    data: {
-      categories,
-      categoryCounts
     }
   });
 });
@@ -501,5 +523,5 @@ module.exports = {
   getAvailabilityCalendar,
   getCategories,
   searchProducts,
-  getFeaturedProducts
+  getFeaturedProducts,
 };
