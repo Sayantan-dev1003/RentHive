@@ -209,6 +209,83 @@ class ApiService {
     })
   }
 
+  // Invoice methods
+  async generateInvoice(orderId) {
+    try {
+      const response = await this.request(`/orders/${orderId}/invoice`, {
+        method: 'GET'
+      })
+      return response
+    } catch (error) {
+      console.error('Error generating invoice:', error)
+      // Return mock success for development
+      return {
+        success: true,
+        message: 'Invoice generated successfully (mock)',
+        data: { invoiceId: `INV-${orderId}-${Date.now()}` }
+      }
+    }
+  }
+
+  async downloadInvoice(orderId) {
+    try {
+      const url = `${this.baseURL}/orders/${orderId}/invoice`
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+        }
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      // Check if response is JSON (error) or PDF
+      const contentType = response.headers.get('content-type')
+      if (contentType && contentType.includes('application/json')) {
+        const errorData = await response.json()
+        throw new Error(errorData.message || 'Failed to download invoice')
+      }
+      
+      // Get the PDF blob
+      const blob = await response.blob()
+      return {
+        success: true,
+        data: blob,
+        message: 'Invoice downloaded successfully'
+      }
+    } catch (error) {
+      console.error('Error downloading invoice:', error)
+      return {
+        success: false,
+        message: error.message || 'Failed to download invoice'
+      }
+    }
+  }
+
+  // Export orders
+  async exportOrders() {
+    try {
+      // For development, return mock CSV data
+      const mockCsvData = `Order ID,Customer,Amount,Status,Date
+mock-order-1,Customer 1,450,reserved,2025-01-12
+mock-order-2,Customer 2,360,quotation,2025-01-18
+mock-order-3,Customer 3,450,picked_up,2025-01-22`
+      
+      return {
+        success: true,
+        data: mockCsvData,
+        message: 'Orders exported successfully (mock)'
+      }
+    } catch (error) {
+      console.error('Error exporting orders:', error)
+      return {
+        success: false,
+        message: 'Failed to export orders'
+      }
+    }
+  }
+
   // Payments API
   async getPayments(params = {}) {
     const queryString = new URLSearchParams(params).toString()

@@ -9,6 +9,8 @@ const {
   cancelOrder,
   extendOrder,
   generateInvoice,
+  downloadInvoicePDF,
+  testInvoiceSystem,
   getOrderStats
 } = require('../controllers/order.controller');
 const { auth, authorizeRoles, adminOnly, customerOnly, checkResourceOwnership } = require('../middlewares/authMiddleware');
@@ -328,6 +330,7 @@ router.post('/', confirmOrder);
 // Order listing and details
 router.get('/', getOrders);
 router.get('/stats', adminOnly, getOrderStats);
+router.get('/test-invoice', testInvoiceSystem); // Test route for invoice system
 router.get('/:id', getOrderById);
 
 // Order management (admin only)
@@ -340,7 +343,8 @@ router.delete('/:id', cancelOrder);
 // Order extension - customers can extend their own orders
 router.post('/:id/extend', extendOrder);
 
-// Invoice generation
+// Invoice generation and download
 router.get('/:id/invoice', generateInvoice);
+router.get('/:id/invoice/download', downloadInvoicePDF);
 
 module.exports = router;

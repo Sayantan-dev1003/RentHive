@@ -119,6 +119,55 @@ const Bookings = () => {
     setShowEditModal(true)
   }
 
+  // Handle generate invoice
+  const handleGenerateInvoice = async (booking) => {
+    try {
+      // Use the booking ID from the original order data
+      const orderId = booking.originalData?._id || booking.id
+      const response = await apiService.generateInvoice(orderId)
+      
+      if (response.success) {
+        alert(`Invoice generated successfully for booking ${booking.id}`)
+      } else {
+        alert(`Failed to generate invoice: ${response.message}`)
+      }
+    } catch (error) {
+      console.error('Error generating invoice:', error)
+      alert('Failed to generate invoice. Please try again.')
+    }
+  }
+
+  // Handle download invoice
+  const handleDownloadInvoice = async (booking) => {
+    try {
+      // Use the booking ID from the original order data
+      const orderId = booking.originalData?._id || booking.id
+      const response = await apiService.downloadInvoice(orderId)
+      
+      if (response.success && response.data) {
+        // Handle both blob and text data
+        const blob = response.data instanceof Blob ? response.data : new Blob([response.data], { type: 'application/pdf' })
+        
+        // Create download link
+        const url = window.URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `invoice-${booking.id}.pdf`
+        document.body.appendChild(link)
+        link.click()
+        document.body.removeChild(link)
+        window.URL.revokeObjectURL(url)
+        
+        alert('Invoice downloaded successfully!')
+      } else {
+        alert(`Failed to download invoice: ${response.message}`)
+      }
+    } catch (error) {
+      console.error('Error downloading invoice:', error)
+      alert('Failed to download invoice. Please try again.')
+    }
+  }
+
   // Handle create new booking
   const handleCreateBooking = async (e) => {
     e.preventDefault()
@@ -188,12 +237,12 @@ const Bookings = () => {
       </div>
 
       {/* Main Content: Calendar and Bookings Side by Side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[calc(100vh-250px)]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-auto">
         {/* Calendar Section */}
         <div className="bg-white rounded-lg shadow flex flex-col">
-          <div className="p-6 flex-1 overflow-auto">
+          <div className="p-6 flex-1">
             {/* React Calendar */}
-            <div className="calendar-container mb-6">
+            <div className="calendar-container">
               <style dangerouslySetInnerHTML={{
                 __html: `
                   .calendar-container .react-calendar {
@@ -324,11 +373,11 @@ const Bookings = () => {
                   if (view === 'month') {
                     const bookingCount = getBookingCountForDate(date);
                     if (bookingCount > 0) {
-                      return (
+              return (
                         <div className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-sm">
                           {bookingCount}
-                        </div>
-                      );
+                </div>
+              );
                     }
                   }
                   return null;
@@ -343,24 +392,24 @@ const Bookings = () => {
                   return null;
                 }}
               />
-            </div>
-            
-            {/* Legend */}
+          </div>
+          
+          {/* Legend */}
             <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 mb-4">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-700 rounded"></div>
                 <span>Today</span>
               </div>
-              <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span>Has Bookings</span>
-              </div>
-              <div className="flex items-center space-x-2">
+              <span>Has Bookings</span>
+            </div>
+            <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-purple-500 rounded"></div>
                 <span>Selected</span>
-              </div>
             </div>
-
+          </div>
+          
             {/* Selected Date Info */}
             {selectedDate && (
               <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200 mb-4">
@@ -401,19 +450,19 @@ const Bookings = () => {
                 <div className="text-center">
                   <div className="text-2xl font-bold text-green-600">
                     {bookings.filter(b => b.status === 'Confirmed').length}
-                  </div>
+              </div>
                   <div className="text-sm text-green-700">Confirmed</div>
-                </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
         {/* Recent Bookings Section */}
-        <div className="bg-white rounded-lg shadow flex flex-col">
-          <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0">
+        <div className="bg-white rounded-lg shadow flex flex-col h-auto overflow-y-auto">
+          <div className="px-6 py-4 border-b border-gray-200 flex-shrink-0 ">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Bookings</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Recent Bookings</h2>
               <div className="text-sm text-gray-500">
                 {loading ? 'Loading...' : `${bookings.length} total`}
               </div>
@@ -432,40 +481,40 @@ const Bookings = () => {
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
-          </div>
+        </div>
           
           <div className="flex-1 overflow-hidden">
-            {loading ? (
+        {loading ? (
               <div className="flex justify-center items-center h-full">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
                   <span className="mt-2 text-gray-600 text-sm">Loading bookings...</span>
                 </div>
-              </div>
-            ) : bookings.length === 0 ? (
+          </div>
+        ) : bookings.length === 0 ? (
               <div className="flex items-center justify-center h-full">
                 <div className="text-center">
-                  <div className="text-6xl mb-4">📅</div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No bookings found</h3>
-                  <p className="text-gray-600">Bookings will appear here once customers make reservations</p>
+            <div className="text-6xl mb-4">📅</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No bookings found</h3>
+            <p className="text-gray-600">Bookings will appear here once customers make reservations</p>
                 </div>
-              </div>
-            ) : (
+          </div>
+        ) : (
               <div className="h-full overflow-y-auto">
                 <div className="p-4 space-y-3">
-                  {bookings.map((booking) => (
+                {bookings.map((booking) => (
                     <div key={booking.id} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:shadow-md transition-shadow duration-200">
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center justify-between mb-2">
                             <h4 className="text-sm font-semibold text-gray-900">{booking.customer}</h4>
-                            <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                              booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
-                              booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                              'bg-red-100 text-red-800'
-                            }`}>
-                              {booking.status}
-                            </span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      booking.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
+                      booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {booking.status}
+                    </span>
                           </div>
                           
                           <div className="text-sm text-gray-600 mb-2">
@@ -490,20 +539,20 @@ const Bookings = () => {
                             >
                               View Details
                             </button>
-                            <button 
-                              onClick={() => handleEditBooking(booking)}
+                      <button 
+                        onClick={() => handleEditBooking(booking)}
                               className="text-xs text-gray-600 hover:text-gray-800 bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded transition-colors"
-                            >
-                              Edit
-                            </button>
+                      >
+                        Edit
+                      </button>
                           </div>
                         </div>
                       </div>
                     </div>
-                  ))}
+                ))}
                 </div>
-              </div>
-            )}
+          </div>
+        )}
           </div>
         </div>
       </div>
@@ -549,7 +598,7 @@ const Bookings = () => {
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+              <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Customer *</label>
                       <div className="relative">
                         <select 
@@ -563,16 +612,16 @@ const Bookings = () => {
                           <option value="customer2">👤 Jane Smith</option>
                           <option value="customer3">👤 Mike Johnson</option>
                           <option value="customer4">👤 Sarah Wilson</option>
-                        </select>
+                </select>
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                           </svg>
                         </div>
                       </div>
-                    </div>
+              </div>
 
-                    <div>
+              <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Product *</label>
                       <div className="relative">
                         <select 
@@ -587,7 +636,7 @@ const Bookings = () => {
                               🔨 {product.name}
                             </option>
                           ))}
-                        </select>
+                </select>
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                           <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -605,16 +654,16 @@ const Bookings = () => {
                       <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
-                    </div>
+              </div>
                     Rental Duration
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+                <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Start Date *</label>
                       <div className="relative">
-                        <input
-                          type="date"
+                  <input
+                    type="date"
                           value={newBooking.startDate}
                           onChange={(e) => setNewBooking({...newBooking, startDate: e.target.value})}
                           className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
@@ -625,13 +674,13 @@ const Bookings = () => {
                           📅
                         </div>
                       </div>
-                    </div>
+                </div>
 
-                    <div>
+                <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">End Date *</label>
                       <div className="relative">
-                        <input
-                          type="date"
+                  <input
+                    type="date"
                           value={newBooking.endDate}
                           onChange={(e) => setNewBooking({...newBooking, endDate: e.target.value})}
                           className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
@@ -653,36 +702,36 @@ const Bookings = () => {
                       </svg>
                       💡 Tip: Select dates to automatically calculate rental duration and pricing
                     </p>
-                  </div>
                 </div>
+              </div>
 
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => setShowAddModal(false)}
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
                     className="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-6 py-4 rounded-xl font-semibold hover:from-gray-200 hover:to-gray-300 transition-all duration-300 transform hover:scale-105 border border-gray-300"
-                  >
+                >
                     <span className="flex items-center justify-center">
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                      Cancel
+                  Cancel
                     </span>
-                  </button>
-                  <button
-                    type="submit"
+                </button>
+                <button
+                  type="submit"
                     className="flex-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
+                >
                     <span className="flex items-center justify-center">
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                       </svg>
-                      Create Booking
+                  Create Booking
                     </span>
-                  </button>
-                </div>
-              </form>
+                </button>
+              </div>
+            </form>
             </div>
           </div>
         </div>
@@ -690,169 +739,172 @@ const Bookings = () => {
 
       {/* View Booking Modal */}
       {showViewModal && selectedBooking && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[95vh] overflow-hidden relative">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 px-8 py-6 relative overflow-hidden">
-              {/* Background Pattern */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
-              <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full"></div>
-              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-white/5 rounded-full"></div>
-              
-              <div className="relative flex items-center justify-between">
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-2xl font-bold text-white mb-1">Booking Details</h2>
-                  <p className="text-green-100 text-sm">Complete booking information and status</p>
+                  <h2 className="text-xl font-bold text-white">Booking Details</h2>
+                  <p className="text-blue-100 text-sm">Complete booking information and status</p>
                 </div>
-                <button
-                  onClick={() => {setShowViewModal(false); setSelectedBooking(null)}}
-                  className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+              <button
+                onClick={() => {setShowViewModal(false); setSelectedBooking(null)}}
+                  className="text-white/80 hover:text-white hover:bg-white/20 rounded-lg p-2 transition-all duration-200"
+              >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
               </div>
             </div>
-
+            
             {/* Modal Body */}
-            <div className="p-8 max-h-[calc(95vh-120px)] overflow-y-auto">
-              <div className="space-y-6">
+            <div className="p-6">
+            <div className="space-y-4">
                 {/* Customer & Status Section */}
-                <div className="bg-gradient-to-br from-blue-50 to-white border border-blue-200 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center mr-2">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
                     </div>
                     Customer Information
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="bg-white p-4 rounded-xl border border-gray-200">
-                      <label className="block text-sm font-semibold text-gray-500 mb-1">Customer Name</label>
-                      <p className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="mr-2">👤</span>
-                        {selectedBooking.customer}
-                      </p>
-                    </div>
-                    <div className="bg-white p-4 rounded-xl border border-gray-200">
-                      <label className="block text-sm font-semibold text-gray-500 mb-1">Booking Status</label>
-                      <span className={`inline-flex items-center px-3 py-1 text-sm font-semibold rounded-full ${
-                        selectedBooking.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
-                        selectedBooking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-red-100 text-red-800'
-                      }`}>
-                        <div className={`w-2 h-2 rounded-full mr-2 ${
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="bg-white p-3 rounded-lg border">
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Customer Name</label>
+                      <p className="text-base font-semibold text-gray-900">{selectedBooking.customer}</p>
+                </div>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Booking Status</label>
+                      <span className={`inline-flex items-center px-2 py-1 text-sm font-medium rounded-lg ${
+                    selectedBooking.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
+                    selectedBooking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                        <div className={`w-2 h-2 rounded-full mr-1 ${
                           selectedBooking.status === 'Confirmed' ? 'bg-green-500' :
                           selectedBooking.status === 'Pending' ? 'bg-yellow-500' :
                           'bg-red-500'
                         }`}></div>
-                        {selectedBooking.status}
-                      </span>
-                    </div>
-                  </div>
+                    {selectedBooking.status}
+                  </span>
+                </div>
+              </div>
                 </div>
 
                 {/* Product Information Section */}
-                <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
-                      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <div className="w-6 h-6 bg-purple-500 rounded flex items-center justify-center mr-2">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                       </svg>
                     </div>
                     Product Details
                   </h3>
                   
-                  <div className="bg-white p-4 rounded-xl border border-gray-200">
-                    <p className="text-lg font-semibold text-gray-900 flex items-center">
-                      <span className="mr-2">🔨</span>
-                      {selectedBooking.product}
-                    </p>
+                  <div className="bg-white p-3 rounded-lg border">
+                    <label className="block text-sm font-medium text-gray-600 mb-1">Product/Equipment</label>
+                    <p className="text-base font-semibold text-gray-900">{selectedBooking.product}</p>
                   </div>
-                </div>
-
+              </div>
+              
                 {/* Rental Duration Section */}
-                <div className="bg-gradient-to-br from-orange-50 to-white border border-orange-200 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center mr-3">
-                      <svg className="w-4 h-4 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <div className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center mr-2">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                       </svg>
                     </div>
                     Rental Period
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white p-4 rounded-xl border border-gray-200">
-                      <label className="block text-sm font-semibold text-gray-500 mb-1">Pickup Date</label>
-                      <p className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="mr-2">📅</span>
-                        {selectedBooking.pickupDate}
-                      </p>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <div className="bg-white p-3 rounded-lg border">
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Pickup Date</label>
+                      <p className="text-base font-semibold text-gray-900">{selectedBooking.pickupDate}</p>
                     </div>
-                    <div className="bg-white p-4 rounded-xl border border-gray-200">
-                      <label className="block text-sm font-semibold text-gray-500 mb-1">Return Date</label>
-                      <p className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="mr-2">📅</span>
-                        {selectedBooking.returnDate}
-                      </p>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Return Date</label>
+                      <p className="text-base font-semibold text-gray-900">{selectedBooking.returnDate}</p>
                     </div>
-                    <div className="bg-white p-4 rounded-xl border border-gray-200">
-                      <label className="block text-sm font-semibold text-gray-500 mb-1">Duration</label>
-                      <p className="text-lg font-semibold text-gray-900 flex items-center">
-                        <span className="mr-2">⏱️</span>
-                        {selectedBooking.duration}
-                      </p>
-                    </div>
-                  </div>
+                    <div className="bg-white p-3 rounded-lg border">
+                      <label className="block text-sm font-medium text-gray-600 mb-1">Duration</label>
+                      <p className="text-base font-semibold text-gray-900">{selectedBooking.duration}</p>
                 </div>
-
+                </div>
+              </div>
+              
                 {/* Payment Information Section */}
-                <div className="bg-gradient-to-br from-green-50 to-white border border-green-200 rounded-2xl p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
-                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center">
+                    <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center mr-2">
+                      <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
                       </svg>
                     </div>
                     Payment Details
                   </h3>
                   
-                  <div className="bg-white p-6 rounded-xl border border-gray-200">
+                  <div className="bg-white p-3 rounded-lg border">
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-semibold text-gray-700">Total Amount</span>
-                      <span className="text-2xl font-bold text-green-600 flex items-center">
-                        <span className="mr-2">💰</span>
-                        {selectedBooking.totalAmount}
-                      </span>
-                    </div>
-                  </div>
+                      <label className="block text-sm font-medium text-gray-600">Total Amount</label>
+                      <span className="text-xl font-bold text-green-600">{selectedBooking.totalAmount}</span>
+                </div>
                 </div>
               </div>
-              
+            </div>
+            
               {/* Action Buttons */}
-              <div className="flex justify-end space-x-4 pt-8 border-t border-gray-200 mt-8">
-                <button
-                  onClick={() => handleEditBooking(selectedBooking)}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl flex items-center"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                  </svg>
-                  Edit Booking
-                </button>
-                <button
-                  onClick={() => {setShowViewModal(false); setSelectedBooking(null)}}
-                  className="bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-6 py-3 rounded-xl font-semibold hover:from-gray-200 hover:to-gray-300 transition-all duration-300 transform hover:scale-105 border border-gray-300 flex items-center"
-                >
-                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                  Close
-                </button>
+              <div className="flex justify-between items-center pt-4 border-t border-gray-200 mt-4">
+                {/* Invoice Actions */}
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleGenerateInvoice(selectedBooking)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm flex items-center"
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Generate Invoice
+                  </button>
+                  <button
+                    onClick={() => handleDownloadInvoice(selectedBooking)}
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm flex items-center"
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Download Invoice
+                  </button>
+                </div>
+                
+                {/* Edit and Close Actions */}
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() => handleEditBooking(selectedBooking)}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center"
+                  >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    Edit
+                  </button>
+              <button
+                onClick={() => {setShowViewModal(false); setSelectedBooking(null)}}
+                    className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center"
+              >
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                Close
+              </button>
+                </div>
               </div>
             </div>
           </div>
@@ -875,15 +927,15 @@ const Bookings = () => {
                   <h2 className="text-2xl font-bold text-white mb-1">Edit Booking</h2>
                   <p className="text-orange-100 text-sm">Update booking details and status</p>
                 </div>
-                <button
-                  onClick={() => {setShowEditModal(false); setSelectedBooking(null)}}
+              <button
+                onClick={() => {setShowEditModal(false); setSelectedBooking(null)}}
                   className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             </div>
 
             {/* Modal Body */}
@@ -900,18 +952,18 @@ const Bookings = () => {
                     Booking Status
                   </h3>
                   
-                  <div>
+              <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Update Status</label>
                     <div className="relative">
-                      <select 
-                        defaultValue={selectedBooking.status}
+                <select 
+                  defaultValue={selectedBooking.status}
                         className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm appearance-none"
                       >
                         <option value="Confirmed">✅ Confirmed</option>
                         <option value="Pending">⏳ Pending</option>
                         <option value="Cancelled">❌ Cancelled</option>
                         <option value="Completed">🎉 Completed</option>
-                      </select>
+                </select>
                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                         <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -919,8 +971,8 @@ const Bookings = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-
+              </div>
+              
                 {/* Date Section */}
                 <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-2xl p-6">
                   <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
@@ -933,26 +985,26 @@ const Bookings = () => {
                   </h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
+                <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Pickup Date</label>
                       <div className="relative">
-                        <input
-                          type="date"
-                          defaultValue={new Date(selectedBooking.pickupDate).toISOString().split('T')[0]}
+                  <input
+                    type="date"
+                    defaultValue={new Date(selectedBooking.pickupDate).toISOString().split('T')[0]}
                           className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
-                        />
+                  />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                           📅
                         </div>
                       </div>
-                    </div>
+                </div>
 
-                    <div>
+                <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Return Date</label>
                       <div className="relative">
-                        <input
-                          type="date"
-                          defaultValue={new Date(selectedBooking.returnDate).toISOString().split('T')[0]}
+                  <input
+                    type="date"
+                    defaultValue={new Date(selectedBooking.returnDate).toISOString().split('T')[0]}
                           className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
                         />
                         <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
@@ -1001,36 +1053,36 @@ const Bookings = () => {
                       <label className="block text-sm font-semibold text-gray-500 mb-1">Total Amount</label>
                       <p className="text-sm font-bold text-gray-900">{selectedBooking.totalAmount}</p>
                     </div>
-                  </div>
                 </div>
-
+              </div>
+              
                 {/* Action Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
-                  <button
-                    type="button"
-                    onClick={() => {setShowEditModal(false); setSelectedBooking(null)}}
+                <button
+                  type="button"
+                  onClick={() => {setShowEditModal(false); setSelectedBooking(null)}}
                     className="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-6 py-4 rounded-xl font-semibold hover:from-gray-200 hover:to-gray-300 transition-all duration-300 transform hover:scale-105 border border-gray-300"
-                  >
+                >
                     <span className="flex items-center justify-center">
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                      Cancel
+                  Cancel
                     </span>
-                  </button>
-                  <button
-                    type="submit"
+                </button>
+                <button
+                  type="submit"
                     className="flex-1 bg-gradient-to-r from-orange-600 via-amber-600 to-yellow-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-orange-700 hover:via-amber-700 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
+                >
                     <span className="flex items-center justify-center">
                       <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      Save Changes
+                  Save Changes
                     </span>
-                  </button>
-                </div>
-              </form>
+                </button>
+              </div>
+            </form>
             </div>
           </div>
         </div>

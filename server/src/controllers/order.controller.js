@@ -8,6 +8,8 @@ const { isAvailable, reserveProduct, releaseReservation, checkMultipleAvailabili
 const { generateInvoicePDF } = require('../utils/pdfGenerator');
 const { processRefund } = require('../utils/dummyPayment');
 const { emitOrderUpdate, emitProductUpdate } = require('../utils/socket');
+const fs = require('fs');
+const path = require('path');
 
 /**
  * Create a quote for order items
@@ -466,7 +468,7 @@ const markReturn = asyncHandler(async (req, res) => {
 
 
 /**
- * Generate and download invoice PDF
+ * Generate and get invoice information
  * GET /api/orders/:id/invoice
  */
 const generateInvoice = asyncHandler(async (req, res) => {
@@ -492,26 +494,147 @@ const generateInvoice = asyncHandler(async (req, res) => {
 
   try {
     // Generate PDF if not already generated
-    if (!order.invoiceId.pdfPath) {
-      const pdfPath = await generateInvoicePDF(order, order.invoiceId);
+    let pdfPath = order.invoiceId.pdfPath;
+    if (!pdfPath) {
+      console.log('Generating new PDF for order:', order._id);
+      pdfPath = await generateInvoicePDF(order, order.invoiceId);
+      
+      // Update invoice with PDF path
+      await Invoice.findByIdAndUpdate(order.invoiceId._id, {
+        pdfPath
+      });
+      
+      // Refresh the order to get updated invoice
+      order.invoiceId.pdfPath = pdfPath;
+    }
+
+    // Return PDF directly
+    if (pdfPath && fs.existsSync(pdfPath)) {
+      console.log('Serving PDF file:', pdfPath);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="invoice-${order._id}.pdf"`);
+      
+      const fileStream = fs.createReadStream(pdfPath);
+      fileStream.pipe(res);
+    } else {
+      console.log('PDF file not found, returning JSON response');
+      res.status(200).json({
+        success: true,
+        message: 'Invoice generated successfully',
+        data: {
+          invoiceId: order.invoiceId._id,
+          pdfPath: pdfPath,
+          downloadUrl: `/api/orders/${id}/invoice/download`
+        }
+      });
+    }
+  } catch (error) {
+    console.error('Invoice generation error:', error);
+    res.status(500).json({
+      success: false,
+      message: `Failed to generate invoice: ${error.message}`,
+      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
+
+/**
+ * Download invoice PDF file
+ * GET /api/orders/:id/invoice/download
+ */
+const downloadInvoicePDF = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const order = await Order.findById(id)
+    .populate('customerId', 'name email phone')
+    .populate('items.productId', 'name category pricing')
+    .populate('invoiceId');
+
+  if (!order) {
+    throw createNotFoundError('Order');
+  }
+
+  if (!order.invoiceId) {
+    throw createValidationError('No invoice found for this order');
+  }
+
+  // Check if user can access this order
+  if (req.user.role === 'customer' && order.customerId._id.toString() !== req.user._id.toString()) {
+    throw createNotFoundError('Order');
+  }
+
+  try {
+    // Generate PDF if not already generated
+    let pdfPath = order.invoiceId.pdfPath;
+    if (!pdfPath) {
+      console.log('Generating new PDF for download, order:', order._id);
+      pdfPath = await generateInvoicePDF(order, order.invoiceId);
       
       // Update invoice with PDF path
       await Invoice.findByIdAndUpdate(order.invoiceId._id, {
         pdfPath
       });
     }
+    
+    if (pdfPath && fs.existsSync(pdfPath)) {
+      console.log('Downloading PDF file:', pdfPath);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `attachment; filename="invoice-${order._id}.pdf"`);
+      
+      const fileStream = fs.createReadStream(pdfPath);
+      fileStream.pipe(res);
+    } else {
+      console.error('PDF file not found at path:', pdfPath);
+      throw new Error('PDF file not found');
+    }
+  } catch (error) {
+    console.error('Invoice download error:', error);
+    res.status(500).json({
+      success: false,
+      message: `Failed to download invoice: ${error.message}`,
+      error: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
+  }
+});
 
-    res.status(200).json({
+/**
+ * Test invoice generation system
+ * GET /api/orders/test-invoice
+ */
+const testInvoiceSystem = asyncHandler(async (req, res) => {
+  try {
+    // Check if required dependencies are available
+    const PDFDocument = require('pdfkit');
+    
+    // Check if invoice directory can be created
+    const invoiceDir = process.env.INVOICE_DIR || './tmp/invoices';
+    if (!fs.existsSync(invoiceDir)) {
+      fs.mkdirSync(invoiceDir, { recursive: true });
+    }
+    
+    // Test PDF creation
+    const testDoc = new PDFDocument();
+    const testPath = path.join(invoiceDir, 'test.pdf');
+    testDoc.pipe(fs.createWriteStream(testPath));
+    testDoc.text('Test PDF Generation', 50, 50);
+    testDoc.end();
+    
+    res.json({
       success: true,
-      message: 'Invoice generated successfully',
+      message: 'Invoice system is working correctly',
       data: {
-        invoiceId: order.invoiceId._id,
-        pdfPath: order.invoiceId.pdfPath,
-        downloadUrl: `/api/orders/${id}/invoice/download`
+        pdfkitAvailable: true,
+        invoiceDirectory: invoiceDir,
+        canCreateFiles: fs.existsSync(invoiceDir),
+        testPdfCreated: testPath
       }
     });
   } catch (error) {
-    throw new Error(`Failed to generate invoice: ${error.message}`);
+    res.status(500).json({
+      success: false,
+      message: 'Invoice system test failed',
+      error: error.message
+    });
   }
 });
 
@@ -797,5 +920,7 @@ module.exports = {
   cancelOrder,
   extendOrder,
   generateInvoice,
+  downloadInvoicePDF,
+  testInvoiceSystem,
   getOrderStats
 };

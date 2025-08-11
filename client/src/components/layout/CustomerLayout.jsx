@@ -66,48 +66,7 @@ const CustomerLayout = ({ children }) => {
                   )}
                 </a>
                 
-                <a 
-                  href="/customer/order-success" 
-                  className={`
-                    group flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover-lift
-                    ${location.pathname === '/customer/order-success' 
-                      ? "bg-gradient-to-r from-[#2542ff] to-[#3b82f6] text-white shadow-lg shadow-blue-500/30" 
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                    }
-                  `}
-                >
-                  <span className={`text-base transition-transform duration-300 ${
-                    location.pathname === '/customer/order-success' ? 'animate-bounceIn' : 'group-hover:scale-110'
-                  }`}>
-                    
-                  </span>
-                  <span className="font-semibold">Orders</span>
-                  {location.pathname === '/customer/order-success' && (
-                    <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
-                  )}
-                </a>
-
-
-                <a 
-                  href="/customer/order-confirmation" 
-                  className={`
-                    group flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover-lift
-                    ${location.pathname === '/customer/order-confirmation' 
-                      ? "bg-gradient-to-r from-[#2542ff] to-[#3b82f6] text-white shadow-lg shadow-blue-500/30" 
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                    }
-                  `}
-                >
-                  <span className={`text-base transition-transform duration-300 ${
-                    location.pathname === '/customer/order-confirmation' ? 'animate-bounceIn' : 'group-hover:scale-110'
-                  }`}>
-                    
-                  </span>
-                  <span className="font-semibold">Confirm</span>
-                  {location.pathname === '/customer/order-confirmation' && (
-                    <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
-                  )}
-                </a>
+          
                 
             </nav>
             
