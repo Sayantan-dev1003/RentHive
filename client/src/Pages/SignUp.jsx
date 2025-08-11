@@ -59,8 +59,13 @@ const SignUp = () => {
       localStorage.setItem("token", data.data.token);
       localStorage.setItem("user", JSON.stringify(data.data.user));
 
-      // Redirect to dashboard
-      navigate("/dashboard");
+      // Redirect based on user role
+      const userRole = data.data.user.role;
+      if (userRole === 'customer') {
+        navigate("/customer/customer-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -204,7 +209,7 @@ const SignUp = () => {
                   onChange={handleChange}
                 >
                   <option value="customer">Customer</option>
-                  <option value="end_user">Admin</option>
+                  <option value="admin">Admin</option>
                 </select>
               </div>
 

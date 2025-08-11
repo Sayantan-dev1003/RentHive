@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
+import apiService from '../../services/api';
 
 // Beautiful Admin-Style Dashboard Design for Product Gallery
 const adminDashboardStyles = `
@@ -146,6 +148,7 @@ const adminDashboardStyles = `
 
 const ProductGallery = () => {
   const { addToCart, isInCart } = useCart();
+  const { user } = useAuth();
   const [viewMode, setViewMode] = useState("Card");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSort, setSelectedSort] = useState("Popular");
@@ -155,14 +158,63 @@ const ProductGallery = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState(null);
 
-  useEffect(() => {
-    // Simulate loading and trigger animations
-    const timer = setTimeout(() => {
+  // Fetch products from API
+  const fetchProducts = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const response = await apiService.getProducts();
+      
+      if (response.success && response.data.products) {
+        // Transform products to match the expected format
+        const transformedProducts = response.data.products.map((product, index) => ({
+          id: product._id,
+          name: product.name,
+          category: product.category,
+          brand: product.brand || 'N/A',
+          price: `₹${product.pricing.day}`,
+          originalPrice: `₹${Math.round(product.pricing.day * 1.2)}`,
+          period: "/day",
+          status: product.currentAvailableStock > 0 ? "Available" : "Rented",
+          performance: `${Math.floor(Math.random() * 20) + 80}%`,
+          performanceType: product.currentAvailableStock > 5 ? "Excellent" : "Good",
+          image: product.images?.[0] || `https://images.unsplash.com/photo-${1581092918056 + index}?w=400&h=300&fit=crop&crop=center`,
+          bgGradient: [`from-blue-600 to-purple-600`, `from-indigo-600 to-blue-600`, `from-purple-600 to-indigo-600`, `from-orange-600 to-red-600`][index % 4],
+          highlight: index % 3 === 0 ? "Popular" : index % 3 === 1 ? "Premium" : "Eco-Friendly",
+          rating: (4.0 + Math.random() * 1).toFixed(1),
+          location: ["Mumbai, Maharashtra", "Delhi, NCR", "Pune, Maharashtra", "Bangalore, Karnataka"][index % 4],
+          features: [
+            "GPS Tracking",
+            "Fuel Efficient", 
+            "Expert Operator",
+            "24/7 Support"
+          ],
+          description: product.description,
+          stock: product.stock,
+          currentAvailableStock: product.currentAvailableStock,
+          isActive: product.isActive,
+          originalData: product
+        }));
+        
+        setProducts(transformedProducts);
+      } else {
+        throw new Error(response.message || 'Failed to fetch products');
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+      setError(err.message);
+    } finally {
       setIsLoading(false);
       setAnimateCards(true);
-    }, 800);
-    return () => clearTimeout(timer);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
   }, []);
 
   // Handle product card click
@@ -177,157 +229,51 @@ const ProductGallery = () => {
     setTimeout(() => setSelectedProduct(null), 300);
   };
 
-  // Mock product data with admin dashboard style
-  const products = [
-    {
-      id: 1,
-      name: "Professional Excavator JCB 3DX",
-      category: "Heavy Machinery",
-      brand: "JCB",
-      price: "₹2,500",
-      originalPrice: "₹3,000",
-      period: "/day",
-      status: "Available",
-      performance: "98%",
-      performanceType: "Excellent",
-      image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center",
-      bgGradient: "from-blue-600 to-purple-600",
-      highlight: "Popular",
-      rating: 4.8,
-      location: "Mumbai, Maharashtra",
-      features: ["GPS Tracking", "Fuel Efficient", "Operator Trained", "24/7 Support"]
-    },
-    {
-      id: 2,
-      name: "Mobile Crane 50T Capacity",
-      category: "Lifting Equipment",
-      brand: "TATA",
-      price: "₹3,800",
-      originalPrice: "₹4,500",
-      period: "/day",
-      status: "Available",
-      performance: "95%",
-      performanceType: "Excellent",
-      image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=300&fit=crop&crop=center",
-      bgGradient: "from-indigo-600 to-blue-600",
-      highlight: "Premium",
-      rating: 4.9,
-      location: "Delhi, NCR",
-      features: ["Remote Control", "Safety Certified", "Expert Operator", "Insurance Covered"]
-    },
-    {
-      id: 3,
-      name: "Concrete Mixer Truck",
-      category: "Construction",
-      brand: "Ashok Leyland",
-      price: "₹2,200",
-      originalPrice: "₹2,800",
-      period: "/day",
-      status: "Available",
-      performance: "92%",
-      performanceType: "Good",
-      image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?w=400&h=300&fit=crop&crop=center",
-      bgGradient: "from-purple-600 to-indigo-600",
-      highlight: "Eco-Friendly",
-      rating: 4.6,
-      location: "Pune, Maharashtra",
-      features: ["Auto Mix", "GPS Enabled", "Fuel Monitoring", "Quality Assurance"]
-    },
-    {
-      id: 4,
-      name: "Bulldozer CAT D6T",
-      category: "Earthmoving",
-      brand: "Caterpillar",
-      price: "₹4,200",
-      originalPrice: "₹5,000",
-      period: "/day",
-      status: "Rented",
-      performance: "88%",
-      performanceType: "Good",
-      image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=400&h=300&fit=crop&crop=center",
-      bgGradient: "from-orange-600 to-red-600",
-      highlight: "Heavy Duty",
-      rating: 4.7,
-      location: "Bangalore, Karnataka",
-      features: ["Blade Control", "Track System", "Powerful Engine", "Maintenance Support"]
-    },
-    {
-      id: 5,
-      name: "Tower Crane Potain MCT 85",
-      category: "High-Rise Construction",
-      brand: "Potain",
-      price: "₹6,500",
-      originalPrice: "₹7,800",
-      period: "/month",
-      status: "Available",
-      performance: "96%",
-      performanceType: "Excellent",
-      image: "https://images.unsplash.com/photo-1504328345606-18bbc8c9d7d1?w=400&h=300&fit=crop&crop=center",
-      bgGradient: "from-green-600 to-blue-600",
-      highlight: "Advanced",
-      rating: 4.9,
-      location: "Gurgaon, Haryana",
-      features: ["Self-Erecting", "Remote Operation", "Safety Systems", "Precision Control"]
-    },
-    {
-      id: 6,
-      name: "Hydraulic Excavator",
-      category: "Heavy Machinery",
-      brand: "Komatsu",
-      price: "₹3,200",
-      originalPrice: "₹3,800",
-      period: "/day",
-      status: "Available",
-      performance: "94%",
-      performanceType: "Excellent",
-      image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center",
-      bgGradient: "from-indigo-600 to-purple-600",
-      highlight: "Efficient",
-      rating: 4.8,
-      location: "Chennai, Tamil Nadu",
-      features: ["Hydraulic System", "Precision Digging", "Fuel Efficient", "Easy Operation"]
-    }
-  ];
+  // Dashboard Statistics (Admin style) - Now using dynamic data
+  const getDashboardStats = () => {
+    if (products.length === 0) return [];
+    
+    return [
+      {
+        title: "Total Equipment",
+        value: products.length,
+        icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
+        color: "bg-blue-500",
+        bgColor: "bg-blue-50",
+        textColor: "text-blue-600",
+        label: "Available"
+      },
+      {
+        title: "Available Now",
+        value: products.filter(p => p.status === "Available").length,
+        icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
+        color: "bg-green-500",
+        bgColor: "bg-green-50",
+        textColor: "text-green-600",
+        label: "Ready"
+      },
+      {
+        title: "Currently Rented",
+        value: products.filter(p => p.status === "Rented").length,
+        icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1",
+        color: "bg-orange-500",
+        bgColor: "bg-orange-50",
+        textColor: "text-orange-600",
+        label: "Active"
+      },
+      {
+        title: "Categories",
+        value: [...new Set(products.map(p => p.category))].length,
+        icon: "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z",
+        color: "bg-purple-500",
+        bgColor: "bg-purple-50",
+        textColor: "text-purple-600",
+        label: "Types"
+      }
+    ];
+  };
 
-  // Dashboard Statistics (Admin style)
-  const dashboardStats = [
-    {
-      title: "Total Equipment",
-      value: products.length,
-      icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4",
-      color: "bg-blue-500",
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-600",
-      label: "Available"
-    },
-    {
-      title: "Available Now",
-      value: products.filter(p => p.status === "Available").length,
-      icon: "M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z",
-      color: "bg-green-500",
-      bgColor: "bg-green-50",
-      textColor: "text-green-600",
-      label: "Ready"
-    },
-    {
-      title: "Currently Rented",
-      value: products.filter(p => p.status === "Rented").length,
-      icon: "M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1",
-      color: "bg-orange-500",
-      bgColor: "bg-orange-50",
-      textColor: "text-orange-600",
-      label: "Active"
-    },
-    {
-      title: "Categories",
-      value: [...new Set(products.map(p => p.category))].length,
-      icon: "M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z",
-      color: "bg-purple-500",
-      bgColor: "bg-purple-50",
-      textColor: "text-purple-600",
-      label: "Types"
-    }
-  ];
+  const dashboardStats = getDashboardStats();
 
   // Filter products based on search and category
   const filteredProducts = products.filter(product => {
@@ -395,6 +341,27 @@ const ProductGallery = () => {
             </div>
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl">
+            <div className="flex items-center gap-3">
+              <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <h3 className="font-semibold">Error Loading Products</h3>
+                <p className="text-sm">{error}</p>
+              </div>
+              <button 
+                onClick={fetchProducts}
+                className="ml-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Dashboard Stats - Admin Style */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-bounce-in">

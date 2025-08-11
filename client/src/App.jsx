@@ -15,7 +15,7 @@ import Reports from './Pages/Reports'
 // Customer Components
 import ProductGallery from './customer/Pages/ProductGallery'
 import WishlistItems from './customer/Pages/wishlistItems'
-
+import OrderConfirmation from './customer/Pages/OrderConfirmation'
 import BillingDetails from './customer/Pages/BillingDetails'
 import Cart from './customer/Pages/Cart'
 
@@ -31,18 +31,19 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         
-        {/* Protected routes with layout (main app pages) */}
-        <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
-        <Route path="/products" element={<ProtectedRoute><Layout><Products /></Layout></ProtectedRoute>} />
-        <Route path="/bookings" element={<ProtectedRoute><Layout><Bookings /></Layout></ProtectedRoute>} />
-        <Route path="/orders" element={<ProtectedRoute><Layout><Orders /></Layout></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
+        {/* Protected admin routes with layout */}
+        <Route path="/dashboard" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Dashboard /></Layout></ProtectedRoute>} />
+        <Route path="/products" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Products /></Layout></ProtectedRoute>} />
+        <Route path="/bookings" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Bookings /></Layout></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Orders /></Layout></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Reports /></Layout></ProtectedRoute>} />
         
         {/* Protected Customer Routes */}
-        <Route path="/customer/customer-dashboard" element={<ProtectedRoute><CustomerLayout><ProductGallery /></CustomerLayout></ProtectedRoute>} />
-        <Route path="/customer/wishlist" element={<ProtectedRoute><CustomerLayout><WishlistItems /></CustomerLayout></ProtectedRoute>} />
-        <Route path="/customer/billing-details" element={<ProtectedRoute><CustomerLayout><BillingDetails /></CustomerLayout></ProtectedRoute>} />
-        <Route path="/customer/cart" element={<ProtectedRoute><CustomerLayout><Cart /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/customer-dashboard" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><ProductGallery /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/wishlist" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><WishlistItems /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/order-confirmation" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><OrderConfirmation /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/billing-details" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><BillingDetails /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/cart" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><Cart /></CustomerLayout></ProtectedRoute>} />
         </Routes>
       </Router>
     </CartProvider>

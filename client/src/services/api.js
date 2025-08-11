@@ -313,6 +313,70 @@ mock-order-3,Customer 3,450,picked_up,2025-01-22`
     return this.request('/reports/orders')
   }
 
+  // Customer API methods
+  async getCustomerOrders(customerId = null) {
+    const endpoint = customerId ? `/orders?customerId=${customerId}` : '/orders'
+    return this.request(endpoint)
+  }
+
+  async getCustomerWishlist(customerId) {
+    // For now, we'll simulate a wishlist. In a real app, you'd have a wishlist endpoint
+    try {
+      const response = await this.getProducts()
+      if (response.success) {
+        // Mock some wishlist items by taking a few products
+        const wishlistItems = response.data.products.slice(0, 3).map(product => ({
+          ...this.transformProduct(product),
+          addedDate: new Date().toISOString(),
+          id: `wishlist_${product._id}`
+        }))
+        return {
+          success: true,
+          data: { items: wishlistItems }
+        }
+      }
+      return response
+    } catch (error) {
+      console.error('Error fetching wishlist:', error)
+      return { success: false, message: error.message }
+    }
+  }
+
+  async getCustomerStats(customerId) {
+    try {
+      const [ordersResponse, productsResponse] = await Promise.all([
+        this.getCustomerOrders(customerId),
+        this.getProducts()
+      ])
+      
+      const orders = ordersResponse.success ? ordersResponse.data.orders || [] : []
+      const products = productsResponse.success ? productsResponse.data.products || [] : []
+      
+      const totalOrders = orders.length
+      const totalSpent = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0)
+      const activeOrders = orders.filter(order => ['reserved', 'picked_up'].includes(order.status)).length
+      
+      return {
+        success: true,
+        data: {
+          totalOrders,
+          totalSpent,
+          activeOrders,
+          availableProducts: products.length,
+          recentActivity: orders.slice(0, 5).map(order => ({
+            type: 'order',
+            description: `Order ${order._id.slice(-6)} ${order.status}`,
+            date: order.createdAt,
+            status: order.status
+          }))
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching customer stats:', error)
+      return { success: false, message: error.message }
+    }
+  }
+
   // Notifications API
   async getNotifications(userId) {
     return this.request(`/notifications?userId=${userId}`)

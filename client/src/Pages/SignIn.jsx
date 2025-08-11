@@ -43,7 +43,13 @@ const SignIn = () => {
       localStorage.setItem("token", data.data.token);
       localStorage.setItem("user", JSON.stringify(data.data.user));
 
-      navigate("/dashboard");
+      // Redirect based on user role
+      const userRole = data.data.user.role;
+      if (userRole === 'customer') {
+        navigate("/customer/customer-dashboard");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError(err.message);
     } finally {

@@ -1,11 +1,49 @@
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAuth } from '../../context/AuthContext';
+import { useCart } from '../../context/CartContext';
+import apiService from '../../services/api';
 
 const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
-  const [wishlistCount] = useState(12);
-  const [cartItems] = useState(5);
-  const [activeOrders] = useState(3);
-  const [totalSpent] = useState(2450);
+  const { user } = useAuth();
+  const { getCartCount } = useCart();
+  const [customerStats, setCustomerStats] = useState({
+    totalOrders: 0,
+    totalSpent: 0,
+    activeOrders: 0,
+    recentActivity: []
+  });
+  const [wishlistCount, setWishlistCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch customer stats
+  const fetchCustomerData = async () => {
+    try {
+      setLoading(true);
+      const [statsResponse, wishlistResponse] = await Promise.all([
+        apiService.getCustomerStats(user?._id),
+        apiService.getCustomerWishlist(user?._id)
+      ]);
+      
+      if (statsResponse.success) {
+        setCustomerStats(statsResponse.data);
+      }
+      
+      if (wishlistResponse.success) {
+        setWishlistCount(wishlistResponse.data.items?.length || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching customer data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  useEffect(() => {
+    if (user?._id) {
+      fetchCustomerData();
+    }
+  }, [user]);
 
   return (
     <div
@@ -36,11 +74,13 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
                 </div>
                 <div>
                   <h3 className="text-sm font-semibold text-gray-900">Welcome back!</h3>
-                  <p className="text-xs text-gray-600">Customer Portal</p>
+                  <p className="text-xs text-gray-600">{user?.name || 'Customer'}</p>
                 </div>
               </div>
               <div className="text-xs text-gray-700">
-                Total Spent: <span className="text-blue-600 font-bold">₹{totalSpent.toLocaleString()}</span>
+                Total Spent: <span className="text-blue-600 font-bold">
+                  {loading ? '...' : `₹${customerStats.totalSpent.toLocaleString()}`}
+                </span>
               </div>
             </div>
 
@@ -68,11 +108,13 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-lg text-center border border-green-200">
-                  <div className="text-lg font-bold text-green-700">{activeOrders}</div>
+                  <div className="text-lg font-bold text-green-700">
+                    {loading ? '...' : customerStats.activeOrders}
+                  </div>
                   <div className="text-xs text-green-600">Active Orders</div>
                 </div>
                 <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-lg text-center border border-purple-200">
-                  <div className="text-lg font-bold text-purple-700">{cartItems}</div>
+                  <div className="text-lg font-bold text-purple-700">{getCartCount()}</div>
                   <div className="text-xs text-purple-600">Cart Items</div>
                 </div>
               </div>
@@ -107,9 +149,13 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
                   </div>
                   <div className="flex-1">
                     <div className="text-xs text-gray-900 font-medium">Wishlist Items</div>
-                    <div className="text-xs text-gray-600">{wishlistCount} products saved</div>
+                    <div className="text-xs text-gray-600">
+                      {loading ? 'Loading...' : `${wishlistCount} products saved`}
+                    </div>
                   </div>
-                  <span className="text-sm font-bold text-gray-900">{wishlistCount}</span>
+                  <span className="text-sm font-bold text-gray-900">
+                    {loading ? '...' : wishlistCount}
+                  </span>
                 </div>
                 <button className="w-full text-xs text-gray-700 hover:text-gray-900 transition-colors py-2 border border-rose-200 rounded-lg hover:bg-rose-100">
                   View All Favorites
@@ -140,27 +186,27 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
                 </button>
               </div>
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-xs text-gray-700 flex-1">
-                    Order #1234 delivered
-                  </span>
-                  <span className="text-xs text-gray-500">2h ago</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                  <span className="text-xs text-gray-700 flex-1">
-                    Payment processed
-                  </span>
-                  <span className="text-xs text-gray-500">5h ago</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  <span className="text-xs text-gray-700 flex-1">
-                    New product added to wishlist
-                  </span>
-                  <span className="text-xs text-gray-500">1d ago</span>
-                </div>
+                {loading ? (
+                  <div className="text-xs text-gray-500 text-center py-2">Loading activity...</div>
+                ) : customerStats.recentActivity.length > 0 ? (
+                  customerStats.recentActivity.slice(0, 3).map((activity, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${
+                        activity.status === 'reserved' ? 'bg-green-500 animate-pulse' :
+                        activity.status === 'quotation' ? 'bg-yellow-500' :
+                        'bg-blue-500'
+                      }`}></div>
+                      <span className="text-xs text-gray-700 flex-1">
+                        {activity.description}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {new Date(activity.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-xs text-gray-500 text-center py-2">No recent activity</div>
+                )}
               </div>
             </div>
 

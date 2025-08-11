@@ -1,8 +1,9 @@
-import { Navigate } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth()
+const ProtectedRoute = ({ children, allowedRoles = [] }) => {
+  const { isAuthenticated, loading, user } = useAuth()
+  const location = useLocation()
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -21,7 +22,26 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/signin" replace />
   }
 
-  // If authenticated, render the protected component
+  // Check if user has the required role
+  if (allowedRoles.length > 0 && !allowedRoles.includes(user?.role)) {
+    // Redirect to appropriate dashboard based on user role
+    const redirectPath = user?.role === 'customer' ? '/customer/customer-dashboard' : '/dashboard'
+    return <Navigate to={redirectPath} replace />
+  }
+
+  // Role-based automatic redirects for better UX
+  const isCustomerRoute = location.pathname.startsWith('/customer')
+  const isAdminRoute = ['/dashboard', '/products', '/bookings', '/orders', '/reports'].includes(location.pathname)
+  
+  if (user?.role === 'customer' && isAdminRoute) {
+    return <Navigate to="/customer/customer-dashboard" replace />
+  }
+  
+  if (user?.role === 'admin' && isCustomerRoute) {
+    return <Navigate to="/dashboard" replace />
+  }
+
+  // If authenticated and authorized, render the protected component
   return children
 }
 

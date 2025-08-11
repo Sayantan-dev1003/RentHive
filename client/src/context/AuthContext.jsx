@@ -45,12 +45,22 @@ export const AuthProvider = ({ children }) => {
     return !!token && !!user
   }
 
+  const isAdmin = () => {
+    return user?.role === 'admin'
+  }
+
+  const isCustomer = () => {
+    return user?.role === 'customer'
+  }
+
   const value = {
     user,
     token,
     login,
     logout,
     isAuthenticated,
+    isAdmin,
+    isCustomer,
     loading
   }
 
