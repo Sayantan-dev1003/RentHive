@@ -112,31 +112,10 @@ const Products = () => {
 
   const createProduct = async (productData) => {
     try {
-      let imageUrls = []
+      setUploadingImages(true)
       
-      // Upload images first if any are selected
-      if (selectedImages.length > 0) {
-        setUploadingImages(true)
-        try {
-          const uploadResponse = await apiService.uploadProductImages(selectedImages)
-          if (uploadResponse.success) {
-            imageUrls = uploadResponse.data.imageUrls
-          }
-        } catch (uploadErr) {
-          console.error('Image upload failed:', uploadErr)
-          // Continue with product creation even if images fail
-        } finally {
-          setUploadingImages(false)
-        }
-      }
-      
-      // Add image URLs to product data
-      const productWithImages = {
-        ...productData,
-        images: imageUrls
-      }
-      
-      const data = await apiService.createProduct(productWithImages)
+      // Create product with images directly
+      const data = await apiService.createProduct(productData, selectedImages)
       
       if (data.success) {
         // Refresh products list
@@ -161,6 +140,8 @@ const Products = () => {
     } catch (err) {
       showToast('Failed to create product: ' + err.message, 'error')
       console.error('Error creating product:', err)
+    } finally {
+      setUploadingImages(false)
     }
   }
 
@@ -241,32 +222,10 @@ const Products = () => {
 
   const updateProduct = async (id, updateData) => {
     try {
-      let imageUrls = updateData.images || []
+      setUploadingEditImages(true)
       
-      // Upload new images if any are selected
-      if (editSelectedImages.length > 0) {
-        setUploadingEditImages(true)
-        try {
-          const uploadResponse = await apiService.uploadProductImages(editSelectedImages)
-          if (uploadResponse.success) {
-            // Add new images to existing ones
-            imageUrls = [...imageUrls, ...uploadResponse.data.imageUrls]
-          }
-        } catch (uploadErr) {
-          console.error('Image upload failed:', uploadErr)
-          showToast('Failed to upload images, but product will be updated', 'warning')
-        } finally {
-          setUploadingEditImages(false)
-        }
-      }
-      
-      // Add image URLs to update data
-      const productWithImages = {
-        ...updateData,
-        images: imageUrls
-      }
-      
-      const data = await apiService.updateProduct(id, productWithImages)
+      // Update product with new images directly
+      const data = await apiService.updateProduct(id, updateData, editSelectedImages)
       
       if (data.success) {
         fetchProducts()
@@ -290,6 +249,8 @@ const Products = () => {
     } catch (err) {
       showToast('Failed to update product: ' + err.message, 'error')
       console.error('Error updating product:', err)
+    } finally {
+      setUploadingEditImages(false)
     }
   }
 
@@ -497,8 +458,21 @@ const Products = () => {
             style={{ transitionDelay: `${index * 150}ms` }}
           >
             {/* Product Image */}
-            <div className="relative h-40 lg:h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-              <div className="text-4xl lg:text-6xl">{product.image}</div>
+            <div className="relative h-40 lg:h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center overflow-hidden">
+              {product.originalData?.images && product.originalData.images.length > 0 ? (
+                <img 
+                  src={product.originalData.images[0]} 
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none'
+                    e.target.nextSibling.style.display = 'flex'
+                  }}
+                />
+              ) : null}
+              <div className="w-full h-full flex items-center justify-center text-4xl lg:text-6xl" style={{display: product.originalData?.images && product.originalData.images.length > 0 ? 'none' : 'flex'}}>
+                {product.image}
+              </div>
               
               {/* Status Badge */}
               <div className="absolute top-3 lg:top-4 right-3 lg:right-4">

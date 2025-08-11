@@ -55,25 +55,61 @@ class ApiService {
     return this.request('/products/categories')
   }
 
-  // Renamed and updated to use the correct endpoint
-  async createProduct(formData) {
-    // The endpoint should be `/products`, not `/dev/products`
+  // Create product with form data (including images)
+  async createProduct(productData, images = []) {
+    const formData = new FormData()
+    
+    // Add text fields to FormData
+    formData.append('name', productData.name)
+    formData.append('category', productData.category)
+    formData.append('description', productData.description)
+    formData.append('rentable', 'true')
+    formData.append('pricing', JSON.stringify(productData.pricing))
+    formData.append('stock', productData.stock.toString())
+    
+    // Add specifications if any
+    if (productData.specifications) {
+      formData.append('specifications', JSON.stringify(productData.specifications))
+    }
+    
+    // Add image files
+    images.forEach((file, index) => {
+      formData.append('images', file)
+    })
+    
     return this.request('/products', {
       method: 'POST',
       body: formData
     })
   }
 
-  async uploadProductImages(formData) {
-    return this.request('/products/upload-images', {
-      method: 'POST',
-      body: formData,
-    });
-  }
-
-  // This function is now responsible for sending FormData with files
-  async updateProduct(id, formData) {
-    // The endpoint should be `/products/${id}`, not `/dev/products/${id}`
+  // Update product with form data (including images)
+  async updateProduct(id, productData, newImages = []) {
+    const formData = new FormData()
+    
+    // Add text fields to FormData
+    formData.append('name', productData.name)
+    formData.append('category', productData.category)
+    formData.append('description', productData.description)
+    formData.append('rentable', 'true')
+    formData.append('pricing', JSON.stringify(productData.pricing))
+    formData.append('stock', productData.stock.toString())
+    
+    // Add existing images as a JSON string
+    if (productData.images && productData.images.length > 0) {
+      formData.append('images', JSON.stringify(productData.images))
+    }
+    
+    // Add specifications if any
+    if (productData.specifications) {
+      formData.append('specifications', JSON.stringify(productData.specifications))
+    }
+    
+    // Add new image files
+    newImages.forEach((file, index) => {
+      formData.append('images', file)
+    })
+    
     return this.request(`/products/${id}`, {
       method: 'PUT',
       body: formData

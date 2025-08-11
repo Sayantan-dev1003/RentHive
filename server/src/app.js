@@ -17,7 +17,7 @@ const devRoutes = require('./routes/dev.route');
 
 // Import middleware
 const { errorHandler } = require('./middlewares/errorHandler');
-const { swaggerUi, swaggerSpec } = require('./config/swagger');
+// const { swaggerUi, swaggerSpec } = require('./config/swagger');
 
 // Create Express app
 const app = express();
@@ -37,18 +37,18 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Swagger API Documentation
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  explorer: true,
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'RentHive API Documentation'
-}));
+// Swagger API Documentation (temporarily disabled)
+// app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+//   explorer: true,
+//   customCss: '.swagger-ui .topbar { display: none }',
+//   customSiteTitle: 'RentHive API Documentation'
+// }));
 
-// API JSON endpoint for swagger specification
-app.get('/api-docs.json', (req, res) => {
-  res.setHeader('Content-Type', 'application/json');
-  res.send(swaggerSpec);
-});
+// API JSON endpoint for swagger specification (temporarily disabled)
+// app.get('/api-docs.json', (req, res) => {
+//   res.setHeader('Content-Type', 'application/json');
+//   res.send(swaggerSpec);
+// });
 
 // API Routes
 app.use('/api/auth', authRoutes);
