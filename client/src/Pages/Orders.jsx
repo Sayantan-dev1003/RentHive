@@ -1,129 +1,28 @@
 import { useState, useEffect } from 'react'
 import apiService from '../services/api'
 
-// Modern Animation Styles for Orders
-const modernOrderStyles = `
-  @keyframes slideInUp {
-    0% {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
+// Optimized minimal styles
+const optimizedOrderStyles = `
+  .simple-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease;
   }
 
-  @keyframes bounceIn {
-    0% {
-      opacity: 0;
-      transform: scale(0.3);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.05);
-    }
-    70% {
-      transform: scale(0.9);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1);
-    }
+  .simple-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
   }
 
   @keyframes shimmer {
-    0% {
-      background-position: -200px 0;
-    }
-    100% {
-      background-position: calc(200px + 100%) 0;
-    }
-  }
-
-  @keyframes glow {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
-    }
-  }
-
-  @keyframes statusPulse {
-    0%, 100% {
-      opacity: 1;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 0.8;
-      transform: scale(1.1);
-    }
-  }
-
-  .animate-slide-in-up {
-    animation: slideInUp 0.8s ease-out forwards;
-  }
-
-  .animate-bounce-in {
-    animation: bounceIn 0.6s ease-out forwards;
-  }
-
-  .animate-shimmer {
-    animation: shimmer 2s infinite;
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200px 100%;
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-
-  .animate-status-pulse {
-    animation: statusPulse 2s ease-in-out infinite;
-  }
-
-  .glassmorphism {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .card-hover {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .card-hover:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-  }
-
-  .gradient-border {
-    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4, #10b981);
-    padding: 2px;
-    border-radius: 1.5rem;
-  }
-
-  .gradient-border-inner {
-    background: white;
-    border-radius: 1.375rem;
-  }
-
-  .status-dot {
-    position: relative;
-    display: inline-block;
-  }
-
-  .status-dot::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: -8px;
-    transform: translateY(-50%);
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    animation: statusPulse 2s ease-in-out infinite;
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
   }
 `;
 
@@ -256,24 +155,16 @@ const Orders = () => {
 
   return (
     <>
-      <style>{modernOrderStyles}</style>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50 to-cyan-50 space-y-8 animate-slide-in-up">
+      <style>{optimizedOrderStyles}</style>
+      <div className="min-h-screen bg-gray-50 space-y-6 p-6">
         {/* Error Message */}
         {error && (
-          <div className="glassmorphism border border-red-300 text-red-700 px-6 py-4 rounded-3xl animate-bounce-in">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center animate-glow">
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-bold text-lg">System Error</h3>
-                <p className="text-sm">{error}</p>
-              </div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{error}</span>
               <button 
                 onClick={fetchOrdersData}
-                className="px-6 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl hover:from-red-700 hover:to-red-800 transition-all duration-300 transform hover:scale-105 font-semibold shadow-lg"
+                className="ml-auto px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
               >
                 Retry
               </button>
@@ -281,185 +172,174 @@ const Orders = () => {
           </div>
         )}
 
-        {/* Modern Header */}
-        <div className="text-center py-6">
-          <div className="animate-slide-in-up">
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-cyan-600 bg-clip-text text-transparent mb-3">
-              Order Management
-            </h1>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-              Comprehensive order tracking and management system for rental operations
-            </p>
-          </div>
+        {/* Header */}
+        <div className="text-center py-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Order Management
+          </h1>
+          <p className="text-gray-600">
+            Track and manage all rental orders
+          </p>
         </div>
 
-        {/* Enhanced Order Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          <div className="gradient-border card-hover animate-bounce-in" style={{ animationDelay: '0.1s' }}>
-            <div className="gradient-border-inner p-5 h-full">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <div className="text-blue-500 text-sm font-bold bg-blue-50 px-2 py-1 rounded-full">
-                  Active
-                </div>
+        {/* Order Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="simple-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 bg-blue-500 rounded-lg">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
               </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">Total Orders</p>
-                <p className="text-3xl font-bold text-gray-900 animate-bounce-in">
-                  {loading ? (
-                    <div className="w-14 h-8 bg-gray-200 rounded animate-shimmer"></div>
-                  ) : (
-                    orderStats.total
-                  )}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">All time orders</p>
-              </div>
+              <span className="text-blue-500 text-xs font-medium bg-blue-50 px-2 py-1 rounded">
+                Total
+              </span>
             </div>
-          </div>
-
-          <div className="gradient-border card-hover animate-bounce-in" style={{ animationDelay: '0.2s' }}>
-            <div className="gradient-border-inner p-5 h-full">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-emerald-500 to-green-600 rounded-2xl shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="text-emerald-500 text-sm font-bold bg-emerald-50 px-2 py-1 rounded-full">
-                  +{Math.round((orderStats.confirmed / Math.max(orderStats.total, 1)) * 100)}%
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">Confirmed</p>
-                <p className="text-3xl font-bold text-gray-900 animate-bounce-in">
-                  {loading ? (
-                    <div className="w-14 h-8 bg-gray-200 rounded animate-shimmer"></div>
-                  ) : (
-                    orderStats.confirmed
-                  )}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">Successfully processed</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="gradient-border card-hover animate-bounce-in" style={{ animationDelay: '0.3s' }}>
-            <div className="gradient-border-inner p-5 h-full">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-2xl shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="text-yellow-600 text-sm font-bold bg-yellow-50 px-2 py-1 rounded-full animate-status-pulse">
-                  Pending
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">Pending Orders</p>
-                <p className="text-3xl font-bold text-gray-900 animate-bounce-in">
-                  {loading ? (
-                    <div className="w-14 h-8 bg-gray-200 rounded animate-shimmer"></div>
-                  ) : (
-                    orderStats.pending
-                  )}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">Awaiting approval</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="gradient-border card-hover animate-bounce-in" style={{ animationDelay: '0.4s' }}>
-            <div className="gradient-border-inner p-5 h-full">
-              <div className="flex items-start justify-between mb-4">
-                <div className="p-3 bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="text-red-500 text-sm font-bold bg-red-50 px-2 py-1 rounded-full">
-                  {Math.round((orderStats.cancelled / Math.max(orderStats.total, 1)) * 100)}%
-                </div>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">Cancelled</p>
-                <p className="text-3xl font-bold text-gray-900 animate-bounce-in">
-                  {loading ? (
-                    <div className="w-14 h-8 bg-gray-200 rounded animate-shimmer"></div>
-                  ) : (
-                    orderStats.cancelled
-                  )}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">Cancelled orders</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Modern Orders Section */}
-        <div className="glassmorphism rounded-2xl p-6 card-hover animate-slide-in-up">
-          <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">Recent Orders</h2>
-              <p className="text-gray-600">Track and manage all rental orders in real-time</p>
+              <p className="text-sm font-medium text-gray-500 mb-1">Total Orders</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {loading ? (
+                  <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
+                ) : (
+                  orderStats.total
+                )}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">All time orders</p>
             </div>
-            <div className="flex space-x-3">
-              <button className="px-5 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 font-semibold shadow-lg">
-                Export Orders
+          </div>
+
+          <div className="simple-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 bg-green-500 rounded-lg">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <span className="text-green-500 text-xs font-medium bg-green-50 px-2 py-1 rounded">
+                Confirmed
+              </span>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500 mb-1">Confirmed</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {loading ? (
+                  <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
+                ) : (
+                  orderStats.confirmed
+                )}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">Successfully processed</p>
+            </div>
+          </div>
+
+          <div className="simple-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 bg-yellow-500 rounded-lg">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <span className="text-yellow-600 text-xs font-medium bg-yellow-50 px-2 py-1 rounded">
+                Pending
+              </span>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500 mb-1">Pending</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {loading ? (
+                  <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
+                ) : (
+                  orderStats.pending
+                )}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">Awaiting approval</p>
+            </div>
+          </div>
+
+          <div className="simple-card p-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2 bg-red-500 rounded-lg">
+                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <span className="text-red-500 text-xs font-medium bg-red-50 px-2 py-1 rounded">
+                Cancelled
+              </span>
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500 mb-1">Cancelled</p>
+              <p className="text-2xl font-bold text-gray-900">
+                {loading ? (
+                  <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
+                ) : (
+                  orderStats.cancelled
+                )}
+              </p>
+              <p className="text-xs text-gray-400 mt-1">Cancelled orders</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Orders Section */}
+        <div className="simple-card p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">Recent Orders</h2>
+              <p className="text-gray-600 text-sm">Track and manage rental orders</p>
+            </div>
+            <div className="flex space-x-2">
+              <button className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm">
+                Export
               </button>
-              <button className="px-5 py-3 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:from-emerald-700 hover:to-green-700 transition-all duration-300 transform hover:scale-105 font-semibold shadow-lg">
+              <button className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm">
                 New Order
               </button>
             </div>
           </div>
 
           {loading ? (
-            <div className="h-64 flex items-center justify-center">
+            <div className="h-32 flex items-center justify-center">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent mx-auto mb-5"></div>
-                <p className="text-gray-600 font-semibold">Loading order data...</p>
-                <p className="text-gray-400 text-sm mt-2">Please wait while we fetch the latest orders</p>
+                <div className="animate-spin rounded-full h-8 w-8 border-3 border-blue-600 border-t-transparent mx-auto mb-3"></div>
+                <p className="text-gray-600">Loading orders...</p>
               </div>
             </div>
           ) : transformedOrders.length === 0 ? (
-            <div className="text-center py-16">
-              <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="text-center py-8">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold text-gray-900 mb-3">No Orders Yet</h3>
-              <p className="text-gray-600 mb-6 max-w-md mx-auto">Your order management dashboard is ready. Orders will appear here once customers start placing them.</p>
-              <button className="px-7 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 font-semibold shadow-lg">
-                Create Sample Order
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Orders Yet</h3>
+              <p className="text-gray-600 mb-4">Orders will appear here once customers place them.</p>
+              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
+                Create Order
               </button>
             </div>
           ) : (
-            <div className="space-y-4">
-              {transformedOrders.map((order, index) => (
-                <div key={order.id} className="glassmorphism rounded-xl p-5 card-hover animate-slide-in-up" style={{ animationDelay: `${index * 100}ms` }}>
-                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div className="space-y-3">
+              {transformedOrders.slice(0, 8).map((order) => (
+                <div key={order.id} className="simple-card p-4">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
                     {/* Order Info */}
-                    <div className="flex items-center space-x-5">
-                      <div className="w-14 h-14 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                        <span className="text-white font-bold">#{order.orderId}</span>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                        <span className="text-white font-bold text-sm">#{order.orderId}</span>
                       </div>
                       <div>
-                        <h3 className="text-xl font-bold text-gray-900">{order.customer}</h3>
-                        <p className="text-gray-600">{order.orderDate}</p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {order.products.slice(0, 2).map((product, productIndex) => (
-                            <span key={productIndex} className="text-sm bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium">
+                        <h3 className="font-semibold text-gray-900">{order.customer}</h3>
+                        <p className="text-gray-600 text-sm">{order.orderDate}</p>
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {order.products.slice(0, 1).map((product, productIndex) => (
+                            <span key={productIndex} className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
                               {product}
                             </span>
                           ))}
-                          {order.products.length > 2 && (
-                            <span className="text-sm bg-gray-50 text-gray-600 px-3 py-1 rounded-full font-medium">
-                              +{order.products.length - 2} more
+                          {order.products.length > 1 && (
+                            <span className="text-xs bg-gray-50 text-gray-600 px-2 py-1 rounded">
+                              +{order.products.length - 1} more
                             </span>
                           )}
                         </div>

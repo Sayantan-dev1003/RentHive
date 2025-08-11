@@ -1,103 +1,28 @@
 import { useState, useEffect } from 'react'
 import apiService from '../services/api'
 
-// Modern Animation Styles
-const modernStyles = `
-  @keyframes fadeInUp {
-    0% {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @keyframes slideInRight {
-    0% {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes glow {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
-    }
-  }
-
-  @keyframes pulse {
-    0%, 100% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.05);
-    }
-  }
-
-  @keyframes countUp {
-    0% {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    100% {
-      transform: translateY(0);
-      opacity: 1;
-    }
-  }
-
-  .animate-fade-in-up {
-    animation: fadeInUp 0.8s ease-out forwards;
-  }
-
-  .animate-slide-in-right {
-    animation: slideInRight 0.8s ease-out forwards;
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-
-  .animate-pulse-scale {
-    animation: pulse 2s ease-in-out infinite;
-  }
-
-  .animate-count-up {
-    animation: countUp 0.6s ease-out forwards;
-  }
-
-  .glassmorphism {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  .card-hover {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .card-hover:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
-  }
-
-  .gradient-border {
-    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4);
-    padding: 2px;
-    border-radius: 1rem;
-  }
-
-  .gradient-border-inner {
+// Optimized minimal styles
+const optimizedStyles = `
+  .simple-card {
     background: white;
-    border-radius: 0.875rem;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.2s ease;
+  }
+
+  .simple-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .loading-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200px 0; }
+    100% { background-position: calc(200px + 100%) 0; }
   }
 `;
 
@@ -146,11 +71,11 @@ const Reports = () => {
           avgRentalValue
         })
 
-        // Generate revenue trend data (last 6 months mock)
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun']
+        // Generate simple revenue trend data (last 4 months mock)
+        const months = ['Mar', 'Apr', 'May', 'Jun']
         const revenueByMonth = months.map(month => ({
           month,
-          revenue: Math.floor(Math.random() * 20000) + 45000 // Mock data for trend
+          revenue: Math.floor(Math.random() * 10000) + 25000 // Simplified data
         }))
         setRevenueData(revenueByMonth)
       }
@@ -159,20 +84,20 @@ const Reports = () => {
         const productsList = productsResponse.data.products || []
         setProducts(productsList)
 
-        // Calculate top products (mock analysis)
-        const topProductsData = productsList.slice(0, 5).map(product => ({
+        // Calculate top products (limit to 3 for performance)
+        const topProductsData = productsList.slice(0, 3).map(product => ({
           name: product.name,
-          rentals: Math.floor(Math.random() * 30) + 10,
-          revenue: `₹${(Math.floor(Math.random() * 15000) + 3000).toLocaleString()}`
+          rentals: Math.floor(Math.random() * 15) + 5,
+          revenue: `₹${(Math.floor(Math.random() * 8000) + 2000).toLocaleString()}`
         }))
         setTopProducts(topProductsData)
 
-        // Mock top customers data
-        const customerNames = ['Mike Johnson', 'John Doe', 'Jane Smith', 'David Wilson', 'Sarah Brown']
+        // Mock top customers data (limit to 3)
+        const customerNames = ['Mike Johnson', 'John Doe', 'Jane Smith']
         const topCustomersData = customerNames.map(name => ({
           name,
-          rentals: Math.floor(Math.random() * 20) + 5,
-          spent: `₹${(Math.floor(Math.random() * 30000) + 10000).toLocaleString()}`
+          rentals: Math.floor(Math.random() * 10) + 3,
+          spent: `₹${(Math.floor(Math.random() * 15000) + 5000).toLocaleString()}`
         }))
         setTopCustomers(topCustomersData)
       }
@@ -203,24 +128,16 @@ const Reports = () => {
 
   return (
     <>
-      <style>{modernStyles}</style>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 space-y-8 animate-fade-in-up">
+      <style>{optimizedStyles}</style>
+      <div className="min-h-screen bg-gray-50 space-y-6 p-6">
         {/* Error Message */}
         {error && (
-          <div className="glassmorphism border border-red-200 text-red-700 px-6 py-4 rounded-2xl animate-slide-in-right">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold">Error Loading Data</h3>
-                <p className="text-sm">{error}</p>
-              </div>
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{error}</span>
               <button 
                 onClick={fetchReportsData}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium"
+                className="ml-auto px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
               >
                 Retry
               </button>
@@ -228,16 +145,14 @@ const Reports = () => {
           </div>
         )}
 
-        {/* Modern Header */}
-        <div className="text-center py-8">
-          <div className="animate-fade-in-up">
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-              Analytics Dashboard
-            </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Real-time insights and comprehensive analytics for your rental business performance
-            </p>
-          </div>
+        {/* Header */}
+        <div className="text-center py-4">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Analytics Dashboard
+          </h1>
+          <p className="text-gray-600">
+            Insights and analytics for your rental business
+          </p>
         </div>
 
         {/* Modern Period Selector */}
