@@ -81,7 +81,9 @@ const getProducts = asyncHandler(async (req, res) => {
     minPrice,
     maxPrice,
     sortBy = 'createdAt',
-    sortOrder = 'desc'
+    sortOrder = 'desc',
+    startDate,
+    endDate
   } = req.query;
 
   // Build query
