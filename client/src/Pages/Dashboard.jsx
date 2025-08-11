@@ -187,76 +187,10 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="flex gap-6">
-        {/* Left Sidebar - Filters */}
-        <div className="w-72 space-y-6">
-          {/* Rental Status */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Rental Status</h3>
-              <button className="text-gray-400 hover:text-gray-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-            <div className="space-y-3">
-              {rentalStatusData.map((item, index) => (
-                <div key={item.label} className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${item.color}`}></div>
-                  <span className="text-sm text-gray-700 flex-1">{item.label}</span>
-                  <span className="text-sm font-semibold text-gray-900">{item.count}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Pickup/Return Status */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="grid grid-cols-2 gap-4">
-              {pickupReturnData.map((item, index) => (
-                <div key={item.label} className={`p-4 rounded-xl text-center text-white ${item.color}`}>
-                  <div className="text-2xl font-bold">{item.count}</div>
-                  <div className="text-sm opacity-90">{item.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Invoice Status */}
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900">Invoice Status</h3>
-              <button className="text-gray-400 hover:text-gray-600">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </div>
-            <div className="grid grid-cols-3 gap-3">
-              {invoiceStatusData.map((item, index) => (
-                <div key={item.label} className={`p-3 rounded-xl text-center text-white ${item.color}`}>
-                  <div className="text-xl font-bold">{item.count}</div>
-                  <div className="text-xs opacity-90">{item.label.split(' ')[0]}</div>
-                  <div className="text-xs opacity-90">{item.label.split(' ').slice(1).join(' ')}</div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 text-center">
-              <div className="w-3 h-3 bg-green-500 rounded-full mx-auto mb-1"></div>
-              <span className="text-sm text-gray-600">Active</span>
-            </div>
-            <div className="mt-2 text-center">
-              <div className="w-3 h-3 bg-red-500 rounded-full mx-auto mb-1"></div>
-              <span className="text-sm text-gray-600">Maintenance</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content - Product Cards */}
-        <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {rentalProducts.map((product, index) => (
+      {/* Main Content - Product Cards */}
+      <div className="w-full">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+          {rentalProducts.map((product, index) => (
               <div
                 key={product.id}
                 className={`relative bg-gradient-to-br ${product.bgGradient} rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover-lift ${
@@ -316,7 +250,6 @@ const Dashboard = () => {
                 <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full transform -translate-x-12 translate-y-12"></div>
               </div>
             ))}
-          </div>
         </div>
       </div>
     </div>

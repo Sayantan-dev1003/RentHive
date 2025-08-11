@@ -8,7 +8,6 @@ const navigation = [
   { name: 'Products', href: '/products', icon: '📦' },
   { name: 'Bookings', href: '/bookings', icon: '📅' },
   { name: 'Orders', href: '/orders', icon: '📋' },
-  { name: 'Customers', href: '/customers', icon: '👥' },
   { name: 'Reports', href: '/reports', icon: '📈' },
 ]
 
@@ -78,19 +77,7 @@ const Header = ({ sidebarCollapsed, setSidebarCollapsed }) => {
           </nav>
         </div>
 
-        {/* Center section - Search */}
-        <div className="hidden md:flex flex-1 max-w-md mx-8">
-          <div className="relative w-full animate-slideInRight">
-            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <MagnifyingGlassIcon className="h-5 w-5 text-slate-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search products, customers..."
-              className="block w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl bg-slate-50/50 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#2542ff]/20 focus:border-[#2542ff] transition-all duration-300 hover:bg-white focus:bg-white glass text-sm"
-            />
-          </div>
-        </div>
+
 
         {/* Right section - Actions */}
         <div className="flex items-center space-x-3">
