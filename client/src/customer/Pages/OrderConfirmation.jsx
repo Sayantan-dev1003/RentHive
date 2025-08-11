@@ -1,119 +1,179 @@
 import React from 'react';
-import { FiFileText, FiCalendar, FiTag, FiCreditCard, FiChevronLeft } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const OrderConfirmation = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Get order and product data from location state
+  const order = location.state?.order;
+  const product = location.state?.product;
+  
+  // Generate order ID if not provided
+  const orderId = order?.orderId || `RH-${Date.now().toString(36).toUpperCase()}`;
+  
   const orderDetails = [
-    { icon: FiFileText, label: 'Order ID', value: '245-292-22QR' },
-    { icon: FiCalendar, label: 'Date', value: '01.07.2024' },
-    { icon: FiTag, label: 'Total', value: '$42' },
-    { icon: FiCreditCard, label: 'Payment', value: 'Cash on delivery' }
+    { icon: '📄', label: 'Order ID', value: orderId },
+    { icon: '📅', label: 'Booking Date', value: new Date().toLocaleDateString() },
+    { icon: '💰', label: 'Total Amount', value: `₹${order?.totalAmount || 0}` },
+    { icon: '💳', label: 'Payment Method', value: order?.paymentMethod === 'card' ? 'Credit/Debit Card' : order?.paymentMethod?.toUpperCase() || 'Card' }
   ];
 
-  const orderedItems = [
-    { id: 1, image: '🪑', quantity: 1 },
-    { id: 2, image: '📷', quantity: 2 },
-    { id: 3, image: '🛋️', quantity: 1 }
-  ];
-
-  return (
-    <div className="min-h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-8">
-          {/* Progress Indicator */}
-          <div className="flex items-center space-x-8">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold">
-                1
-              </div>
-              <span className="text-green-500 font-medium underline">Shopping Cart</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold">
-                2
-              </div>
-              <span className="text-green-500 font-medium underline">Checkout Info</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-sm font-bold text-white">
-                3
-              </div>
-              <span className="text-white font-medium underline">Billing Details</span>
-            </div>
-          </div>
-          
-          {/* Navigation Button */}
-          <button className="bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors flex items-center space-x-2">
-            <FiChevronLeft className="w-4 h-4" />
-            <span>Get Home</span>
+  // If no order data, redirect back to gallery
+  if (!order || !product) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Order Not Found</h2>
+          <p className="text-gray-600 mb-6">Please complete a booking to view confirmation.</p>
+          <button
+            onClick={() => navigate('/customer/customer-dashboard')}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Browse Equipment
           </button>
         </div>
+      </div>
+    );
+  }
 
-        {/* Main Content - Order Confirmation Card */}
-        <div className="max-w-6xl mx-auto">
-          <div className="bg-gray-800 rounded-2xl overflow-hidden">
-            <div className="flex">
-              {/* Left Panel - Order Details */}
-              <div className="flex-1 p-8">
-                {/* Confirmation Message */}
-                <div className="mb-8">
-                  <p className="text-gray-400 text-lg mb-2">Thank you! 🎉</p>
-                  <h2 className="text-3xl font-bold">We have registered your order</h2>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+      {/* Header */}
+      <div className="p-6">
+        <div className="max-w-4xl mx-auto">
+          {/* Success Header */}
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">✅</span>
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2">Booking Confirmed!</h1>
+            <p className="text-lg text-gray-600">Your equipment rental has been successfully booked.</p>
+          </div>
+
+          {/* Progress Indicator */}
+          <div className="flex items-center justify-center space-x-8 mb-12">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
+                ✓
+              </div>
+              <span className="text-green-600 font-medium">Equipment Selected</span>
+            </div>
+            <div className="w-8 h-1 bg-green-500 rounded"></div>
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
+                ✓
+              </div>
+              <span className="text-green-600 font-medium">Payment Completed</span>
+            </div>
+            <div className="w-8 h-1 bg-green-500 rounded"></div>
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
+                ✓
+              </div>
+              <span className="text-green-600 font-medium">Booking Confirmed</span>
+            </div>
+          </div>
+
+          {/* Main Content - Order Confirmation Cards */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Equipment Details Card */}
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Equipment Details</h2>
+              
+              <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                  onError={(e) => {
+                    e.target.src = `https://via.placeholder.com/400x300/f3f4f6/6b7280?text=${encodeURIComponent(product.name)}`;
+                  }}
+                />
+                <h3 className="text-xl font-bold text-gray-900 mb-2">{product.name}</h3>
+                <p className="text-gray-600 mb-2">{product.category}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-2xl font-bold text-green-600">{product.price}/day</span>
+                  <span className="text-sm text-gray-500">⭐ {product.rating}</span>
                 </div>
-
-                {/* Ordered Items Thumbnails */}
-                <div className="flex space-x-4 mb-8">
-                  {orderedItems.map((item) => (
-                    <div key={item.id} className="relative">
-                      <div className="w-20 h-20 bg-gray-700 rounded-lg flex items-center justify-center text-3xl">
-                        {item.image}
-                      </div>
-                      <div className="absolute -top-2 -right-2 w-6 h-6 bg-white rounded-full flex items-center justify-center">
-                        <span className="text-gray-900 text-xs font-bold">{item.quantity}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Order Information List */}
-                <div className="space-y-4 mb-8">
-                  {orderDetails.map((detail, index) => (
-                    <div key={index} className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gray-700 rounded-lg flex items-center justify-center">
-                        <detail.icon className="w-4 h-4 text-gray-400" />
-                      </div>
-                      <span className="text-gray-400">{detail.label}:</span>
-                      <span className="font-medium">{detail.value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Action Button */}
-                <button className="bg-green-500 text-white px-8 py-3 rounded-lg font-medium hover:bg-green-600 transition-colors">
-                  Payment History
-                </button>
               </div>
 
-              {/* Right Panel - Abstract Art Image */}
-              <div className="w-96 bg-gradient-to-br from-yellow-50 to-orange-100 p-8 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="w-48 h-64 bg-gradient-to-br from-gray-800 via-blue-600 to-red-500 rounded-lg relative overflow-hidden">
-                    {/* Abstract Art Representation */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 opacity-80"></div>
-                    <div className="absolute inset-0">
-                      {/* Face outline */}
-                      <div className="absolute top-8 left-1/2 transform -translate-x-1/2 w-24 h-32 border-4 border-gray-800 rounded-full"></div>
-                      {/* Paint splatters */}
-                      <div className="absolute top-4 left-8 w-8 h-8 bg-blue-500 rounded-full opacity-80"></div>
-                      <div className="absolute top-16 right-6 w-6 h-6 bg-red-500 rounded-full opacity-80"></div>
-                      <div className="absolute bottom-8 left-12 w-10 h-10 bg-yellow-400 rounded-full opacity-80"></div>
-                      <div className="absolute bottom-16 right-8 w-4 h-4 bg-white rounded-full opacity-80"></div>
-                    </div>
+              {/* Rental Period */}
+              <div className="bg-blue-50 rounded-xl p-4">
+                <h4 className="font-semibold text-gray-900 mb-3">Rental Period</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-sm text-gray-600">Start Date</span>
+                    <p className="font-semibold">{order.startDate}</p>
                   </div>
-                  <p className="text-gray-600 mt-4 text-sm">Abstract Art</p>
+                  <div>
+                    <span className="text-sm text-gray-600">End Date</span>
+                    <p className="font-semibold">{order.endDate}</p>
+                  </div>
+                </div>
+                <div className="mt-3 pt-3 border-t">
+                  <span className="text-sm text-gray-600">Duration</span>
+                  <p className="font-semibold">{order.duration} day(s)</p>
                 </div>
               </div>
             </div>
+
+            {/* Order Summary Card */}
+            <div className="bg-white rounded-2xl shadow-lg p-8">
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">Order Summary</h2>
+              
+              {/* Order Details */}
+              <div className="space-y-4 mb-6">
+                {orderDetails.map((detail, index) => (
+                  <div key={index} className="flex items-center justify-between py-3 border-b border-gray-100">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">{detail.icon}</span>
+                      <span className="text-gray-600">{detail.label}</span>
+                    </div>
+                    <span className="font-semibold text-gray-900">{detail.value}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Billing Details */}
+              <div className="bg-gray-50 rounded-xl p-4 mb-6">
+                <h4 className="font-semibold text-gray-900 mb-3">Billing Details</h4>
+                <div className="space-y-2 text-sm">
+                  <p><span className="text-gray-600">Name:</span> {order.billingDetails?.fullName}</p>
+                  <p><span className="text-gray-600">Email:</span> {order.billingDetails?.email}</p>
+                  <p><span className="text-gray-600">Phone:</span> {order.billingDetails?.phone}</p>
+                  <p><span className="text-gray-600">Address:</span> {order.billingDetails?.address}</p>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => navigate('/customer/customer-dashboard')}
+                  className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-semibold"
+                >
+                  🏠 Back to Equipment Gallery
+                </button>
+                <button
+                  onClick={() => navigate('/customer/orders')}
+                  className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-lg hover:bg-gray-200 transition-colors font-semibold"
+                >
+                  📋 View All Orders
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Important Information */}
+          <div className="mt-8 bg-yellow-50 border border-yellow-200 rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-yellow-800 mb-3">📋 Important Information</h3>
+            <ul className="text-yellow-700 space-y-2 text-sm">
+              <li>• A confirmation email has been sent to your registered email address</li>
+              <li>• Our team will contact you within 2-4 hours to coordinate delivery</li>
+              <li>• Please ensure someone is available at the delivery address during the scheduled time</li>
+              <li>• Security deposit will be refunded after equipment return in good condition</li>
+              <li>• For any queries, contact our support team at support@renthive.com</li>
+            </ul>
           </div>
         </div>
       </div>

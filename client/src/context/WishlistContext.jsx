@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAuth } from './AuthContext';
-import apiService from '../services/api';
 
 const WishlistContext = createContext();
 
@@ -13,88 +11,86 @@ export const useWishlist = () => {
 };
 
 export const WishlistProvider = ({ children }) => {
-  const { user } = useAuth();
   const [wishlistItems, setWishlistItems] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch wishlist
-  const fetchWishlist = async () => {
-    if (!user?._id) {
-      setWishlistItems([]);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const response = await apiService.getCustomerWishlist(user._id);
-      
-      if (response.success) {
-        setWishlistItems(response.data.items || []);
+  // Load wishlist from localStorage on mount
+  useEffect(() => {
+    const savedWishlist = localStorage.getItem('renthive_wishlist');
+    if (savedWishlist) {
+      try {
+        setWishlistItems(JSON.parse(savedWishlist));
+      } catch (error) {
+        console.error('Error loading wishlist from localStorage:', error);
       }
-    } catch (error) {
-      console.error('Error fetching wishlist:', error);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, []);
 
-  // Add to wishlist
-  const addToWishlist = async (productId) => {
-    if (!user?._id) {
-      throw new Error('Please log in to add items to wishlist');
-    }
+  // Save wishlist to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('renthive_wishlist', JSON.stringify(wishlistItems));
+  }, [wishlistItems]);
 
+  // Add item to wishlist
+  const addToWishlist = async (product) => {
     try {
-      const response = await apiService.addToWishlist(user._id, productId);
+      setIsLoading(true);
       
-      if (response.success) {
-        // Refetch wishlist to get updated data
-        await fetchWishlist();
-        return { success: true, message: 'Added to wishlist' };
-      } else {
-        throw new Error(response.message || 'Failed to add to wishlist');
+      // Check if item already exists
+      const existingItem = wishlistItems.find(item => item.id === product.id);
+      if (existingItem) {
+        return { success: false, message: 'Item already in wishlist' };
       }
+
+      // Add to wishlist
+      const wishlistItem = {
+        id: product.id,
+        name: product.name,
+        category: product.category,
+        brand: product.brand,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        period: product.period,
+        image: product.image,
+        rating: product.rating,
+        location: product.location,
+        status: product.status,
+        addedAt: new Date().toISOString(),
+        ...product
+      };
+
+      setWishlistItems(prev => [...prev, wishlistItem]);
+      return { success: true, message: 'Item added to wishlist' };
     } catch (error) {
       console.error('Error adding to wishlist:', error);
-      return { success: false, message: error.message };
+      return { success: false, message: 'Failed to add item to wishlist' };
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Remove from wishlist
+  // Remove item from wishlist
   const removeFromWishlist = async (productId) => {
-    if (!user?._id) return;
-
     try {
-      const response = await apiService.removeFromWishlist(user._id, productId);
-      
-      if (response.success) {
-        setWishlistItems(prev => prev.filter(item => item.id !== productId));
-        return { success: true, message: 'Removed from wishlist' };
-      } else {
-        throw new Error(response.message || 'Failed to remove from wishlist');
-      }
+      setIsLoading(true);
+      setWishlistItems(prev => prev.filter(item => item.id !== productId));
+      return { success: true, message: 'Item removed from wishlist' };
     } catch (error) {
       console.error('Error removing from wishlist:', error);
-      return { success: false, message: error.message };
+      return { success: false, message: 'Failed to remove item from wishlist' };
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  // Clear wishlist
-  const clearWishlist = async () => {
-    if (!user?._id) return;
-
-    try {
-      const response = await apiService.clearWishlist(user._id);
-      
-      if (response.success) {
-        setWishlistItems([]);
-        return { success: true, message: 'Wishlist cleared' };
-      } else {
-        throw new Error(response.message || 'Failed to clear wishlist');
-      }
-    } catch (error) {
-      console.error('Error clearing wishlist:', error);
-      return { success: false, message: error.message };
+  // Toggle item in wishlist
+  const toggleWishlist = async (product) => {
+    const isInList = isInWishlist(product.id || product);
+    
+    if (isInList) {
+      return await removeFromWishlist(product.id || product);
+    } else {
+      return await addToWishlist(product);
     }
   };
 
@@ -103,33 +99,34 @@ export const WishlistProvider = ({ children }) => {
     return wishlistItems.some(item => item.id === productId);
   };
 
-  // Toggle wishlist status
-  const toggleWishlist = async (productId) => {
-    if (isInWishlist(productId)) {
-      return await removeFromWishlist(productId);
-    } else {
-      return await addToWishlist(productId);
+  // Clear entire wishlist
+  const clearWishlist = async () => {
+    try {
+      setIsLoading(true);
+      setWishlistItems([]);
+      return { success: true, message: 'Wishlist cleared' };
+    } catch (error) {
+      console.error('Error clearing wishlist:', error);
+      return { success: false, message: 'Failed to clear wishlist' };
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    if (user) {
-      fetchWishlist();
-    } else {
-      setWishlistItems([]);
-    }
-  }, [user]);
+  // Get wishlist item count
+  const getWishlistCount = () => {
+    return wishlistItems.length;
+  };
 
   const value = {
     wishlistItems,
-    loading,
     addToWishlist,
     removeFromWishlist,
-    clearWishlist,
-    isInWishlist,
     toggleWishlist,
-    fetchWishlist,
-    wishlistCount: wishlistItems.length
+    isInWishlist,
+    clearWishlist,
+    getWishlistCount,
+    isLoading
   };
 
   return (

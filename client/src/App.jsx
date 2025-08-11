@@ -18,6 +18,8 @@ import ProductGallery from './customer/Pages/ProductGallery'
 import WishlistItems from './customer/Pages/wishlistItems'
 import BillingDetails from './customer/Pages/BillingDetails'
 import Cart from './customer/Pages/Cart'
+import Checkout from './customer/Pages/Checkout'
+import OrderConfirmation from './customer/Pages/OrderConfirmation'
 
 function App() {
   return (
@@ -42,9 +44,10 @@ function App() {
         {/* Protected Customer Routes */}
         <Route path="/customer/customer-dashboard" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><ProductGallery /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/wishlist" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><WishlistItems /></CustomerLayout></ProtectedRoute>} />
-
         <Route path="/customer/billing-details" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><BillingDetails /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/cart" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><Cart /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/checkout" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><Checkout /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/order-confirmation" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><OrderConfirmation /></CustomerLayout></ProtectedRoute>} />
         </Routes>
         </Router>
       </WishlistProvider>

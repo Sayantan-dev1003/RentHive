@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
@@ -148,6 +149,7 @@ const adminDashboardStyles = `
 `;
 
 const ProductGallery = () => {
+  const navigate = useNavigate();
   const { addToCart, isInCart } = useCart();
   const { user } = useAuth();
   const { toggleWishlist, isInWishlist } = useWishlist();
@@ -181,9 +183,9 @@ const ProductGallery = () => {
           price: `₹${product.pricing.day}`,
           originalPrice: `₹${Math.round(product.pricing.day * 1.2)}`,
           period: "/day",
-          status: product.currentAvailableStock > 0 ? "Available" : "Rented",
+          status: product.stock > 0 ? "Available" : "Out of Stock",
           performance: `${Math.floor(Math.random() * 20) + 80}%`,
-          performanceType: product.currentAvailableStock > 5 ? "Excellent" : "Good",
+          performanceType: product.stock > 5 ? "Excellent" : "Good",
           image: product.images?.[0] || `https://images.unsplash.com/photo-${1581092918056 + index}?w=400&h=300&fit=crop&crop=center`,
           bgGradient: [`from-blue-600 to-purple-600`, `from-indigo-600 to-blue-600`, `from-purple-600 to-indigo-600`, `from-orange-600 to-red-600`][index % 4],
           highlight: index % 3 === 0 ? "Popular" : index % 3 === 1 ? "Premium" : "Eco-Friendly",
@@ -217,6 +219,17 @@ const ProductGallery = () => {
 
   useEffect(() => {
     fetchProducts();
+    
+    // Listen for focus events to refresh products when returning from checkout
+    const handleWindowFocus = () => {
+      fetchProducts();
+    };
+    
+    window.addEventListener('focus', handleWindowFocus);
+    
+    return () => {
+      window.removeEventListener('focus', handleWindowFocus);
+    };
   }, []);
 
   // Handle product card click
@@ -232,7 +245,7 @@ const ProductGallery = () => {
   };
 
   // Handle wishlist toggle
-  const handleWishlistToggle = async (productId, event) => {
+  const handleWishlistToggle = async (product, event) => {
     event?.stopPropagation();
     
     if (!user) {
@@ -241,17 +254,56 @@ const ProductGallery = () => {
     }
 
     try {
-      const result = await toggleWishlist(productId);
-      if (!result.success) {
-        alert(result.message || 'Failed to update wishlist');
+      const result = await toggleWishlist(product);
+      if (result.success) {
+        // Show success message
+        const isAdding = !isInWishlist(product.id);
+        const message = isAdding ? 
+          `${product.name} added to wishlist! ❤️` : 
+          `${product.name} removed from wishlist`;
+        
+        // Create a simple toast notification
+        showToast(message, isAdding ? 'success' : 'info');
+      } else {
+        showToast(result.message || 'Failed to update wishlist', 'error');
       }
     } catch (error) {
       console.error('Error toggling wishlist:', error);
-      alert('Failed to update wishlist');
+      showToast('Failed to update wishlist', 'error');
     }
   };
 
-  // Handle rent now - adds to cart and redirects to cart page
+  // Simple toast notification function
+  const showToast = (message, type = 'info') => {
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-full ${
+      type === 'success' ? 'bg-green-500' :
+      type === 'error' ? 'bg-red-500' :
+      'bg-blue-500'
+    }`;
+    toast.textContent = message;
+    
+    // Add to DOM
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+      toast.classList.remove('translate-x-full');
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+      toast.classList.add('translate-x-full');
+      setTimeout(() => {
+        if (document.body.contains(toast)) {
+          document.body.removeChild(toast);
+        }
+      }, 300);
+    }, 3000);
+  };
+
+  // Handle rent now - redirects to checkout page
   const handleRentNow = (product, event) => {
     event?.stopPropagation();
     
@@ -265,18 +317,17 @@ const ProductGallery = () => {
       return;
     }
 
-    // Add to cart if not already added
-    if (!isInCart(product.id)) {
-      addToCart(product);
-    }
-
     // Close modal if open
     if (showModal) {
       closeModal();
     }
 
-    // Redirect to cart page
-    window.location.href = '/customer/cart';
+    // Redirect to checkout page with product data
+    navigate('/customer/checkout', { 
+      state: { 
+        product: product 
+      } 
+    });
   };
 
   // Dashboard Statistics (Admin style) - Now using dynamic data
@@ -387,8 +438,8 @@ const ProductGallery = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 text-lg shadow-sm"
-              />
-            </div>
+        />
+      </div>
           </div>
         </div>
 
@@ -460,7 +511,7 @@ const ProductGallery = () => {
                 <option value="Earthmoving">Earthmoving</option>
                 <option value="High-Rise Construction">High-Rise Construction</option>
               </select>
-            </div>
+      </div>
 
             {/* View Toggle */}
             <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
@@ -477,7 +528,7 @@ const ProductGallery = () => {
                 </svg>
                 Cards
               </button>
-              <button
+          <button
                 onClick={() => setViewMode("List")}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                   viewMode === "List"
@@ -524,9 +575,9 @@ const ProductGallery = () => {
                     key={product.id}
                     className={`simple-card overflow-hidden cursor-pointer group ${
                       animateCards ? 'animate-slide-in-up' : 'opacity-0'
-                    }`}
+                    } ${product.stock <= 0 ? 'opacity-75 grayscale' : ''}`}
                     style={{ animationDelay: `${index * 100}ms` }}
-                    onClick={() => handleProductClick(product)}
+                    onClick={() => product.stock > 0 && handleProductClick(product)}
                   >
                     {/* Image Section */}
                     <div className="relative overflow-hidden">
@@ -540,38 +591,59 @@ const ProductGallery = () => {
                         }}
                       />
                       
-                      {/* Status Badge */}
-                      <div className="absolute top-3 left-3">
-                        <div className={`flex items-center gap-2 ${statusConfig.bgColor} backdrop-blur-sm px-3 py-1 rounded-full`}>
-                          <div className={`w-2 h-2 ${statusConfig.dotColor} rounded-full`}></div>
-                          <span className={`${statusConfig.textColor} text-xs font-medium`}>
-                            {statusConfig.label}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Highlight Badge */}
-                      <div className="absolute top-3 right-3">
-                        <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                          {product.highlight}
-                        </span>
-                      </div>
-
-                      {/* Wishlist Heart Button */}
-                      <div className="absolute top-3 left-3">
-                        <button
-                          onClick={(e) => handleWishlistToggle(product.id, e)}
-                          className={`p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
-                            isInWishlist(product.id)
-                              ? 'bg-red-500 text-white hover:bg-red-600'
-                              : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
-                          }`}
-                        >
-                          <svg className="w-4 h-4" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                          </svg>
-                        </button>
-                      </div>
+                                             {/* Status Badge */}
+                       <div className="absolute top-3 left-3">
+                         <div className={`flex items-center gap-2 ${
+                           product.stock <= 0 
+                             ? 'bg-red-500/90 text-white' 
+                             : product.stock <= 5 
+                               ? 'bg-orange-500/90 text-white'
+                               : statusConfig.bgColor
+                         } backdrop-blur-sm px-3 py-1 rounded-full`}>
+                           <div className={`w-2 h-2 ${
+                             product.stock <= 0 
+                               ? 'bg-white' 
+                               : product.stock <= 5 
+                                 ? 'bg-white'
+                                 : statusConfig.dotColor
+                           } rounded-full`}></div>
+                           <span className={`${
+                             product.stock <= 0 || product.stock <= 5 
+                               ? 'text-white' 
+                               : statusConfig.textColor
+                           } text-xs font-medium`}>
+                             {product.stock <= 0 
+                               ? 'Out of Stock' 
+                               : product.stock <= 5 
+                                 ? `Only ${product.stock} left`
+                                 : statusConfig.label
+                             }
+                           </span>
+                         </div>
+                       </div>
+ 
+                       {/* Highlight Badge */}
+                       <div className="absolute top-3 right-3">
+                         <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                           {product.highlight}
+                         </span>
+                       </div>
+ 
+                       {/* Wishlist Heart Button */}
+                       <div className="absolute top-12 left-3">
+                         <button
+                           onClick={(e) => handleWishlistToggle(product, e)}
+                           className={`p-2 rounded-full backdrop-blur-sm transition-all duration-200 shadow-lg ${
+                             isInWishlist(product.id)
+                               ? 'bg-red-500 text-white hover:bg-red-600'
+                               : 'bg-white/90 text-gray-600 hover:bg-white hover:text-red-500'
+                           }`}
+                         >
+                           <svg className="w-4 h-4" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                           </svg>
+                         </button>
+                       </div>
 
                       {/* Performance Badge */}
                       <div className="absolute bottom-3 left-3">
@@ -606,7 +678,7 @@ const ProductGallery = () => {
                       <div className="flex items-baseline gap-2 mb-3">
                         <span className="text-2xl font-bold text-green-600">
                           {product.price}
-                        </span>
+              </span>
                         <span className="text-sm text-gray-500 line-through">{product.originalPrice}</span>
                         <span className="text-sm text-gray-600 ml-auto bg-gray-100 px-2 py-1 rounded-full">{product.period}</span>
                       </div>
@@ -622,21 +694,35 @@ const ProductGallery = () => {
 
                       {/* Action Buttons */}
                       <div className="flex gap-2">
-                        <button
-                          className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                          onClick={(e) => handleRentNow(product, e)}
-                        >
-                          Rent Now
-                        </button>
+                        {product.stock <= 0 ? (
+                          <button
+                            disabled
+                            className="flex-1 bg-gray-400 text-white py-2 px-3 rounded-lg cursor-not-allowed text-sm font-medium"
+                          >
+                            Out of Stock
+                          </button>
+                        ) : (
+                          <button
+                            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                            onClick={(e) => handleRentNow(product, e)}
+                          >
+                            Rent Now
+                          </button>
+                        )}
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            addToCart(product);
+                            if (product.stock > 0) {
+                              addToCart(product);
+                            }
                           }}
+                          disabled={product.stock <= 0}
                           className={`px-3 py-2 rounded-lg font-medium transition-all duration-300 text-sm ${
-                            isInCart(product.id)
-                              ? 'bg-green-500 text-white'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            product.stock <= 0
+                              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                              : isInCart(product.id)
+                                ? 'bg-green-500 text-white'
+                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                           }`}
                         >
                           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -696,7 +782,7 @@ const ProductGallery = () => {
                               <div className={`w-2 h-2 ${statusConfig.dotColor} rounded-full`}></div>
                               <span className={`${statusConfig.textColor} text-xs font-medium`}>
                                 {statusConfig.label}
-                              </span>
+              </span>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -721,14 +807,14 @@ const ProductGallery = () => {
                               >
                                 {isInCart(product.id) ? 'Added' : 'Add'}
                               </button>
-                              <button
-                                onClick={(e) => handleWishlistToggle(product.id, e)}
-                                className={`p-2 rounded-lg transition-colors ${
-                                  isInWishlist(product.id)
-                                    ? 'bg-red-500 text-white hover:bg-red-600'
-                                    : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500'
-                                }`}
-                              >
+                                                             <button
+                                 onClick={(e) => handleWishlistToggle(product, e)}
+                                 className={`p-2 rounded-lg transition-colors ${
+                                   isInWishlist(product.id)
+                                     ? 'bg-red-500 text-white hover:bg-red-600'
+                                     : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500'
+                                 }`}
+                               >
                                 <svg className="w-4 h-4" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
@@ -780,7 +866,7 @@ const ProductGallery = () => {
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                    </button>
+          </button>
                   </div>
                 </div>
 
@@ -809,9 +895,9 @@ const ProductGallery = () => {
                               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                               <span>{feature}</span>
                             </div>
-                          ))}
-                        </div>
-                      </div>
+        ))}
+      </div>
+    </div>
                     </div>
 
                     {/* Details & Actions */}
@@ -868,14 +954,14 @@ const ProductGallery = () => {
                         >
                           {isInCart(selectedProduct.id) ? 'Added to Cart' : 'Add to Cart'}
                         </button>
-                        <button
-                          onClick={(e) => handleWishlistToggle(selectedProduct.id, e)}
-                          className={`py-3 px-4 rounded-xl font-semibold transition-colors ${
-                            isInWishlist(selectedProduct.id)
-                              ? 'bg-red-500 text-white hover:bg-red-600'
-                              : 'bg-gray-100 text-gray-700 hover:bg-red-50'
-                          }`}
-                        >
+                                                 <button
+                           onClick={(e) => handleWishlistToggle(selectedProduct, e)}
+                           className={`py-3 px-4 rounded-xl font-semibold transition-colors ${
+                             isInWishlist(selectedProduct.id)
+                               ? 'bg-red-500 text-white hover:bg-red-600'
+                               : 'bg-gray-100 text-gray-700 hover:bg-red-50'
+                           }`}
+                         >
                           <svg className="w-5 h-5" fill={isInWishlist(selectedProduct.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>

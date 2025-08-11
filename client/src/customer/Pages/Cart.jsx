@@ -42,7 +42,43 @@ const Cart = () => {
   };
 
   const handleCheckout = () => {
-    setShowCheckout(true);
+    if (cartItems.length === 0) {
+      alert('Your cart is empty. Please add items to proceed.');
+      return;
+    }
+
+    // For multiple items, we'll pass the entire cart to checkout
+    // If there's only one item, pass it as a single product
+    if (cartItems.length === 1) {
+      // Single item - use existing single product checkout flow
+      const item = cartItems[0];
+      navigate('/customer/checkout', { 
+        state: { 
+          product: item,
+          isFromCart: true,
+          cartData: {
+            quantity: item.quantity,
+            days: item.days,
+            subtotal: calculateSubtotal(),
+            tax: calculateTax(),
+            total: calculateTotal()
+          }
+        } 
+      });
+    } else {
+      // Multiple items - pass entire cart
+      navigate('/customer/checkout', { 
+        state: { 
+          cartItems: cartItems,
+          isFromCart: true,
+          cartData: {
+            subtotal: calculateSubtotal(),
+            tax: calculateTax(),
+            total: calculateTotal()
+          }
+        } 
+      });
+    }
   };
 
   const showSuccessToast = (message) => {
