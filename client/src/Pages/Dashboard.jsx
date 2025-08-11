@@ -182,7 +182,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="w-full space-y-6 animate-fadeIn">
+    <div className="w-full space-y-4 animate-fadeIn">
       {/* Error Message */}
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
@@ -196,21 +196,20 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="flex justify-center items-center gap-3">
+      {/* Header with Search on Left */}
+      <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+        {/* Left Side - Search and Title */}
+        <div className="flex flex-col lg:flex-row lg:items-center gap-4 flex-1">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Rental Orders</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Rental Dashboard</h1>
           </div>
-        </div>
-
-        <div className="flex items-center gap-4 animate-in slide-in-from-right-5 duration-500 delay-200">
-          {/* Search */}
+          
+          {/* Search Bar */}
           <div className="relative">
             <input
               type="text"
-              placeholder="Search here..."
-              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80 bg-white"
+              placeholder="Search equipment..."
+              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent w-72 bg-white"
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
@@ -228,7 +227,10 @@ const Dashboard = () => {
               </svg>
             </div>
           </div>
+        </div>
 
+        {/* Right Side - Controls */}
+        <div className="flex items-center gap-4 animate-in slide-in-from-right-5 duration-500 delay-200">
           {/* View Toggle */}
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
