@@ -1,0 +1,7 @@
+@import url('./tanker.css');
+@import url('./erode.css');
+@import "tailwindcss";
+
+body {
+    font-family: 'Tanker-Regular', sans-serif;
+}
