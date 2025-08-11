@@ -1,10 +1,16 @@
 const app = require('./app');
 require('dotenv').config();
 
+// Import database connection
+const connectDB = require('./config/db');
+
 // Import notification scheduler
 require('./cron/notificationScheduler');
 
 const PORT = process.env.PORT || 5000;
+
+// Connect to MongoDB
+connectDB();
 
 // Start server
 const server = app.listen(PORT, () => {

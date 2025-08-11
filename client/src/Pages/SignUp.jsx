@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { FiEye, FiEyeOff, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 
 const gradientButtonClass =
@@ -9,7 +9,10 @@ const inputClass =
   'block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 shadow-sm focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100'
 
 const SignUp = () => {
+  const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -74,6 +77,11 @@ const SignUp = () => {
             </p>
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+              {error && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-4">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
               <div>
                 <label htmlFor="name" className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">
                   Name
@@ -160,13 +168,17 @@ const SignUp = () => {
                   onChange={handleChange}
                 >
                   <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
+                  <option value="end_user">Admin</option>
                 </select>
               </div>
 
               <div className="pt-2">
-                <button type="submit" className={gradientButtonClass}>
-                  Create account
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className={`${gradientButtonClass} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {loading ? 'Creating account...' : 'Create account'}
                 </button>
               </div>
 
