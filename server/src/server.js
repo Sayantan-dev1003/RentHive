@@ -4,7 +4,7 @@ require('dotenv').config();
 // Import notification scheduler
 require('./cron/notificationScheduler');
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Start server
 const server = app.listen(PORT, () => {
