@@ -11,13 +11,8 @@ const inputClass =
 const SignUp = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
-<<<<<<< HEAD
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-=======
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
->>>>>>> 430cceec735e332f7ee3930fbf715432879c675a
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -56,7 +51,7 @@ const SignUp = () => {
       localStorage.setItem('user', JSON.stringify(data.data.user));
 
       // Redirect to dashboard
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -80,12 +75,6 @@ const SignUp = () => {
                 Sign in
               </Link>
             </p>
-
-            {error && (
-              <div className="mt-4 p-4 text-red-700 bg-red-100 rounded-xl">
-                {error}
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
               {error && (
@@ -187,11 +176,7 @@ const SignUp = () => {
                 <button 
                   type="submit" 
                   disabled={loading}
-<<<<<<< HEAD
-                  className={gradientButtonClass}
-=======
                   className={`${gradientButtonClass} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
->>>>>>> 430cceec735e332f7ee3930fbf715432879c675a
                 >
                   {loading ? 'Creating account...' : 'Create account'}
                 </button>
