@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { FaArrowRight } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
 
 const SignIn = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -21,14 +22,14 @@ const SignIn = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const response = await fetch('http://localhost:8000/api/auth/login', {
-        method: 'POST',
+      const response = await fetch("http://localhost:8000/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
       });
@@ -36,13 +37,13 @@ const SignIn = () => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to sign in');
+        throw new Error(data.message || "Failed to sign in");
       }
 
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
 
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
@@ -52,23 +53,27 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen bg-black lg:grid lg:grid-cols-2">
+      <div onClick={() => navigate("/")} className="absolute top-6 right-6 z-10">
+        <p className="cursor-pointer"><FaArrowRight /></p>
+      </div>
+
       {/* Left: Background video */}
       <div className="relative hidden lg:block">
-      <video
-  src="/signIn.mp4"
-  className="absolute inset-0 h-full w-full object-cover"
-  autoPlay
-  muted
-  loop
-  playsInline
-  onLoadedMetadata={(e) => {
-    try {
-      e.currentTarget.playbackRate = 0.10; // Very slow
-    } catch (err) {
-      console.error("Playback rate error:", err);
-    }
-  }}
-/>
+        <video
+          src="/signIn.mp4"
+          className="absolute inset-0 h-full w-full object-cover"
+          autoPlay
+          muted
+          loop
+          playsInline
+          onLoadedMetadata={(e) => {
+            try {
+              e.currentTarget.playbackRate = 0.1; // Very slow
+            } catch (err) {
+              console.error("Playback rate error:", err);
+            }
+          }}
+        />
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
         <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 transform xl:block">
@@ -135,7 +140,7 @@ const SignIn = () => {
                   <div className="relative">
                     <input
                       id="password"
-                      type={showPassword ? 'text' : 'password'}
+                      type={showPassword ? "text" : "password"}
                       name="password"
                       required
                       className="w-full rounded-xl border border-neutral-200 bg-white px-4 py-3 pr-11 text-neutral-900 placeholder-neutral-400 outline-none transition focus:border-neutral-400 focus:ring-4 focus:ring-emerald-100"
@@ -181,14 +186,14 @@ const SignIn = () => {
                   disabled={loading}
                   className="w-full rounded-xl bg-emerald-500 px-6 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-600 focus:outline-none focus:ring-4 focus:ring-emerald-200 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {loading ? 'Signing in…' : 'Sign in'}
+                  {loading ? "Signing in…" : "Sign in"}
                 </button>
               </form>
 
               {/* Secondary actions */}
               <div className="mt-6 space-y-2 text-center text-sm">
                 <p className="text-neutral-600">
-                  Don't have an account?{' '}
+                  Don't have an account?{" "}
                   <Link
                     to="/signup"
                     className="font-semibold text-emerald-600 hover:text-emerald-700"
