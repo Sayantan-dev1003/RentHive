@@ -1,73 +1,83 @@
-import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { FiEye, FiEyeOff, FiChevronLeft, FiChevronRight } from 'react-icons/fi'
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FiEye, FiEyeOff, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const gradientButtonClass =
-  'inline-flex w-full items-center justify-center rounded-full bg-gradient-to-r from-sky-300 via-indigo-300 to-purple-300 px-6 py-3 font-semibold text-slate-900 shadow-sm transition-all hover:from-sky-400 hover:via-indigo-400 hover:to-purple-400 focus:outline-none focus:ring-4 focus:ring-indigo-200'
+  "inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200";
 
 const inputClass =
-  'block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 shadow-sm focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100'
+  "block w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-800 placeholder:text-slate-400 shadow-sm focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100";
 
 const SignUp = () => {
-  const navigate = useNavigate()
-  const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    phone: '',
-    role: 'customer',
-  })
+    name: "",
+    email: "",
+    phone: "",
+    role: "customer",
+    password: "",
+  });
 
   const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-        const response = await fetch('http://localhost:8000/api/auth/register', {
-        method: 'POST',
+      const payload = {
+        name: formData.name.trim(),
+        email: formData.email,
+        password: formData.password,
+        phone: formData.phone,
+        role: formData.role || "customer",
+      };
+
+      const response = await fetch("http://localhost:8000/api/auth/register", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to sign up');
+        throw new Error(data.message || "Failed to sign up");
       }
 
       // Store token and user data
-      localStorage.setItem('token', data.data.token);
-      localStorage.setItem('user', JSON.stringify(data.data.user));
+      localStorage.setItem("token", data.data.token);
+      localStorage.setItem("user", JSON.stringify(data.data.user));
 
       // Redirect to dashboard
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen w-full bg-white text-slate-800">
-      <div className="mx-auto grid h-screen max-w-6xl grid-cols-1 lg:grid-cols-2">
+    <div className="h-[100vh] w-full bg-white text-slate-800">
+      <div className="w-full h-full flex">
         {/* Left: Form */}
-        <div className="flex items-center justify-center px-6 py-12 sm:px-10">
+        <div className="w-1/2 h-full flex items-center justify-center px-6 py-12 sm:px-10">
           <div className="w-full max-w-md">
-            <h1 className="text-3xl font-bold tracking-tight">Create Your Account</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Create Your Account
+            </h1>
             <p className="mt-2 text-sm text-slate-500">
-              Already a member?{' '}
+              Already a member?{" "}
               <Link
                 to="/signin"
                 className="font-semibold text-sky-600 hover:text-sky-700"
@@ -83,7 +93,10 @@ const SignUp = () => {
                 </div>
               )}
               <div>
-                <label htmlFor="name" className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">
+                <label
+                  htmlFor="name"
+                  className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600"
+                >
                   Name
                 </label>
                 <input
@@ -99,7 +112,10 @@ const SignUp = () => {
               </div>
 
               <div>
-                <label htmlFor="email" className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">
+                <label
+                  htmlFor="email"
+                  className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600"
+                >
                   Email
                 </label>
                 <input
@@ -115,14 +131,17 @@ const SignUp = () => {
               </div>
 
               <div>
-                <label htmlFor="password" className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">
+                <label
+                  htmlFor="password"
+                  className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600"
+                >
                   Password
                 </label>
                 <div className="relative">
                   <input
                     id="password"
                     name="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     required
                     placeholder="Password"
                     className={inputClass}
@@ -131,17 +150,26 @@ const SignUp = () => {
                   />
                   <button
                     type="button"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                     onClick={() => setShowPassword((v) => !v)}
                     className="absolute inset-y-0 right-3 my-auto inline-flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:text-slate-700"
                   >
-                    {showPassword ? <FiEyeOff size={18} /> : <FiEye size={18} />}
+                    {showPassword ? (
+                      <FiEyeOff size={18} />
+                    ) : (
+                      <FiEye size={18} />
+                    )}
                   </button>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="phone" className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">
+                <label
+                  htmlFor="phone"
+                  className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600"
+                >
                   Phone
                 </label>
                 <input
@@ -157,7 +185,10 @@ const SignUp = () => {
               </div>
 
               <div>
-                <label htmlFor="role" className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">
+                <label
+                  htmlFor="role"
+                  className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600"
+                >
                   Role
                 </label>
                 <select
@@ -173,46 +204,52 @@ const SignUp = () => {
               </div>
 
               <div className="pt-2">
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   disabled={loading}
                   className={gradientButtonClass}
                 >
-                  {loading ? 'Creating account...' : 'Create account'}
+                  {loading ? "Creating account..." : "Create account"}
                 </button>
               </div>
-
-              <div className="text-center text-sm text-slate-500">Continue using other method</div>
             </form>
           </div>
         </div>
 
         {/* Right: Visual/Quote panel */}
-        <div className="relative hidden overflow-hidden lg:block">
-          {/* Background visual */}
-          <div className="absolute inset-0">
-            <div className="absolute inset-0 bg-gradient-to-b from-slate-900/30 via-slate-900/50 to-slate-900/70" />
-            <img
-              src="/Favicon-RentHive.png"
-              alt="RentHive motif"
-              className="h-full w-full object-cover opacity-70 mix-blend-multiply"
-            />
-          </div>
+        <div className="relative hidden overflow-hidden lg:block w-1/2 h-full">
+          {/* Background video to match reference look */}
+          <video
+            src="/signIn.mp4"
+            className="absolute top-0 right-0 h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            onLoadedMetadata={(e) => {
+              try {
+                e.currentTarget.playbackRate = 0.10;
+              } catch {}
+            }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/40 to-black/70" />
 
           {/* Content overlay */}
           <div className="relative flex h-full flex-col justify-end p-12 text-white">
             <div className="text-5xl leading-none">“”</div>
-            <p className="mb-6 max-w-xl text-lg font-medium leading-relaxed text-slate-100">
-              At Renthive, we are committed to making every rental simple, secure, and dependable — ensuring our customers have complete confidence in every transaction.
+            <p className="mb-6 max-w-xl text-lg font-medium leading-relaxed text-white/90">
+              At Renthive, we are committed to making every rental simple,
+              secure, and dependable — ensuring our customers have complete
+              confidence in every transaction.
             </p>
 
             <div className="h-px w-40 bg-white/40" />
-            <div className="mt-4 text-sm text-slate-200">
+            <div className="mt-4 text-sm text-white/90">
               <div className="font-semibold">Miles Morales</div>
               <div>CEO & Founder, RentHive</div>
             </div>
 
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-sky-400 to-transparent opacity-80" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-px bg-gradient-to-b from-transparent via-white/60 to-transparent opacity-60" />
 
             <div className="absolute bottom-8 right-8 flex items-center gap-3">
               <button
@@ -234,8 +271,7 @@ const SignUp = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default SignUp
-
+export default SignUp;

@@ -54,19 +54,22 @@ const SignIn = () => {
     <div className="min-h-screen bg-black lg:grid lg:grid-cols-2">
       {/* Left: Background video with overlay */}
       <div className="relative hidden lg:block">
-        <video
-          src="/signIn.mp4"
-          className="absolute inset-0 h-full w-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-          onLoadedMetadata={(e) => {
-            try {
-              e.currentTarget.playbackRate = 0.25;
-            } catch {}
-          }}
-        />
+      <video
+  src="/signIn.mp4"
+  className="absolute inset-0 h-full w-full object-cover"
+  autoPlay
+  muted
+  loop
+  playsInline
+  onLoadedMetadata={(e) => {
+    try {
+      e.currentTarget.playbackRate = 0.10; // Very slow
+    } catch (err) {
+      console.error("Playback rate error:", err);
+    }
+  }}
+/>
+
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
         {/* Decorative accent bars to echo reference */}
         <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 transform xl:block">
