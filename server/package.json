@@ -6,6 +6,10 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
+    "seed": "node src/scripts/seedDatabase.js",
+    "seed:fixed": "node src/scripts/seedDatabaseFixed.js",
+    "seed:force": "node src/scripts/seedDatabase.js --force",
+    "db:check": "node src/scripts/checkDatabase.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [

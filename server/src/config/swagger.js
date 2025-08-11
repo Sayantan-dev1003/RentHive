@@ -64,7 +64,7 @@ const swaggerDefinition = {
           },
           role: {
             type: 'string',
-            enum: ['customer', 'end_user'],
+            enum: ['customer', 'admin'],
             description: 'User role',
             example: 'customer'
           },
@@ -427,11 +427,13 @@ const options = {
   swaggerDefinition,
   // Paths to files containing OpenAPI definitions
   apis: [
-    './src/routes/auth.route.js'
-    // Temporarily disabled other routes due to YAML parsing errors
-    // './src/routes/*.js',
-    // './src/controllers/*.js',
-    // './src/models/*.js'
+    './src/routes/auth.route.js',
+    './src/routes/product.route.js',
+    './src/routes/order.route.js',
+    './src/routes/payment.route.js',
+    './src/routes/notification.route.js',
+    './src/routes/report.route.js',
+    './src/routes/pricelist.route.js'
   ]
 };
 
