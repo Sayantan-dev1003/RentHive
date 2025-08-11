@@ -1,41 +1,62 @@
-import logo from '/logo.png'
+import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 
-const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
+const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
   return (
-    <div className={`h-full ${isCollapsed ? 'w-16' : 'w-80'} bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#334155] flex flex-col shadow-2xl transition-all duration-300 ease-in-out border-r border-slate-600/30`}>
-     
-
+    <div
+      className={`h-full ${
+        sidebarCollapsed ? "w-16" : "w-80"
+      } bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#334155] flex flex-col shadow-2xl overflow-hidden transition-all duration-300 ease-in-out border-r border-slate-600/30`}
+    >
       {/* Content Area - Create Button and Filters */}
-      <div className={`flex-1 ${isCollapsed ? 'p-2' : 'p-6'} overflow-y-auto`}>
-        {!isCollapsed ? (
+      <div className={`flex-1 ${sidebarCollapsed ? "p-2" : "p-6"} overflow-y-auto`}>
+        {!sidebarCollapsed ? (
           <div className="space-y-6">
-            {/* Create Button */}
-            <button className="w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 hover-lift shadow-lg hover:shadow-xl">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Create
-            </button>
+            {/* Toggle Button */}
+            <div className="flex justify-end">
+              <button
+                onClick={() => setSidebarCollapsed(true)}
+                className="p-2.5 bg-blue-500 rounded-xl text-slate-400 hover:text-white transition-all duration-300 hover-lift"
+                title="Collapse sidebar"
+              >
+                <IoIosArrowForward />
+              </button>
+            </div>
 
             {/* Rental Status */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-white">Rental Status</h3>
+                <h3 className="text-sm font-semibold text-white">
+                  Rental Status
+                </h3>
                 <button className="text-slate-400 hover:text-white">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                  <span className="text-xs text-slate-300 flex-1">Reserved</span>
+                  <span className="text-xs text-slate-300 flex-1">
+                    Reserved
+                  </span>
                   <span className="text-xs font-semibold text-white">16</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                  <span className="text-xs text-slate-300 flex-1">Quotation</span>
+                  <span className="text-xs text-slate-300 flex-1">
+                    Quotation
+                  </span>
                   <span className="text-xs font-semibold text-white">1</span>
                 </div>
               </div>
@@ -58,10 +79,22 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             {/* Invoice Status */}
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-white">Invoice Status</h3>
+                <h3 className="text-sm font-semibold text-white">
+                  Invoice Status
+                </h3>
                 <button className="text-slate-400 hover:text-white">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
                   </svg>
                 </button>
               </div>
@@ -96,28 +129,21 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
           </div>
         ) : (
           <div className="flex flex-col items-center py-4 space-y-4">
-            {/* Collapsed Create Button */}
-            <button 
-              className="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl flex items-center justify-center transition-all duration-300 hover-lift shadow-lg hover:shadow-xl group relative"
-              title="Create"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              {/* Tooltip */}
-              <div className="absolute left-full ml-2 px-2 py-1 bg-slate-900 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 whitespace-nowrap">
-                Create
-              </div>
-            </button>
-            
             {/* Collapsed indicators */}
-            <div className="w-8 h-8 bg-gradient-to-br from-green-500/30 to-orange-500/30 rounded-xl flex items-center justify-center">
+            <button
+              onClick={() => setSidebarCollapsed(false)}
+              className="p-2.5 rounded-xl bg-gradient-to-br from-green-500/30 to-orange-500/30 text-slate-400 hover:text-white transition-all duration-300 hover-lift cursor-pointer"
+              title="Expand sidebar"
+            >
+              <IoIosArrowBack />
+            </button>
+            <div className="w-8 h-8 bg-gradient-to-br from-green-500/30 to-orange-500/30 rounded-xl flex items-center justify-center cursor-pointer">
               <span className="text-xs">📊</span>
             </div>
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500/30 to-green-500/30 rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-500/30 to-green-500/30 rounded-xl flex items-center justify-center cursor-pointer">
               <span className="text-xs">📦</span>
             </div>
-            <div className="w-8 h-8 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-xl flex items-center justify-center">
+            <div className="w-8 h-8 bg-gradient-to-br from-purple-500/30 to-blue-500/30 rounded-xl flex items-center justify-center cursor-pointer">
               <span className="text-xs">📄</span>
             </div>
           </div>
@@ -125,7 +151,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       </div>
 
       {/* Footer */}
-      {!isCollapsed && (
+      {!sidebarCollapsed && (
         <div className="p-6 border-t border-slate-600/50 bg-gradient-to-r from-slate-800/50 to-slate-700/50">
           <div className="text-center">
             <p className="text-xs text-slate-400 mb-2">
@@ -133,13 +159,15 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
             </p>
             <div className="flex items-center justify-center space-x-2">
               <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-green-400 font-medium">Status: Ready</span>
+              <span className="text-xs text-green-400 font-medium">
+                Status: Ready
+              </span>
             </div>
           </div>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;

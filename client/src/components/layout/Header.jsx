@@ -1,7 +1,7 @@
 import { Bars3Icon, BellIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import logo from '/logo.png'
+import Logo2 from '/Logo2.png'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard' },
@@ -11,7 +11,7 @@ const navigation = [
   { name: 'Reports', href: '/reports' },
 ]
 
-const Header = ({ sidebarCollapsed, setSidebarCollapsed }) => {
+const Header = () => {
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -21,29 +21,14 @@ const Header = ({ sidebarCollapsed, setSidebarCollapsed }) => {
         {/* Left section - Sidebar Toggle, Logo and Navigation */}
         <div className="flex items-center space-x-6">
           {/* Sidebar Toggle Button */}
-          <button
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            className="p-2.5 rounded-xl text-slate-600 hover:text-[#2542ff] hover:bg-blue-50 transition-all duration-300 hover-lift group"
-            title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-          >
-            <svg className="w-5 h-5 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {sidebarCollapsed ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7M19 19l-7-7 7-7" />
-              )}
-            </svg>
-          </button>
+          
 
           {/* Logo */}
           <div className="flex items-center space-x-3 animate-fadeIn">
-            <div className="w-10 h-10 bg-gradient-to-br from-[#2542ff] via-[#3b82f6] to-[#1e40af] rounded-xl flex items-center justify-center shadow-lg hover-glow animate-float">
-              <img src={logo} alt="RentHive Logo" className="w-6 h-6" />
-            </div>
-            <div>
+            <img src={Logo2} alt="" className='w-[10rem] h-auto' />
+            {/* <div>
               <span className="text-xl font-bold gradient-text">RENTHIVE</span>
-              <div className="text-xs text-slate-600 font-medium hidden sm:block">Rental Management</div>
-            </div>
+            </div> */}
           </div>
 
           {/* Desktop Navigation */}
