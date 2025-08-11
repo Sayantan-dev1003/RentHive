@@ -1,100 +1,90 @@
 const User = require('../models/User');
 const { generateToken } = require('../middlewares/authMiddleware');
-const { asyncHandler, createValidationError, createUnauthorizedError } = require('../middlewares/errorHandler');
+const { asyncHandler } = require('../middlewares/errorHandler');
 
 /**
  * Register a new user
- * POST /api/auth/register
+ * @route POST /api/auth/register
  */
 const register = asyncHandler(async (req, res) => {
   const { name, email, password, phone, role } = req.body;
 
-  // Validate required fields
-  if (!name || !email || !password || !phone) {
-    throw createValidationError('All fields are required', {
-      name: !name ? 'Name is required' : undefined,
-      email: !email ? 'Email is required' : undefined,
-      password: !password ? 'Password is required' : undefined,
-      phone: !phone ? 'Phone is required' : undefined
+  // Check if user exists
+  const userExists = await User.findOne({ email: email.toLowerCase() });
+  if (userExists) {
+    return res.status(400).json({
+      success: false,
+      message: 'User with this email already exists'
     });
   }
 
-  // Check if user already exists
-  const existingUser = await User.findOne({ email: email.toLowerCase() });
-  if (existingUser) {
-    throw createValidationError('User with this email already exists');
-  }
-
-  // Validate role
-  const validRoles = ['customer', 'end_user'];
-  if (role && !validRoles.includes(role)) {
-    throw createValidationError('Invalid role specified');
-  }
-
-  // Create new user
-  const user = new User({
-    name: name.trim(),
-    email: email.toLowerCase().trim(),
+  // Create user
+  const user = await User.create({
+    name,
+    email: email.toLowerCase(),
     password,
-    phone: phone.trim(),
+    phone,
     role: role || 'customer'
   });
 
-  await user.save();
-
-  // Generate JWT token
-  const token = generateToken(user._id);
-
-  // Return user profile without password
-  const userProfile = user.toJSON();
-
-  res.status(201).json({
-    success: true,
-    message: 'User registered successfully',
-    data: {
-      user: userProfile,
-      token
-    }
-  });
+  if (user) {
+    const token = generateToken(user._id);
+    res.status(201).json({
+      success: true,
+      message: 'Registration successful',
+      data: {
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+          role: user.role
+        },
+        token
+      }
+    });
+  } else {
+    res.status(400).json({
+      success: false,
+      message: 'Invalid user data'
+    });
+  }
 });
 
 /**
  * Login user
- * POST /api/auth/login
+ * @route POST /api/auth/login
  */
 const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  // Validate required fields
-  if (!email || !password) {
-    throw createValidationError('Email and password are required');
-  }
-
-  // Find user and include password for comparison
+  // Check for user email
   const user = await User.findOne({ email: email.toLowerCase() }).select('+password');
   
-  if (!user) {
-    throw createUnauthorizedError('Invalid email or password');
+  if (!user || !(await user.comparePassword(password))) {
+    return res.status(401).json({
+      success: false,
+      message: 'Invalid email or password'
+    });
   }
 
-  // Check password
-  const isPasswordValid = await user.comparePassword(password);
-  
-  if (!isPasswordValid) {
-    throw createUnauthorizedError('Invalid email or password');
-  }
+  // Update last login
+  user.lastLogin = new Date();
+  await user.save();
 
-  // Generate JWT token
   const token = generateToken(user._id);
-
-  // Return user profile without password
-  const userProfile = user.toJSON();
-
+  
   res.status(200).json({
     success: true,
     message: 'Login successful',
     data: {
-      user: userProfile,
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role
+      },
       token
     }
   });
@@ -102,93 +92,117 @@ const login = asyncHandler(async (req, res) => {
 
 /**
  * Get current user profile
- * GET /api/auth/profile
+ * @route GET /api/auth/profile
  */
 const getProfile = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
-  
+
   if (!user) {
-    throw createUnauthorizedError('User not found');
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
   }
 
   res.status(200).json({
     success: true,
     data: {
-      user: user.toJSON()
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        role: user.role,
+        createdAt: user.createdAt
+      }
     }
   });
 });
 
 /**
  * Update user profile
- * PUT /api/auth/profile
+ * @route PUT /api/auth/profile
  */
 const updateProfile = asyncHandler(async (req, res) => {
   const { name, phone } = req.body;
-  const userId = req.user._id;
 
-  // Build update object
-  const updateData = {};
-  if (name) updateData.name = name.trim();
-  if (phone) updateData.phone = phone.trim();
-
-  // Validate phone format if provided
-  if (phone && !/^[0-9]{10}$/.test(phone.trim())) {
-    throw createValidationError('Please enter a valid 10-digit phone number');
-  }
-
-  const user = await User.findByIdAndUpdate(
-    userId, 
-    updateData, 
-    { new: true, runValidators: true }
-  );
+  const user = await User.findById(req.user._id);
 
   if (!user) {
-    throw createUnauthorizedError('User not found');
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
   }
+
+  if (name) user.name = name;
+  if (phone) {
+    // Validate phone number format
+    if (!/^[0-9]{10}$/.test(phone)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Phone number must be 10 digits'
+      });
+    }
+    user.phone = phone;
+  }
+
+  const updatedUser = await user.save();
 
   res.status(200).json({
     success: true,
     message: 'Profile updated successfully',
     data: {
-      user: user.toJSON()
+      user: {
+        _id: updatedUser._id,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        phone: updatedUser.phone,
+        role: updatedUser.role
+      }
     }
   });
 });
 
 /**
  * Change password
- * POST /api/auth/change-password
+ * @route POST /api/auth/change-password
  */
 const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
-  const userId = req.user._id;
 
-  // Validate required fields
   if (!currentPassword || !newPassword) {
-    throw createValidationError('Current password and new password are required');
+    return res.status(400).json({
+      success: false,
+      message: 'Please provide both current and new password'
+    });
+  }
+
+  const user = await User.findById(req.user._id).select('+password');
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
+  }
+
+  // Check current password
+  if (!(await user.comparePassword(currentPassword))) {
+    return res.status(401).json({
+      success: false,
+      message: 'Current password is incorrect'
+    });
   }
 
   // Validate new password length
   if (newPassword.length < 6) {
-    throw createValidationError('New password must be at least 6 characters long');
+    return res.status(400).json({
+      success: false,
+      message: 'Password must be at least 6 characters long'
+    });
   }
 
-  // Find user with password
-  const user = await User.findById(userId).select('+password');
-  
-  if (!user) {
-    throw createUnauthorizedError('User not found');
-  }
-
-  // Verify current password
-  const isCurrentPasswordValid = await user.comparePassword(currentPassword);
-  
-  if (!isCurrentPasswordValid) {
-    throw createUnauthorizedError('Current password is incorrect');
-  }
-
-  // Update password
   user.password = newPassword;
   await user.save();
 
@@ -200,41 +214,33 @@ const changePassword = asyncHandler(async (req, res) => {
 
 /**
  * Refresh token
- * POST /api/auth/refresh
+ * @route POST /api/auth/refresh
  */
 const refreshToken = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-  
-  if (!user) {
-    throw createUnauthorizedError('User not found');
-  }
-
-  // Generate new token
-  const token = generateToken(user._id);
+  const token = generateToken(req.user._id);
 
   res.status(200).json({
     success: true,
-    message: 'Token refreshed successfully',
-    data: {
-      token
-    }
+    data: { token }
   });
 });
 
 /**
  * Get all users (admin only)
- * GET /api/auth/users
+ * @route GET /api/auth/users
  */
 const getAllUsers = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, role, search } = req.query;
-  
-  // Build query
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 10;
+  const search = req.query.search || '';
+  const role = req.query.role;
+
   const query = {};
   
   if (role) {
     query.role = role;
   }
-  
+
   if (search) {
     query.$or = [
       { name: { $regex: search, $options: 'i' } },
@@ -242,12 +248,11 @@ const getAllUsers = asyncHandler(async (req, res) => {
     ];
   }
 
-  // Execute query with pagination
   const users = await User.find(query)
     .select('-password')
     .sort({ createdAt: -1 })
-    .limit(limit * 1)
-    .skip((page - 1) * limit);
+    .skip((page - 1) * limit)
+    .limit(limit);
 
   const total = await User.countDocuments(query);
 
@@ -256,10 +261,10 @@ const getAllUsers = asyncHandler(async (req, res) => {
     data: {
       users,
       pagination: {
-        current: parseInt(page),
+        current: page,
         pages: Math.ceil(total / limit),
         total,
-        limit: parseInt(limit)
+        limit
       }
     }
   });
@@ -267,23 +272,27 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 /**
  * Delete user (admin only)
- * DELETE /api/auth/users/:id
+ * @route DELETE /api/auth/users/:id
  */
 const deleteUser = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-
   // Prevent admin from deleting themselves
-  if (id === req.user._id.toString()) {
-    throw createValidationError('You cannot delete your own account');
+  if (req.params.id === req.user._id.toString()) {
+    return res.status(400).json({
+      success: false,
+      message: 'You cannot delete your own account'
+    });
   }
 
-  const user = await User.findById(id);
-  
+  const user = await User.findById(req.params.id);
+
   if (!user) {
-    throw createValidationError('User not found');
+    return res.status(404).json({
+      success: false,
+      message: 'User not found'
+    });
   }
 
-  await User.findByIdAndDelete(id);
+  await user.remove();
 
   res.status(200).json({
     success: true,
