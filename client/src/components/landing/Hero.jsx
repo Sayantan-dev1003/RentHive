@@ -1,5 +1,6 @@
 import React from 'react';
 import { ArrowRight, Play } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
@@ -20,10 +21,13 @@ const Hero = () => {
             
             {/* CTA Buttons */}
             <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button className="bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 hover:scale-105 transition-all duration-200 shadow-lg flex items-center justify-center">
+              <Link 
+                to="/signup"
+                className="bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 hover:scale-105 transition-all duration-200 shadow-lg flex items-center justify-center"
+              >
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </button>
+              </Link>
               <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-xl hover:border-indigo-300 hover:text-indigo-600 transition-all duration-200 flex items-center justify-center">
                 <Play className="mr-2 h-5 w-5" />
                 Learn More

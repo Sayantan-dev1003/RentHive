@@ -93,20 +93,7 @@ const Features = () => {
           })}
         </div>
 
-        {/* CTA Section */}
-        <div className="mt-16 text-center">
-          <div className="bg-gradient-to-r from-indigo-50 to-cyan-50 rounded-3xl p-8 sm:p-12">
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-              Ready to transform your rental business?
-            </h3>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Join thousands of rental businesses that have already streamlined their operations with RentHive.
-            </p>
-            <button className="bg-indigo-600 text-white px-8 py-3 rounded-xl hover:bg-indigo-700 hover:scale-105 transition-all duration-200 shadow-lg">
-              Start Your Free Trial
-            </button>
-          </div>
-        </div>
+
       </div>
     </section>
   );
