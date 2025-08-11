@@ -220,79 +220,69 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="w-full">
-        {viewMode === "Card" ? (
+        {viewMode === 'Card' ? (
           /* Card View */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
             {rentalProducts.map((product, index) => (
-              <div
-                key={product.id}
-                className={`relative bg-gradient-to-br ${
-                  product.bgGradient
-                } rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover-lift ${
-                  animateStats
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-8 opacity-0"
-                }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                {/* Status Badge */}
-                <div className="absolute top-4 left-4">
-                  <div
-                    className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(
-                      product.status
-                    )}`}
-                  >
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                    {product.status}
+                <div
+                  key={product.id}
+                  className={`relative bg-gradient-to-br ${product.bgGradient} rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover-lift ${
+                    animateStats ? 'translate-y-0 opacity-100' : 'translate-y-8 opacity-0'
+                  }`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
+                  {/* Status Badge */}
+                  <div className="absolute top-4 left-4">
+                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(product.status)}`}>
+                      <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                      {product.status}
+                    </div>
                   </div>
+
+                  {/* Highlight Banner */}
+                  {product.highlight && (
+                    <div className="absolute top-16 left-0 bg-yellow-400 text-black px-3 py-1 text-xs font-bold transform -rotate-12 shadow-lg">
+                      <span className="mr-1">⚡</span>
+                      {product.highlight}
+                    </div>
+                  )}
+
+                  {/* Product Image */}
+                  <div className="flex justify-center my-8">
+                    <div className="text-6xl transform hover:scale-110 transition-transform duration-300">
+                      {product.image}
+                    </div>
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="text-center">
+                    <h3 className="text-xl font-bold mb-1">{product.name}</h3>
+                    <div className="flex items-center justify-center gap-2 text-sm opacity-90 mb-4">
+                      <span>{product.brand}</span>
+                      <span>•</span>
+                      <span>{product.category}</span>
+                    </div>
+
+                    {/* Performance */}
+                    <div className="flex items-center justify-center gap-2 text-sm">
+                      <span className="font-semibold">{product.performance}</span>
+                      <span>•</span>
+                      <span className={`${
+                        product.performanceType === 'Good Performance' 
+                          ? 'text-green-200' 
+                          : 'text-red-200'
+                      }`}>
+                        {product.performanceType}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Background Pattern */}
+                  <div className="absolute inset-0 bg-white/5 rounded-2xl opacity-50"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full transform -translate-x-12 translate-y-12"></div>
                 </div>
-
-                {/* Highlight Banner */}
-                {product.highlight && (
-                  <div className="absolute top-16 left-0 bg-yellow-400 text-black px-3 py-1 text-xs font-bold transform -rotate-12 shadow-lg">
-                    <span className="mr-1">⚡</span>
-                    {product.highlight}
-                  </div>
-                )}
-
-                {/* Product Image */}
-                <div className="flex justify-center my-8">
-                  <div className="text-6xl transform hover:scale-110 transition-transform duration-300">
-                    {product.image}
-                  </div>
-                </div>
-
-                {/* Product Info */}
-                <div className="text-center">
-                  <h3 className="text-xl font-bold mb-1">{product.name}</h3>
-                  <div className="flex items-center justify-center gap-2 text-sm opacity-90 mb-4">
-                    <span>{product.brand}</span>
-                    <span>•</span>
-                    <span>{product.category}</span>
-                  </div>
-
-                  {/* Performance */}
-                  <div className="flex items-center justify-center gap-2 text-sm">
-                    <span className="font-semibold">{product.performance}</span>
-                    <span>•</span>
-                    <span
-                      className={`${
-                        product.performanceType === "Good Performance"
-                          ? "text-green-200"
-                          : "text-red-200"
-                      }`}
-                    >
-                      {product.performanceType}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Background Pattern */}
-                <div className="absolute inset-0 bg-white/5 rounded-2xl opacity-50"></div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full transform -translate-x-12 translate-y-12"></div>
-              </div>
-            ))}
+              ))}
           </div>
         ) : (
           /* List View */
@@ -302,36 +292,14 @@ const Dashboard = () => {
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <button className="p-1 hover:bg-gray-200 rounded">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M15 19l-7-7 7-7"
-                      />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  <span>
-                    1-{rentalProducts.length}/{rentalProducts.length}
-                  </span>
+                  <span>1-{rentalProducts.length}/{rentalProducts.length}</span>
                   <button className="p-1 hover:bg-gray-200 rounded">
-                    <svg
-                      className="w-4 h-4"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 5l7 7-7 7"
-                      />
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 </div>
@@ -339,49 +307,19 @@ const Dashboard = () => {
               <div className="flex items-center gap-3">
                 <button className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
                   Filter
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 <button className="flex items-center gap-2 px-3 py-1.5 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">
                   Monthly
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M19 9l-7 7-7-7"
-                    />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </button>
                 <button className="p-1.5 border border-gray-300 rounded-lg hover:bg-gray-50">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"
-                    />
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                   </svg>
                 </button>
               </div>
@@ -404,28 +342,21 @@ const Dashboard = () => {
             {/* Table Body */}
             <div className="divide-y divide-gray-200">
               {rentalProducts.map((product, index) => (
-                <div
+                <div 
                   key={product.id}
                   className={`grid grid-cols-7 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors ${
-                    animateStats
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-4 opacity-0"
+                    animateStats ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
                   }`}
                   style={{ transitionDelay: `${index * 50}ms` }}
                 >
                   {/* Vehicle ID */}
                   <div className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      className="rounded border-gray-300"
-                    />
+                    <input type="checkbox" className="rounded border-gray-300" />
                     <div className="flex items-center gap-2">
                       <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-lg">
                         {product.image}
                       </div>
-                      <span className="font-medium text-gray-900">
-                        {product.name}
-                      </span>
+                      <span className="font-medium text-gray-900">{product.name}</span>
                     </div>
                   </div>
 
@@ -444,14 +375,9 @@ const Dashboard = () => {
                     {product.highlight ? (
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                          {product.highlight
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
+                          {product.highlight.split(' ').map(n => n[0]).join('')}
                         </div>
-                        <span className="text-gray-700">
-                          {product.highlight}
-                        </span>
+                        <span className="text-gray-700">{product.highlight}</span>
                       </div>
                     ) : (
                       <span className="text-gray-500">Unassigned</span>
@@ -460,28 +386,24 @@ const Dashboard = () => {
 
                   {/* Status */}
                   <div className="flex items-center">
-                    <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                        product.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : product.status === "Idle"
-                          ? "bg-gray-100 text-gray-700"
-                          : product.status === "Maintenance"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-purple-100 text-purple-700"
-                      }`}
-                    >
-                      <div
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          product.status === "Active"
-                            ? "bg-green-500"
-                            : product.status === "Idle"
-                            ? "bg-gray-500"
-                            : product.status === "Maintenance"
-                            ? "bg-red-500"
-                            : "bg-purple-500"
-                        }`}
-                      ></div>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                      product.status === 'Active' 
+                        ? 'bg-green-100 text-green-700' 
+                        : product.status === 'Idle'
+                        ? 'bg-gray-100 text-gray-700'
+                        : product.status === 'Maintenance'
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-purple-100 text-purple-700'
+                    }`}>
+                      <div className={`w-1.5 h-1.5 rounded-full ${
+                        product.status === 'Active' 
+                          ? 'bg-green-500' 
+                          : product.status === 'Idle'
+                          ? 'bg-gray-500'
+                          : product.status === 'Maintenance'
+                          ? 'bg-red-500'
+                          : 'bg-purple-500'
+                      }`}></div>
                       {product.status}
                     </span>
                   </div>
@@ -489,19 +411,13 @@ const Dashboard = () => {
                   {/* Performance */}
                   <div className="flex items-center">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">
-                        {product.performance}
-                      </span>
-                      <span
-                        className={`text-xs px-1.5 py-0.5 rounded ${
-                          product.performanceType === "Good Performance"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
-                      >
-                        {product.performanceType === "Good Performance"
-                          ? "Good"
-                          : "Poor"}
+                      <span className="font-medium text-gray-900">{product.performance}</span>
+                      <span className={`text-xs px-1.5 py-0.5 rounded ${
+                        product.performanceType === 'Good Performance' 
+                          ? 'bg-green-100 text-green-700' 
+                          : 'bg-red-100 text-red-700'
+                      }`}>
+                        {product.performanceType === 'Good Performance' ? 'Good' : 'Poor'}
                       </span>
                     </div>
                   </div>
@@ -509,33 +425,13 @@ const Dashboard = () => {
                   {/* Actions */}
                   <div className="flex items-center gap-2">
                     <button className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                        />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                       </svg>
                     </button>
                     <button className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded">
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                        />
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
                   </div>
