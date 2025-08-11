@@ -422,22 +422,6 @@ const Dashboard = () => {
                           <span>{product.category}</span>
                         </div>
                         
-                        {/* Performance */}
-                        <div className="mb-2">
-                          <div className="flex items-center justify-between text-xs mb-1">
-                            <span className="text-gray-500">Performance</span>
-                            <span className="font-medium">{product.performance}</span>
-                          </div>
-                          <div className="bg-gray-200 rounded-full h-1">
-                            <div 
-                              className={`h-1 rounded-full ${
-                                product.performanceType === "Good Performance" ? "bg-green-500" : "bg-orange-500"
-                              }`}
-                              style={{ width: product.performance }}
-                            ></div>
-                          </div>
-                        </div>
-
                         {/* Price */}
                         <div className="bg-gray-50 rounded-lg p-2">
                           <div className="flex justify-between items-center">

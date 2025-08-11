@@ -1,15 +1,7 @@
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
-import { useAuth } from "../../context/AuthContext"; // Fixed case-sensitive path
 
 const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
-  const { logout } = useAuth(); // Access the logout function from AuthContext
-
-  const handleLogout = () => {
-    logout();
-    window.location.href = '/'; // Redirect to the login page
-  };
-
   return (
     <div
       className={`h-full ${
@@ -160,15 +152,6 @@ const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
           </div>
         )}
       </div>
-
-      {sidebarCollapsed ? (
-        <FiLogOut onClick={handleLogout} className="text-white flex items-center justify-center w-full mb-6 cursor-pointer" />
-      ) : (
-        <button onClick={handleLogout} className="flex items-center justify-center gap-2 px-6 py-2 mx-6 mb-5 cursor-pointer text-white rounded-xl bg-red-700 transition-all duration-300">
-          <FiLogOut />
-          <span>Logout</span>
-        </button>
-      )}
 
       {/* Footer */}
       {!sidebarCollapsed && (
