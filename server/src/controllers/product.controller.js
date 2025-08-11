@@ -1,0 +1,424 @@
+const Product = require('../models/Product');
+const { asyncHandler, createValidationError, createNotFoundError } = require('../middlewares/errorHandler');
+const { getAvailableQuantity, getAvailabilityCalendar } = require('../utils/availabilityHelper');
+
+/**
+ * Create a new product
+ * POST /api/products
+ */
+const createProduct = asyncHandler(async (req, res) => {
+  const {
+    name,
+    category,
+    description,
+    rentable,
+    pricing,
+    stock,
+    images,
+    specifications
+  } = req.body;
+
+  // Validate required fields
+  if (!name || !category || !description || !pricing) {
+    throw createValidationError('Name, category, description, and pricing are required');
+  }
+
+  // Validate pricing object
+  if (!pricing.hour || !pricing.day || !pricing.week || !pricing.month) {
+    throw createValidationError('All pricing tiers (hour, day, week, month) are required');
+  }
+
+  // Create product
+  const product = new Product({
+    name: name.trim(),
+    category,
+    description: description.trim(),
+    rentable: rentable !== undefined ? rentable : true,
+    pricing: {
+      hour: parseFloat(pricing.hour),
+      day: parseFloat(pricing.day),
+      week: parseFloat(pricing.week),
+      month: parseFloat(pricing.month)
+    },
+    stock: parseInt(stock) || 1,
+    images: images || [],
+    specifications: specifications || {}
+  });
+
+  await product.save();
+
+  res.status(201).json({
+    success: true,
+    message: 'Product created successfully',
+    data: {
+      product
+    }
+  });
+});
+
+/**
+ * Get all products with filtering and pagination
+ * GET /api/products
+ */
+const getProducts = asyncHandler(async (req, res) => {
+  const {
+    page = 1,
+    limit = 12,
+    category,
+    rentable,
+    search,
+    minPrice,
+    maxPrice,
+    sortBy = 'createdAt',
+    sortOrder = 'desc'
+  } = req.query;
+
+  // Build query
+  const query = { isActive: true };
+
+  if (category) {
+    query.category = category;
+  }
+
+  if (rentable !== undefined) {
+    query.rentable = rentable === 'true';
+  }
+
+  if (search) {
+    query.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { description: { $regex: search, $options: 'i' } }
+    ];
+  }
+
+  // Price filtering (based on daily rate)
+  if (minPrice || maxPrice) {
+    query['pricing.day'] = {};
+    if (minPrice) query['pricing.day'].$gte = parseFloat(minPrice);
+    if (maxPrice) query['pricing.day'].$lte = parseFloat(maxPrice);
+  }
+
+  // Build sort object
+  const sort = {};
+  sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
+
+  // Execute query with pagination
+  const products = await Product.find(query)
+    .sort(sort)
+    .limit(limit * 1)
+    .skip((page - 1) * limit);
+
+  const total = await Product.countDocuments(query);
+
+  // Add current available stock to each product
+  const productsWithAvailability = products.map(product => {
+    const productObj = product.toObject();
+    productObj.currentAvailableStock = product.currentAvailableStock;
+    return productObj;
+  });
+
+  res.status(200).json({
+    success: true,
+    data: {
+      products: productsWithAvailability,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / limit),
+        total,
+        limit: parseInt(limit)
+      },
+      filters: {
+        categories: await Product.distinct('category', { isActive: true }),
+        priceRange: await Product.aggregate([
+          { $match: { isActive: true } },
+          {
+            $group: {
+              _id: null,
+              minPrice: { $min: '$pricing.day' },
+              maxPrice: { $max: '$pricing.day' }
+            }
+          }
+        ])
+      }
+    }
+  });
+});
+
+/**
+ * Get single product by ID
+ * GET /api/products/:id
+ */
+const getProductById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const product = await Product.findById(id);
+
+  if (!product || !product.isActive) {
+    throw createNotFoundError('Product');
+  }
+
+  // Add current available stock
+  const productObj = product.toObject();
+  productObj.currentAvailableStock = product.currentAvailableStock;
+
+  res.status(200).json({
+    success: true,
+    data: {
+      product: productObj
+    }
+  });
+});
+
+/**
+ * Update product
+ * PUT /api/products/:id
+ */
+const updateProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const {
+    name,
+    category,
+    description,
+    rentable,
+    pricing,
+    stock,
+    images,
+    specifications,
+    isActive
+  } = req.body;
+
+  const product = await Product.findById(id);
+
+  if (!product) {
+    throw createNotFoundError('Product');
+  }
+
+  // Build update object
+  const updateData = {};
+  if (name) updateData.name = name.trim();
+  if (category) updateData.category = category;
+  if (description) updateData.description = description.trim();
+  if (rentable !== undefined) updateData.rentable = rentable;
+  if (stock !== undefined) updateData.stock = parseInt(stock);
+  if (images) updateData.images = images;
+  if (specifications) updateData.specifications = specifications;
+  if (isActive !== undefined) updateData.isActive = isActive;
+
+  // Update pricing if provided
+  if (pricing) {
+    updateData.pricing = {};
+    if (pricing.hour) updateData.pricing.hour = parseFloat(pricing.hour);
+    if (pricing.day) updateData.pricing.day = parseFloat(pricing.day);
+    if (pricing.week) updateData.pricing.week = parseFloat(pricing.week);
+    if (pricing.month) updateData.pricing.month = parseFloat(pricing.month);
+  }
+
+  const updatedProduct = await Product.findByIdAndUpdate(
+    id,
+    updateData,
+    { new: true, runValidators: true }
+  );
+
+  res.status(200).json({
+    success: true,
+    message: 'Product updated successfully',
+    data: {
+      product: updatedProduct
+    }
+  });
+});
+
+/**
+ * Delete product
+ * DELETE /api/products/:id
+ */
+const deleteProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const product = await Product.findById(id);
+
+  if (!product) {
+    throw createNotFoundError('Product');
+  }
+
+  // Soft delete - set isActive to false
+  await Product.findByIdAndUpdate(id, { isActive: false });
+
+  res.status(200).json({
+    success: true,
+    message: 'Product deleted successfully'
+  });
+});
+
+/**
+ * Check product availability
+ * GET /api/products/:id/availability
+ */
+const checkAvailability = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { start, end, quantity = 1 } = req.query;
+
+  if (!start || !end) {
+    throw createValidationError('Start and end dates are required');
+  }
+
+  const product = await Product.findById(id);
+
+  if (!product || !product.isActive) {
+    throw createNotFoundError('Product');
+  }
+
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    throw createValidationError('Invalid date format');
+  }
+
+  if (endDate <= startDate) {
+    throw createValidationError('End date must be after start date');
+  }
+
+  const availableQuantity = getAvailableQuantity(product, startDate, endDate);
+  const isAvailable = availableQuantity >= parseInt(quantity);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      available: isAvailable,
+      availableQuantity,
+      requestedQuantity: parseInt(quantity),
+      totalStock: product.stock,
+      period: {
+        start: startDate,
+        end: endDate
+      }
+    }
+  });
+});
+
+/**
+ * Get product availability calendar
+ * GET /api/products/:id/calendar
+ */
+const getAvailabilityCalendar = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { start, end } = req.query;
+
+  if (!start || !end) {
+    throw createValidationError('Start and end dates are required');
+  }
+
+  const startDate = new Date(start);
+  const endDate = new Date(end);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    throw createValidationError('Invalid date format');
+  }
+
+  const calendar = await getAvailabilityCalendar(id, startDate, endDate);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      calendar,
+      period: {
+        start: startDate,
+        end: endDate
+      }
+    }
+  });
+});
+
+/**
+ * Get product categories
+ * GET /api/products/categories
+ */
+const getCategories = asyncHandler(async (req, res) => {
+  const categories = await Product.distinct('category', { isActive: true });
+
+  // Get category counts
+  const categoryCounts = await Product.aggregate([
+    { $match: { isActive: true } },
+    { $group: { _id: '$category', count: { $sum: 1 } } },
+    { $sort: { count: -1 } }
+  ]);
+
+  res.status(200).json({
+    success: true,
+    data: {
+      categories,
+      categoryCounts
+    }
+  });
+});
+
+/**
+ * Search products
+ * GET /api/products/search
+ */
+const searchProducts = asyncHandler(async (req, res) => {
+  const { q, limit = 10 } = req.query;
+
+  if (!q || q.trim().length < 2) {
+    throw createValidationError('Search query must be at least 2 characters long');
+  }
+
+  const searchQuery = {
+    isActive: true,
+    $or: [
+      { name: { $regex: q, $options: 'i' } },
+      { description: { $regex: q, $options: 'i' } },
+      { category: { $regex: q, $options: 'i' } }
+    ]
+  };
+
+  const products = await Product.find(searchQuery)
+    .select('name category pricing.day images')
+    .limit(parseInt(limit))
+    .sort({ createdAt: -1 });
+
+  res.status(200).json({
+    success: true,
+    data: {
+      products,
+      count: products.length,
+      query: q
+    }
+  });
+});
+
+/**
+ * Get featured products
+ * GET /api/products/featured
+ */
+const getFeaturedProducts = asyncHandler(async (req, res) => {
+  const { limit = 6 } = req.query;
+
+  // For now, return most recently added products
+  // In a real app, you might have a 'featured' flag
+  const products = await Product.find({ isActive: true, rentable: true })
+    .sort({ createdAt: -1 })
+    .limit(parseInt(limit))
+    .select('name category pricing.day images');
+
+  res.status(200).json({
+    success: true,
+    data: {
+      products
+    }
+  });
+});
+
+module.exports = {
+  createProduct,
+  getProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+  checkAvailability,
+  getAvailabilityCalendar,
+  getCategories,
+  searchProducts,
+  getFeaturedProducts
+};
