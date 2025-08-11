@@ -688,4 +688,4 @@ module.exports = {
   getInventoryReport,
   exportReport
 };
-};
+
