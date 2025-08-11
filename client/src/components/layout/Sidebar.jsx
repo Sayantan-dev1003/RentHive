@@ -1,6 +1,5 @@
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
-import { useContext } from "react";
 import { useAuth } from "../../Context/AuthContext"; // Adjust the path as necessary
 
 const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
