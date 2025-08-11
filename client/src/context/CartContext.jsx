@@ -11,28 +11,9 @@ export const useCart = () => {
 };
 
 export const CartProvider = ({ children }) => {
-  const [cartItems, setCartItems] = useState([
-    // One demo item to test cart functionality
-    {
-      id: 999,
-      image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center",
-      name: "Test Demo Item",
-      category: "Demo Equipment",
-      price: 1000,
-      originalPrice: 1200,
-      period: "day",
-      quantity: 1,
-      days: 1,
-      location: "Demo Location",
-      brand: "Demo Brand",
-    }
-  ]);
-  
-  console.log('CartProvider initialized with cartItems:', cartItems);
+  const [cartItems, setCartItems] = useState([]);
 
   const addToCart = (product, days = 1) => {
-    console.log('Adding to cart:', product); // Debug log
-    
     const existingItem = cartItems.find(item => item.id === product.id);
     
     if (existingItem) {
@@ -60,12 +41,7 @@ export const CartProvider = ({ children }) => {
         brand: product.brand,
       };
       
-      console.log('Cart item to add:', cartItem); // Debug log
-      setCartItems(prev => {
-        const newCart = [...prev, cartItem];
-        console.log('New cart state:', newCart); // Debug log
-        return newCart;
-      });
+      setCartItems(prev => [...prev, cartItem]);
     }
 
     // Show success message
@@ -120,13 +96,23 @@ export const CartProvider = ({ children }) => {
   const showAddedToCartMessage = (productName) => {
     // Create and show a toast notification
     const toast = document.createElement('div');
-    toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50 transform transition-all duration-300';
+    toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-xl z-50 transform translate-x-full transition-all duration-300 max-w-sm';
     toast.innerHTML = `
-      <div class="flex items-center gap-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-        </svg>
-        <span class="font-medium">${productName} added to cart!</span>
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="font-medium text-sm">${productName}</p>
+          <p class="text-xs text-green-200">Added to cart successfully!</p>
+        </div>
+        <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 ml-2 text-green-200 hover:text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
       </div>
     `;
     
@@ -137,12 +123,16 @@ export const CartProvider = ({ children }) => {
       toast.style.transform = 'translateX(0)';
     }, 100);
     
-    // Remove after 3 seconds
+    // Auto remove after 3 seconds
     setTimeout(() => {
-      toast.style.transform = 'translateX(100%)';
-      setTimeout(() => {
-        document.body.removeChild(toast);
-      }, 300);
+      if (toast.parentNode) {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          if (toast.parentNode) {
+            document.body.removeChild(toast);
+          }
+        }, 300);
+      }
     }, 3000);
   };
 

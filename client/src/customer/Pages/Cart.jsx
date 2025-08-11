@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useCart } from '../../context/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 const Cart = () => {
   const { 
@@ -11,8 +12,7 @@ const Cart = () => {
     getCartTotal
   } = useCart();
   
-  console.log('Cart component - cartItems:', cartItems);
-  console.log('Cart component - cartItems length:', cartItems.length);
+  const navigate = useNavigate();
   
   const [showCheckout, setShowCheckout] = useState(false);
   const [billingInfo, setBillingInfo] = useState({
@@ -45,12 +45,62 @@ const Cart = () => {
     setShowCheckout(true);
   };
 
+  const showSuccessToast = (message) => {
+    // Create and show a success toast notification
+    const toast = document.createElement('div');
+    toast.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-4 rounded-lg shadow-xl z-50 transform translate-x-full transition-all duration-300 max-w-md';
+    toast.innerHTML = `
+      <div class="flex items-center gap-3">
+        <div class="flex-shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+        </div>
+        <div class="flex-1">
+          <p class="font-medium text-sm">${message}</p>
+          <p class="text-xs text-green-200 mt-1">Your order has been confirmed!</p>
+        </div>
+        <button onclick="this.parentElement.parentElement.remove()" class="flex-shrink-0 ml-2 text-green-200 hover:text-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    `;
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+      toast.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (toast.parentNode) {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+          if (toast.parentNode) {
+            document.body.removeChild(toast);
+          }
+        }, 300);
+      }
+    }, 5000);
+  };
+
   const handlePayment = (e) => {
     e.preventDefault();
-    // Handle payment processing here
-    alert("Order placed successfully! Redirecting to confirmation...");
-    // Redirect to order confirmation
-    window.location.href = "/customer/order-confirmation";
+    
+    // Clear the cart
+    clearCart();
+    
+    // Show success toast
+    showSuccessToast('Order placed successfully!');
+    
+    // Navigate back to dashboard after a short delay
+    setTimeout(() => {
+      navigate('/customer/customer-dashboard');
+    }, 2000);
   };
 
   if (showCheckout) {

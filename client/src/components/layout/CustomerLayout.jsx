@@ -93,26 +93,7 @@ const CustomerLayout = ({ children, showSidebar = false }) => {
                   )}
                 </Link>
                 
-                <Link 
-                  to="/customer/order-confirmation" 
-                  className={`
-                    group flex items-center space-x-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 hover-lift
-                    ${location.pathname === '/customer/order-confirmation' 
-                      ? "bg-gradient-to-r from-[#2542ff] to-[#3b82f6] text-white shadow-lg shadow-blue-500/30" 
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                    }
-                  `}
-                >
-                  <svg className={`w-4 h-4 transition-transform duration-300 ${
-                    location.pathname === '/customer/order-confirmation' ? 'animate-bounceIn' : 'group-hover:scale-110'
-                  }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                  <span className="font-semibold">Orders</span>
-                  {location.pathname === '/customer/order-confirmation' && (
-                    <div className="w-1 h-1 bg-white rounded-full animate-pulse"></div>
-                  )}
-                </Link>
+
             </nav>
             
             {/* Right - Actions & User */}
@@ -178,12 +159,7 @@ const CustomerLayout = ({ children, showSidebar = false }) => {
                       Profile Settings
                     </Link>
                     
-                    <Link to="/customer/order-confirmation" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
-                      <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      My Orders
-                    </Link>
+
                     
                     <Link to="/customer/wishlist" className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors">
                       <svg className="w-4 h-4 mr-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -245,20 +221,7 @@ const CustomerLayout = ({ children, showSidebar = false }) => {
               <span className="font-medium">Wishlist</span>
             </Link>
             
-            <Link 
-              to="/customer/order-confirmation" 
-              onClick={() => setShowMobileMenu(false)}
-              className={`flex items-center space-x-3 p-3 rounded-lg transition-all duration-200 ${
-                location.pathname === '/customer/order-confirmation' 
-                  ? 'bg-blue-50 text-blue-600 border border-blue-200' 
-                  : 'hover:bg-gray-50'
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span className="font-medium">Orders</span>
-            </Link>
+
             
             <Link 
               to="/customer/cart" 
