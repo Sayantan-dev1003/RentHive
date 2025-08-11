@@ -95,7 +95,8 @@ const productSchema = new mongoose.Schema({
 // Virtual for current available quantity
 productSchema.virtual('currentAvailableStock').get(function() {
   const now = new Date();
-  const reservedQuantity = this.availability
+  const availability = this.availability || []; // Handle undefined availability
+  const reservedQuantity = availability
     .filter(reservation => 
       reservation.startDate <= now && 
       reservation.endDate >= now
@@ -107,7 +108,8 @@ productSchema.virtual('currentAvailableStock').get(function() {
 
 // Method to check availability for a date range
 productSchema.methods.checkAvailability = function(startDate, endDate, quantity = 1) {
-  const overlappingReservations = this.availability.filter(reservation => {
+  const availability = this.availability || []; // Handle undefined availability
+  const overlappingReservations = availability.filter(reservation => {
     // Check for overlap: two periods overlap if startA <= endB && startB <= endA
     return new Date(reservation.startDate) <= new Date(endDate) && 
            new Date(startDate) <= new Date(reservation.endDate);

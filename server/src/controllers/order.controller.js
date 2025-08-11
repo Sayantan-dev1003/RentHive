@@ -224,10 +224,14 @@ const confirmOrder = asyncHandler(async (req, res) => {
     );
   }
 
+  // Generate invoice number
+  const invoiceNumber = await Invoice.generateNextInvoiceNumber();
+
   // Create invoice
   const invoice = new Invoice({
     orderId: order._id,
     customerId,
+    invoiceNumber: invoiceNumber,
     amount: pricingResult.summary.total,
     discountAmount: pricingResult.summary.totalDiscount,
     totalAmount: pricingResult.summary.total,

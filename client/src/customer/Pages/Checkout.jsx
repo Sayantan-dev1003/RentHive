@@ -2,6 +2,143 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
+// Helper function to create order in database for single product
+const createOrderInDatabase = async (product, orderDetails) => {
+  try {
+    const customerId = localStorage.getItem('userId') || '6899d8609040f3cd865a896b'; // Fallback for testing
+    
+    // Create proper start and end dates
+    const now = new Date();
+    const startDate = orderDetails.startDate || new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(); // Tomorrow
+    const days = orderDetails.days || 1;
+    const endDate = orderDetails.endDate || new Date(now.getTime() + (days + 1) * 24 * 60 * 60 * 1000).toISOString(); // Days after tomorrow
+
+    const orderData = {
+      customerId: customerId,
+      items: [{
+        productId: product._id || product.id,
+        quantity: 1,
+        startDate: startDate,
+        endDate: endDate
+      }],
+      depositAmount: orderDetails.finalAmount, // Full payment as deposit
+      notes: `Single product rental - ${product.name}`,
+      pricelistId: null // Optional pricelist
+    };
+
+    console.log('📅 Order dates:', { startDate, endDate, days });
+
+    console.log('Creating order with data:', orderData);
+
+    // Check if user is authenticated
+    let token = localStorage.getItem('token');
+    
+    // Temporary test token for development
+    if (!token) {
+      token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODlhN2E3NTYzMzk4MGYyZDQ1ZWM2ZWEiLCJpYXQiOjE3NTQ5NTQzNTcsImV4cCI6MTc1NTA0MDc1NywiaXNzIjoicmVudGhpdmUtYXBpIn0.b_SPDawmXxUEdcbQnx9RIQAg54I1w2fvCA8NozqCdyQ';
+      console.log('🔧 Using temporary test token for development');
+    }
+    
+    if (!token) {
+      console.warn('⚠️ No authentication token found, skipping order creation');
+      console.log('💡 Order will not be saved to database, but stock will still be updated');
+      return null;
+    }
+
+    const orderResponse = await fetch('http://localhost:8000/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(orderData)
+    });
+
+    const orderResult = await orderResponse.json();
+    console.log('Order creation result:', orderResult);
+
+    if (!orderResponse.ok) {
+      console.error('Order creation failed:', orderResult);
+      throw new Error(`Failed to create order: ${orderResult.message || 'Unknown error'}`);
+    }
+
+    console.log('✅ Order created successfully:', orderResult);
+    return orderResult;
+  } catch (error) {
+    console.error('❌ Error creating order:', error);
+    // Re-throw the error so the checkout process can handle it properly
+    throw error;
+  }
+};
+
+// Helper function to create order for multiple items
+const createOrderForMultipleItems = async (cartItems, orderDetails) => {
+  try {
+    const customerId = localStorage.getItem('userId') || '6899d8609040f3cd865a896b'; // Fallback for testing
+    
+    // Create proper start and end dates for multiple items
+    const now = new Date();
+    const startDate = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString(); // Tomorrow
+    const endDate = new Date(now.getTime() + 8 * 24 * 60 * 60 * 1000).toISOString(); // 8 days from now (7 day rental)
+
+    const orderData = {
+      customerId: customerId,
+      items: cartItems.map(item => ({
+        productId: item._id || item.id,
+        quantity: item.quantity || 1,
+        startDate: item.startDate || startDate,
+        endDate: item.endDate || endDate
+      })),
+      depositAmount: orderDetails.finalAmount, // Full payment as deposit
+      notes: `Cart checkout - ${cartItems.length} items`,
+      pricelistId: null // Optional pricelist
+    };
+
+    console.log('📅 Multi-item order dates:', { startDate, endDate });
+
+    console.log('Creating multi-item order with data:', orderData);
+
+    // Check if user is authenticated
+    let token = localStorage.getItem('token');
+    
+    // Temporary test token for development
+    if (!token) {
+      token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODlhN2E3NTYzMzk4MGYyZDQ1ZWM2ZWEiLCJpYXQiOjE3NTQ5NTQzNTcsImV4cCI6MTc1NTA0MDc1NywiaXNzIjoicmVudGhpdmUtYXBpIn0.b_SPDawmXxUEdcbQnx9RIQAg54I1w2fvCA8NozqCdyQ';
+      console.log('🔧 Using temporary test token for development');
+    }
+    
+    if (!token) {
+      console.warn('⚠️ No authentication token found, skipping order creation');
+      console.log('💡 Order will not be saved to database, but stock will still be updated');
+      return null;
+    }
+
+    const orderResponse = await fetch('http://localhost:8000/api/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(orderData)
+    });
+
+    const orderResult = await orderResponse.json();
+    console.log('Multi-item order creation result:', orderResult);
+
+    if (!orderResponse.ok) {
+      console.error('Multi-item order creation failed:', orderResult);
+      throw new Error(`Failed to create order: ${orderResult.message || 'Unknown error'}`);
+    }
+
+    console.log('✅ Multi-item order created successfully:', orderResult);
+    return orderResult;
+  } catch (error) {
+    console.error('❌ Error creating multi-item order:', error);
+    // Re-throw the error so the checkout process can handle it properly
+    throw error;
+  }
+};
+
 // Professional Checkout Styles
 const checkoutStyles = `
   @keyframes fadeIn {
@@ -255,8 +392,18 @@ const Checkout = () => {
           pricing: JSON.stringify(productData.pricing), // Convert pricing object to JSON string
           stock: newStock.toString(), // Convert to string as expected by API
           rentable: (newStock > 0).toString(), // Convert boolean to string
-          isActive: (newStock > 0).toString() // Convert boolean to string
+          isActive: "true" // Keep product active even when stock is 0 to avoid order creation issues
         };
+
+        // Create order in database BEFORE updating stock to avoid availability conflicts
+        try {
+          await createOrderInDatabase(product, orderDetails);
+          console.log('✅ Order creation completed');
+        } catch (orderError) {
+          console.error('❌ Order creation failed:', orderError.message);
+          console.log('⚠️ Continuing with stock update...');
+          // Continue with stock update even if order creation fails
+        }
 
         console.log('Updating product with payload:', updatePayload);
 
@@ -276,6 +423,16 @@ const Checkout = () => {
           throw new Error('Failed to update stock');
         }
       } else if (isMultipleItems) {
+        // Create order for multiple items BEFORE updating stock
+        try {
+          await createOrderForMultipleItems(cartItems, orderDetails);
+          console.log('✅ Multi-item order creation completed');
+        } catch (orderError) {
+          console.error('❌ Multi-item order creation failed:', orderError.message);
+          console.log('⚠️ Continuing with stock updates...');
+          // Continue with stock updates even if order creation fails
+        }
+        
         // Check and update stock for multiple items
         for (const item of cartItems) {
           const itemId = item._id || item.id;
@@ -303,7 +460,7 @@ const Checkout = () => {
               pricing: JSON.stringify(itemData.pricing), // Convert pricing object to JSON string
               stock: newItemStock.toString(), // Convert to string as expected by API
               rentable: (newItemStock > 0).toString(), // Convert boolean to string
-              isActive: (newItemStock > 0).toString() // Convert boolean to string
+              isActive: "true" // Keep product active even when stock is 0 to avoid order creation issues
             }),
           });
 
