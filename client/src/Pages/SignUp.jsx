@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { FaArrowLeft } from "react-icons/fa";
+import { useAuth } from "../context/AuthContext";
 
 const gradientButtonClass =
   "inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200";
@@ -11,6 +12,7 @@ const inputClass =
 
 const SignUp = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,9 +57,8 @@ const SignUp = () => {
         throw new Error(data.message || "Failed to sign up");
       }
 
-      // Store token and user data
-      localStorage.setItem("token", data.data.token);
-      localStorage.setItem("user", JSON.stringify(data.data.user));
+      // Use AuthContext login function to properly set state
+      login(data.data.user, data.data.token);
 
       // Redirect based on user role
       const userRole = data.data.user.role;

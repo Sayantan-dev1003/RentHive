@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { FaArrowRight } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const SignIn = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -40,8 +42,8 @@ const SignIn = () => {
         throw new Error(data.message || "Failed to sign in");
       }
 
-      localStorage.setItem("token", data.data.token);
-      localStorage.setItem("user", JSON.stringify(data.data.user));
+      // Use AuthContext login function to properly set state
+      login(data.data.user, data.data.token);
 
       // Redirect based on user role
       const userRole = data.data.user.role;
