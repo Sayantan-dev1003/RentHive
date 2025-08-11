@@ -4,11 +4,11 @@ import { useState } from 'react'
 import logo from '/logo.png'
 
 const navigation = [
-  { name: 'Dashboard', href: '/', icon: '📊' },
-  { name: 'Products', href: '/products', icon: '📦' },
-  { name: 'Bookings', href: '/bookings', icon: '📅' },
-  { name: 'Orders', href: '/orders', icon: '📋' },
-  { name: 'Reports', href: '/reports', icon: '📈' },
+  { name: 'Dashboard', href: '/dashboard' },
+  { name: 'Products', href: '/products' },
+  { name: 'Bookings', href: '/bookings' },
+  { name: 'Orders', href: '/orders' },
+  { name: 'Reports', href: '/reports' },
 ]
 
 const Header = ({ sidebarCollapsed, setSidebarCollapsed }) => {
