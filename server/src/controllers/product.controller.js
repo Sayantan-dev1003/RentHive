@@ -1,6 +1,6 @@
 const Product = require('../models/Product');
 const { asyncHandler, createValidationError, createNotFoundError } = require('../middlewares/errorHandler');
-const { getAvailableQuantity, getAvailabilityCalendar } = require('../utils/availabilityHelper');
+const { getAvailableQuantity, getAvailabilityCalendar: getProductAvailabilityCalendar } = require('../utils/availabilityHelper');
 
 /**
  * Create a new product
@@ -316,7 +316,7 @@ const getAvailabilityCalendar = asyncHandler(async (req, res) => {
     throw createValidationError('Invalid date format');
   }
 
-  const calendar = await getAvailabilityCalendar(id, startDate, endDate);
+  const calendar = await getProductAvailabilityCalendar(id, startDate, endDate);
 
   res.status(200).json({
     success: true,

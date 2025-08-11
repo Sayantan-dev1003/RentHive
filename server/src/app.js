@@ -13,7 +13,8 @@ const notificationRoutes = require('./routes/notification.route');
 const reportRoutes = require('./routes/report.route');
 
 // Import middleware
-const errorHandler = require('./middlewares/errorHandler');
+const { errorHandler } = require('./middlewares/errorHandler');
+const { swaggerUi, swaggerSpec } = require('./config/swagger');
 
 // Create Express app
 const app = express();
@@ -31,6 +32,19 @@ app.get('/health', (req, res) => {
     message: 'RentHive API is running',
     timestamp: new Date().toISOString()
   });
+});
+
+// Swagger API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  explorer: true,
+  customCss: '.swagger-ui .topbar { display: none }',
+  customSiteTitle: 'RentHive API Documentation'
+}));
+
+// API JSON endpoint for swagger specification
+app.get('/api-docs.json', (req, res) => {
+  res.setHeader('Content-Type', 'application/json');
+  res.send(swaggerSpec);
 });
 
 // API Routes
