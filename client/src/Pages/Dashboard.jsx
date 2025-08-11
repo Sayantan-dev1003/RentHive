@@ -263,23 +263,7 @@ const Dashboard = () => {
             </button>
           </div>
 
-          {/* Create button */}
-          <button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover-lift shadow-lg hover:shadow-xl">
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              />
-            </svg>
-            Create
-          </button>
+
         </div>
       </div>
 
@@ -342,36 +326,7 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Performance Section */}
-                  <div className="bg-white/50 rounded-xl p-4 border border-gray-100 backdrop-blur-sm mb-4">
-                    <div className="flex justify-between items-center mb-3">
-                      <span className="text-gray-700 font-medium">Performance</span>
-                      <span className={`font-bold text-lg ${
-                        product.performance >= 70 
-                          ? 'text-green-600' 
-                          : product.performance >= 40 
-                          ? 'text-yellow-600' 
-                          : 'text-red-600'
-                      }`}>{product.performance}%</span>
-                    </div>
-                    
-                    {/* Performance Bar */}
-                    <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
-                      <div 
-                        className={`h-3 rounded-full transition-all duration-1000 shadow-sm ${
-                          product.performance >= 70 
-                            ? 'bg-gradient-to-r from-green-400 to-green-600' 
-                            : product.performance >= 40 
-                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
-                            : 'bg-gradient-to-r from-red-400 to-red-600'
-                        }`}
-                        style={{ 
-                          width: animateStats ? `${product.performance}%` : '0%',
-                          transitionDelay: `${index * 100 + 300}ms`
-                        }}
-                      ></div>
-                    </div>
-                  </div>
+
 
                   {/* Price Section */}
                   <div className="flex justify-between items-center">
@@ -430,7 +385,7 @@ const Dashboard = () => {
             </div>
 
             {/* Table Header */}
-            <div className="grid grid-cols-7 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
+            <div className="grid grid-cols-6 gap-4 px-6 py-3 bg-gray-50 border-b border-gray-200 text-sm font-medium text-gray-700">
               <div className="flex items-center gap-2">
                 <input type="checkbox" className="rounded border-gray-300" />
                 <span>Vehicle ID</span>
@@ -439,7 +394,6 @@ const Dashboard = () => {
               <div>Category</div>
               <div>Assigned To</div>
               <div>Status</div>
-              <div>Performance</div>
               <div>Actions</div>
             </div>
 
@@ -448,7 +402,7 @@ const Dashboard = () => {
               {rentalProducts.map((product, index) => (
                 <div
                   key={product.id}
-                  className={`grid grid-cols-7 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors ${animateStats
+                  className={`grid grid-cols-6 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors ${animateStats
                     ? "translate-y-0 opacity-100"
                     : "translate-y-4 opacity-0"
                     }`}
@@ -513,25 +467,6 @@ const Dashboard = () => {
                       ></div>
                       {product.status}
                     </span>
-                  </div>
-
-                  {/* Performance */}
-                  <div className="flex items-center">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">
-                        {product.performance}
-                      </span>
-                      <span
-                        className={`text-xs px-1.5 py-0.5 rounded ${product.performanceType === "Good Performance"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                          }`}
-                      >
-                        {product.performanceType === "Good Performance"
-                          ? "Good"
-                          : "Poor"}
-                      </span>
-                    </div>
                   </div>
 
                   {/* Actions */}

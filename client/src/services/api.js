@@ -49,6 +49,19 @@ class ApiService {
     })
   }
 
+  async uploadProductImages(images) {
+    const formData = new FormData()
+    images.forEach((image, index) => {
+      formData.append('images', image)
+    })
+    
+    return this.request('/dev/products/upload-images', {
+      method: 'POST',
+      headers: {}, // Remove Content-Type to let browser set it for FormData
+      body: formData
+    })
+  }
+
   async updateProduct(id, productData) {
     return this.request(`/dev/products/${id}`, {
       method: 'PUT',
