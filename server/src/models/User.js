@@ -33,7 +33,18 @@ const userSchema = new mongoose.Schema({
     enum: ['customer', 'admin'],
     default: 'customer',
     required: true
-  }
+  },
+  wishlist: [{
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Product',
+      required: true
+    },
+    addedAt: {
+      type: Date,
+      default: Date.now
+    }
+  }]
 }, {
   timestamps: true,
   toJSON: { virtuals: true },

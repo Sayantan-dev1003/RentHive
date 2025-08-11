@@ -328,24 +328,53 @@ mock-order-3,Customer 3,450,picked_up,2025-01-22`
   }
 
   async getCustomerWishlist(customerId) {
-    // For now, we'll simulate a wishlist. In a real app, you'd have a wishlist endpoint
     try {
-      const response = await this.getProducts()
-      if (response.success) {
-        // Mock some wishlist items by taking a few products
-        const wishlistItems = response.data.products.slice(0, 3).map(product => ({
-          ...this.transformProduct(product),
-          addedDate: new Date().toISOString(),
-          id: `wishlist_${product._id}`
-        }))
-        return {
-          success: true,
-          data: { items: wishlistItems }
-        }
-      }
-      return response
+      return this.request(`/users/${customerId}/wishlist`)
     } catch (error) {
       console.error('Error fetching wishlist:', error)
+      return { success: false, message: error.message }
+    }
+  }
+
+  async addToWishlist(userId, productId) {
+    try {
+      return this.request(`/users/${userId}/wishlist`, {
+        method: 'POST',
+        body: JSON.stringify({ productId })
+      })
+    } catch (error) {
+      console.error('Error adding to wishlist:', error)
+      return { success: false, message: error.message }
+    }
+  }
+
+  async removeFromWishlist(userId, productId) {
+    try {
+      return this.request(`/users/${userId}/wishlist/${productId}`, {
+        method: 'DELETE'
+      })
+    } catch (error) {
+      console.error('Error removing from wishlist:', error)
+      return { success: false, message: error.message }
+    }
+  }
+
+  async clearWishlist(userId) {
+    try {
+      return this.request(`/users/${userId}/wishlist`, {
+        method: 'DELETE'
+      })
+    } catch (error) {
+      console.error('Error clearing wishlist:', error)
+      return { success: false, message: error.message }
+    }
+  }
+
+  async checkWishlistStatus(userId, productId) {
+    try {
+      return this.request(`/users/${userId}/wishlist/check/${productId}`)
+    } catch (error) {
+      console.error('Error checking wishlist status:', error)
       return { success: false, message: error.message }
     }
   }

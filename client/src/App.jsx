@@ -3,6 +3,7 @@ import Layout from './components/layout/Layout'
 import CustomerLayout from './components/layout/CustomerLayout'
 import { ProtectedRoute } from './components'
 import { CartProvider } from './context/CartContext'
+import { WishlistProvider } from './context/WishlistContext'
 import Landing from './Pages/Landing'
 import Dashboard from './Pages/Dashboard'
 import Products from './Pages/Products'
@@ -21,7 +22,8 @@ import Cart from './customer/Pages/Cart'
 function App() {
   return (
     <CartProvider>
-      <Router>
+      <WishlistProvider>
+        <Router>
         <Routes>
         {/* Landing page */}
         <Route path="/" element={<Landing />} />
@@ -44,7 +46,8 @@ function App() {
         <Route path="/customer/billing-details" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><BillingDetails /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/cart" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><Cart /></CustomerLayout></ProtectedRoute>} />
         </Routes>
-      </Router>
+        </Router>
+      </WishlistProvider>
     </CartProvider>
   )
 }

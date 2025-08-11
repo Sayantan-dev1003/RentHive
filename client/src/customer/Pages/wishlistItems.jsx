@@ -1,86 +1,63 @@
 import React, { useState } from "react";
-
-const wishlistItems = [
-  {
-    id: 1,
-    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center",
-    name: "JCB Excavator 3CX",
-    category: "Construction Equipment",
-    price: "₹2,500",
-    originalPrice: "₹3,000",
-    period: "/day",
-    status: "Available",
-    rating: 4.8,
-    location: "Mumbai, Maharashtra",
-    dateAdded: "2 days ago",
-    brand: "JCB",
-    isNew: true,
-  },
-  {
-    id: 2,
-    image: "https://images.unsplash.com/photo-1566213327120-27e7e0c2ad97?w=400&h=300&fit=crop&crop=center",
-    name: "Tata Ace Pickup Truck",
-    category: "Transportation",
-    price: "₹1,200",
-    originalPrice: "₹1,500",
-    period: "/day",
-    status: "Available",
-    rating: 4.6,
-    location: "Delhi, NCR",
-    dateAdded: "1 week ago",
-    brand: "Tata",
-    isNew: false,
-  },
-  {
-    id: 3,
-    image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=400&h=300&fit=crop&crop=center",
-    name: "Concrete Mixer Machine",
-    category: "Construction Equipment",
-    price: "₹800",
-    originalPrice: "₹1,000",
-    period: "/day",
-    status: "Rented",
-    rating: 4.7,
-    location: "Bangalore, Karnataka",
-    dateAdded: "3 days ago",
-    brand: "Jaypee",
-    isNew: false,
-  },
-  {
-    id: 4,
-    image: "https://images.unsplash.com/photo-1572078297928-5303269a4e6f?w=400&h=300&fit=crop&crop=center",
-    name: "Tower Crane 50T",
-    category: "Heavy Machinery",
-    price: "₹15,000",
-    originalPrice: "₹18,000",
-    period: "/day",
-    status: "Available",
-    rating: 4.9,
-    location: "Chennai, Tamil Nadu",
-    dateAdded: "5 days ago",
-    brand: "Liebherr",
-    isNew: true,
-  },
-  {
-    id: 5,
-    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&crop=center",
-    name: "Generator Set 100KVA",
-    category: "Power Equipment",
-    price: "₹3,500",
-    originalPrice: "₹4,000",
-    period: "/day",
-    status: "Available",
-    rating: 4.5,
-    location: "Pune, Maharashtra",
-    dateAdded: "1 day ago",
-    brand: "Cummins",
-    isNew: false,
-  },
-];
+import { useWishlist } from '../../context/WishlistContext';
+import { useCart } from '../../context/CartContext';
+import { useAuth } from '../../context/AuthContext';
 
 export default function Wishlist() {
+  const { 
+    wishlistItems, 
+    loading, 
+    removeFromWishlist, 
+    clearWishlist,
+    fetchWishlist 
+  } = useWishlist();
+  const { addToCart, isInCart } = useCart();
+  const { user } = useAuth();
   const [selectedItems, setSelectedItems] = useState([]);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [error, setError] = useState(null);
+
+  // Handle remove from wishlist with error handling
+  const handleRemoveFromWishlist = async (productId) => {
+    const result = await removeFromWishlist(productId);
+    if (!result.success) {
+      setError(result.message);
+    } else {
+      setError(null);
+    }
+  };
+
+  // Handle clear wishlist with error handling
+  const handleClearWishlist = async () => {
+    const result = await clearWishlist();
+    if (!result.success) {
+      setError(result.message);
+    } else {
+      setError(null);
+      setSelectedItems([]);
+    }
+  };
+
+  // Handle rent now - adds to cart and redirects to cart page
+  const handleRentNow = (item) => {
+    if (!user) {
+      alert('Please log in to rent equipment');
+      return;
+    }
+
+    if (item.status !== 'Available') {
+      alert('This equipment is currently not available for rent');
+      return;
+    }
+
+    // Add to cart if not already added
+    if (!isInCart(item.id)) {
+      addToCart(item);
+    }
+
+    // Redirect to cart page
+    window.location.href = '/customer/cart';
+  };
 
   const toggleSelection = (id) => {
     setSelectedItems(prev => 
@@ -154,7 +131,11 @@ export default function Wishlist() {
               </div>
               
               {/* Action Buttons */}
-              <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center gap-2">
+              <button 
+                onClick={handleClearWishlist}
+                disabled={loading || wishlistItems.length === 0}
+                className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
@@ -164,8 +145,34 @@ export default function Wishlist() {
           </div>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
+            <div className="flex items-center gap-2">
+              <svg className="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="font-medium">{error}</span>
+              <button 
+                onClick={fetchWishlist}
+                className="ml-auto px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition-colors text-sm"
+              >
+                Retry
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading your wishlist...</p>
+          </div>
+        )}
+
         {/* Grid View */}
-        {viewMode === 'grid' && (
+        {!loading && viewMode === 'grid' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {wishlistItems.map((item) => {
               const statusConfig = getStatusConfig(item.status);
@@ -200,7 +207,10 @@ export default function Wishlist() {
 
                     {/* Remove Button */}
                     <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button className="bg-white/90 backdrop-blur-sm text-red-500 p-2 rounded-full hover:bg-white hover:scale-110 transition-all shadow-lg">
+                      <button 
+                        onClick={() => handleRemoveFromWishlist(item.id)}
+                        className="bg-white/90 backdrop-blur-sm text-red-500 p-2 rounded-full hover:bg-white hover:scale-110 transition-all shadow-lg"
+                      >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -252,7 +262,11 @@ export default function Wishlist() {
 
                     {/* Action Buttons */}
                     <div className="flex gap-2">
-                      <button className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 text-sm">
+                      <button 
+                        onClick={() => handleRentNow(item)}
+                        disabled={item.status !== 'Available'}
+                        className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
                         Rent Now
                       </button>
                       <button className="bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors">
@@ -269,7 +283,7 @@ export default function Wishlist() {
         )}
 
         {/* List View */}
-        {viewMode === 'list' && (
+        {!loading && viewMode === 'list' && (
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -349,10 +363,17 @@ export default function Wishlist() {
                         {/* Actions */}
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-2">
-                            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                            <button 
+                              onClick={() => handleRentNow(item)}
+                              disabled={item.status !== 'Available'}
+                              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
                               Rent Now
                             </button>
-                            <button className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors">
+                            <button 
+                              onClick={() => handleRemoveFromWishlist(item.id)}
+                              className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                            >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                               </svg>
@@ -369,7 +390,7 @@ export default function Wishlist() {
         )}
 
         {/* Empty State */}
-        {wishlistItems.length === 0 && (
+        {!loading && wishlistItems.length === 0 && (
           <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
             <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

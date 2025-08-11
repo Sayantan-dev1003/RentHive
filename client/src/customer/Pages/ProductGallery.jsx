@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { useWishlist } from '../../context/WishlistContext';
 import apiService from '../../services/api';
 
 // Beautiful Admin-Style Dashboard Design for Product Gallery
@@ -149,6 +150,7 @@ const adminDashboardStyles = `
 const ProductGallery = () => {
   const { addToCart, isInCart } = useCart();
   const { user } = useAuth();
+  const { toggleWishlist, isInWishlist } = useWishlist();
   const [viewMode, setViewMode] = useState("Card");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedSort, setSelectedSort] = useState("Popular");
@@ -227,6 +229,54 @@ const ProductGallery = () => {
   const closeModal = () => {
     setShowModal(false);
     setTimeout(() => setSelectedProduct(null), 300);
+  };
+
+  // Handle wishlist toggle
+  const handleWishlistToggle = async (productId, event) => {
+    event?.stopPropagation();
+    
+    if (!user) {
+      alert('Please log in to add items to wishlist');
+      return;
+    }
+
+    try {
+      const result = await toggleWishlist(productId);
+      if (!result.success) {
+        alert(result.message || 'Failed to update wishlist');
+      }
+    } catch (error) {
+      console.error('Error toggling wishlist:', error);
+      alert('Failed to update wishlist');
+    }
+  };
+
+  // Handle rent now - adds to cart and redirects to cart page
+  const handleRentNow = (product, event) => {
+    event?.stopPropagation();
+    
+    if (!user) {
+      alert('Please log in to rent equipment');
+      return;
+    }
+
+    if (product.status !== 'Available') {
+      alert('This equipment is currently not available for rent');
+      return;
+    }
+
+    // Add to cart if not already added
+    if (!isInCart(product.id)) {
+      addToCart(product);
+    }
+
+    // Close modal if open
+    if (showModal) {
+      closeModal();
+    }
+
+    // Redirect to cart page
+    window.location.href = '/customer/cart';
   };
 
   // Dashboard Statistics (Admin style) - Now using dynamic data
@@ -507,6 +557,22 @@ const ProductGallery = () => {
                         </span>
                       </div>
 
+                      {/* Wishlist Heart Button */}
+                      <div className="absolute top-3 left-3">
+                        <button
+                          onClick={(e) => handleWishlistToggle(product.id, e)}
+                          className={`p-2 rounded-full backdrop-blur-sm transition-all duration-200 ${
+                            isInWishlist(product.id)
+                              ? 'bg-red-500 text-white hover:bg-red-600'
+                              : 'bg-white/80 text-gray-600 hover:bg-white hover:text-red-500'
+                          }`}
+                        >
+                          <svg className="w-4 h-4" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        </button>
+                      </div>
+
                       {/* Performance Badge */}
                       <div className="absolute bottom-3 left-3">
                         <span className="bg-white/90 backdrop-blur-sm text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
@@ -558,12 +624,9 @@ const ProductGallery = () => {
                       <div className="flex gap-2">
                         <button
                           className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleProductClick(product);
-                          }}
+                          onClick={(e) => handleRentNow(product, e)}
                         >
-                          View Details
+                          Rent Now
                         </button>
                         <button
                           onClick={(e) => {
@@ -657,6 +720,18 @@ const ProductGallery = () => {
                                 }`}
                               >
                                 {isInCart(product.id) ? 'Added' : 'Add'}
+                              </button>
+                              <button
+                                onClick={(e) => handleWishlistToggle(product.id, e)}
+                                className={`p-2 rounded-lg transition-colors ${
+                                  isInWishlist(product.id)
+                                    ? 'bg-red-500 text-white hover:bg-red-600'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500'
+                                }`}
+                              >
+                                <svg className="w-4 h-4" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
                               </button>
                             </div>
                           </td>
@@ -777,7 +852,10 @@ const ProductGallery = () => {
 
                       {/* Action Buttons */}
                       <div className="flex gap-3">
-                        <button className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors">
+                        <button 
+                          onClick={(e) => handleRentNow(selectedProduct, e)}
+                          className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+                        >
                           Rent Now
                         </button>
                         <button 
@@ -789,6 +867,18 @@ const ProductGallery = () => {
                           }`}
                         >
                           {isInCart(selectedProduct.id) ? 'Added to Cart' : 'Add to Cart'}
+                        </button>
+                        <button
+                          onClick={(e) => handleWishlistToggle(selectedProduct.id, e)}
+                          className={`py-3 px-4 rounded-xl font-semibold transition-colors ${
+                            isInWishlist(selectedProduct.id)
+                              ? 'bg-red-500 text-white hover:bg-red-600'
+                              : 'bg-gray-100 text-gray-700 hover:bg-red-50'
+                          }`}
+                        >
+                          <svg className="w-5 h-5" fill={isInWishlist(selectedProduct.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
                         </button>
                       </div>
                     </div>
