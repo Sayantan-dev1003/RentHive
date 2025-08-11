@@ -51,7 +51,7 @@ const SignUp = () => {
       localStorage.setItem('user', JSON.stringify(data.data.user));
 
       // Redirect to dashboard
-      navigate('/');
+      navigate('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -75,12 +75,6 @@ const SignUp = () => {
                 Sign in
               </Link>
             </p>
-
-            {error && (
-              <div className="mt-4 p-4 text-red-700 bg-red-100 rounded-xl">
-                {error}
-              </div>
-            )}
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
               {error && (
