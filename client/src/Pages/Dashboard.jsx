@@ -136,25 +136,10 @@ const Dashboard = () => {
     <div className="w-full space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 hover-lift shadow-lg hover:shadow-xl">
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
-          Create
-        </button>
-
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Rental Orders</h1>
+        <div className="flex justify-center items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Rental Orders</h1>
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
@@ -163,7 +148,7 @@ const Dashboard = () => {
             <input
               type="text"
               placeholder="Search here..."
-              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80 bg-white"
+              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80 bg-white"
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
@@ -186,7 +171,7 @@ const Dashboard = () => {
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("Card")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "Card"
+              className={`px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "Card"
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-gray-600 hover:text-gray-900"
                 }`}
@@ -198,7 +183,7 @@ const Dashboard = () => {
             </button>
             <button
               onClick={() => setViewMode("List")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "List"
+              className={`px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "List"
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-gray-600 hover:text-gray-900"
                 }`}
@@ -213,6 +198,24 @@ const Dashboard = () => {
               List View
             </button>
           </div>
+
+          {/* Create button */}
+          <button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover-lift shadow-lg hover:shadow-xl">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
+            </svg>
+            Create
+          </button>
         </div>
       </div>
 
@@ -224,8 +227,8 @@ const Dashboard = () => {
               <div
                 key={product.id}
                 className={`bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-transform transform hover:-translate-y-1 ${animateStats
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-8 opacity-0"
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
                   }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
@@ -240,10 +243,10 @@ const Dashboard = () => {
                   />
                   <span
                     className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-full ${product.status === "Active"
-                        ? "bg-green-100 text-green-800"
-                        : product.status === "Idle"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
+                      ? "bg-green-100 text-green-800"
+                      : product.status === "Idle"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-red-100 text-red-800"
                       }`}
                   >
                     ● {product.status}
@@ -348,7 +351,7 @@ const Dashboard = () => {
             {/* Table Body */}
             <div className="divide-y divide-gray-200">
               {rentalProducts.map((product, index) => (
-                <div 
+                <div
                   key={product.id}
                   className={`grid grid-cols-7 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors ${animateStats
                     ? "translate-y-0 opacity-100"
