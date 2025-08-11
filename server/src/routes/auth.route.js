@@ -13,6 +13,20 @@ const { auth, authorizeRoles } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
+// Public routes
+router.post('/register', register);
+router.post('/login', login);
+
+// Protected routes
+router.get('/profile', auth, getProfile);
+router.put('/profile', auth, updateProfile);
+router.post('/change-password', auth, changePassword);
+router.post('/refresh', auth, refreshToken);
+
+// Admin only routes
+router.get('/users', auth, authorizeRoles('end_user'), getAllUsers);
+router.delete('/users/:id', auth, authorizeRoles('end_user'), deleteUser);
+
 /**
  * @swagger
  * /api/auth/register:
