@@ -1,133 +1,388 @@
-import React from "react";
+import React, { useState } from "react";
 
 const wishlistItems = [
   {
     id: 1,
-    img: "https://storage.googleapis.com/a1aa/image/d1e41ced-0abc-4e23-406f-89bb603d73e6.jpg",
-    alt: "Light brown wooden chair on a light gray background",
-    title: "T-shirts combo for men",
-    price: "$12.00",
-    status: "In stock",
-    active: false,
+    image: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400&h=300&fit=crop&crop=center",
+    name: "JCB Excavator 3CX",
+    category: "Construction Equipment",
+    price: "₹2,500",
+    originalPrice: "₹3,000",
+    period: "/day",
+    status: "Available",
+    rating: 4.8,
+    location: "Mumbai, Maharashtra",
+    dateAdded: "2 days ago",
+    brand: "JCB",
+    isNew: true,
   },
   {
     id: 2,
-    img: "https://storage.googleapis.com/a1aa/image/acce90b4-29a8-4066-efab-40c60d8ffc10.jpg",
-    alt: "Small dark gray sofa on a light gray background",
-    title: "T-shirts combo for men",
-    price: "$12.00",
-    status: "In stock",
-    active: false,
+    image: "https://images.unsplash.com/photo-1566213327120-27e7e0c2ad97?w=400&h=300&fit=crop&crop=center",
+    name: "Tata Ace Pickup Truck",
+    category: "Transportation",
+    price: "₹1,200",
+    originalPrice: "₹1,500",
+    period: "/day",
+    status: "Available",
+    rating: 4.6,
+    location: "Delhi, NCR",
+    dateAdded: "1 week ago",
+    brand: "Tata",
+    isNew: false,
   },
   {
     id: 3,
-    img: "https://storage.googleapis.com/a1aa/image/2b9a9997-a0c6-411f-e9e6-69f5bee96e7c.jpg",
-    alt: "Yellow tape roll on a light gray background",
-    title: "T-shirts combo for men",
-    price: "$12.00",
-    status: "In stock",
-    active: true,
+    image: "https://images.unsplash.com/photo-1570125909232-eb263c188f7e?w=400&h=300&fit=crop&crop=center",
+    name: "Concrete Mixer Machine",
+    category: "Construction Equipment",
+    price: "₹800",
+    originalPrice: "₹1,000",
+    period: "/day",
+    status: "Rented",
+    rating: 4.7,
+    location: "Bangalore, Karnataka",
+    dateAdded: "3 days ago",
+    brand: "Jaypee",
+    isNew: false,
   },
   {
     id: 4,
-    img: "https://storage.googleapis.com/a1aa/image/b1f36c0a-7b58-4242-3f93-7960c63bb089.jpg",
-    alt: "Light wooden shelf with items on a light gray background",
-    title: "T-shirts combo for men",
-    price: "$12.00",
-    status: "In stock",
-    active: false,
+    image: "https://images.unsplash.com/photo-1572078297928-5303269a4e6f?w=400&h=300&fit=crop&crop=center",
+    name: "Tower Crane 50T",
+    category: "Heavy Machinery",
+    price: "₹15,000",
+    originalPrice: "₹18,000",
+    period: "/day",
+    status: "Available",
+    rating: 4.9,
+    location: "Chennai, Tamil Nadu",
+    dateAdded: "5 days ago",
+    brand: "Liebherr",
+    isNew: true,
+  },
+  {
+    id: 5,
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop&crop=center",
+    name: "Generator Set 100KVA",
+    category: "Power Equipment",
+    price: "₹3,500",
+    originalPrice: "₹4,000",
+    period: "/day",
+    status: "Available",
+    rating: 4.5,
+    location: "Pune, Maharashtra",
+    dateAdded: "1 day ago",
+    brand: "Cummins",
+    isNew: false,
   },
 ];
 
 export default function Wishlist() {
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+
+  const toggleSelection = (id) => {
+    setSelectedItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
+  };
+
+  const getStatusConfig = (status) => {
+    switch (status) {
+      case 'Available':
+        return { color: 'bg-green-100 text-green-800', icon: '✓' };
+      case 'Rented':
+        return { color: 'bg-red-100 text-red-800', icon: '⏰' };
+      default:
+        return { color: 'bg-gray-100 text-gray-800', icon: '?' };
+    }
+  };
+
   return (
-    <div className="bg-black min-h-screen font-['Inter'] text-black p-4">
-      <div className="max-w-3xl mx-auto bg-white rounded-2xl p-6 sm:p-8">
-        {/* Header */}
-        <div className="flex items-center font-semibold text-base sm:text-lg text-black mb-6 sm:mb-8">
-          <i className="fas fa-arrow-left mr-2 cursor-pointer text-base sm:text-lg"></i>
-          <span>Your Wishlist</span>
-          <i className="fas fa-heart text-red-600 ml-2 text-base sm:text-lg"></i>
-        </div>
-
-        {/* Desktop Table */}
-        <div className="hidden sm:block">
-          <table className="w-full border-collapse text-sm">
-            <thead>
-              <tr className="border-b border-gray-200">
-                <th className="font-normal pb-3 text-left">Items</th>
-                <th className="font-normal pb-3 text-left">Product title</th>
-                <th className="font-normal pb-3 text-left">Price</th>
-                <th className="font-normal pb-3 text-left">Status</th>
-                <th className="font-normal pb-3 text-left">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {wishlistItems.map((item) => (
-                <tr key={item.id} className="border-b last:border-b-0 border-gray-200">
-                  <td className="py-4 align-middle">
-                    <div className="w-14 h-14 bg-gray-100 flex justify-center items-center rounded">
-                      <img
-                        src={item.img}
-                        alt={item.alt}
-                        className="max-w-10 max-h-10 object-contain"
-                      />
-                    </div>
-                  </td>
-                  <td className="max-w-[180px] font-normal">{item.title}</td>
-                  <td className="whitespace-nowrap">{item.price}</td>
-                  <td className="whitespace-nowrap">{item.status}</td>
-                  <td>
-                    <button
-                      className={`text-black border border-gray-300 rounded-full px-4 py-1.5 text-xs flex items-center gap-2 transition-colors ${
-                        item.active
-                          ? "bg-green-700 border-green-700 text-white"
-                          : "hover:border-gray-500"
-                      }`}
-                    >
-                      <i className="fas fa-shopping-cart text-xs"></i>
-                      Add to cart
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Mobile Card View */}
-        <div className="sm:hidden space-y-4">
-          {wishlistItems.map((item) => (
-            <div
-              key={item.id}
-              className="border border-gray-200 rounded-lg p-4 flex items-center justify-between"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-14 h-14 bg-gray-100 flex justify-center items-center rounded">
-                  <img
-                    src={item.img}
-                    alt={item.alt}
-                    className="max-w-10 max-h-10 object-contain"
-                  />
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Beautiful Header */}
+        <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-6 mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
                 </div>
-                <div>
-                  <p className="text-sm font-normal">{item.title}</p>
-                  <p className="text-xs text-gray-500">{item.status}</p>
-                  <p className="text-sm font-medium">{item.price}</p>
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold">
+                  {wishlistItems.length}
                 </div>
               </div>
-              <button
-                className={`text-black border border-gray-300 rounded-full px-3 py-1 text-xs flex items-center gap-2 transition-colors ${
-                  item.active
-                    ? "bg-green-700 border-green-700 text-white"
-                    : "hover:border-gray-500"
-                }`}
-              >
-                <i className="fas fa-shopping-cart text-xs"></i>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">My Wishlist</h1>
+                <p className="text-gray-600 text-sm">Equipment you want to rent later</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              {/* View Toggle */}
+              <div className="bg-gray-100 rounded-lg p-1 flex">
+                <button 
+                  onClick={() => setViewMode('grid')}
+                  className={`px-3 py-1.5 rounded text-sm font-medium transition-all ${
+                    viewMode === 'grid' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+                <button 
+                  onClick={() => setViewMode('list')}
+                  className={`px-3 py-1.5 rounded text-sm font-medium transition-all ${
+                    viewMode === 'list' 
+                      ? 'bg-white text-gray-900 shadow-sm' 
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Action Buttons */}
+              <button className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors font-medium text-sm flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Clear All
               </button>
             </div>
-          ))}
+          </div>
         </div>
+
+        {/* Grid View */}
+        {viewMode === 'grid' && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {wishlistItems.map((item) => {
+              const statusConfig = getStatusConfig(item.status);
+              return (
+                <div key={item.id} className="group bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1">
+                  {/* Image Section */}
+                  <div className="relative overflow-hidden">
+                    <img 
+                      src={item.image} 
+                      alt={item.name}
+                      className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
+                      onError={(e) => {
+                        e.target.src = `https://via.placeholder.com/400x300/f3f4f6/6b7280?text=${encodeURIComponent(item.name)}`;
+                      }}
+                    />
+                    
+                    {/* Status Badge */}
+                    <div className="absolute top-3 left-3">
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${statusConfig.color}`}>
+                        {statusConfig.icon} {item.status}
+                      </span>
+                    </div>
+
+                    {/* New Badge */}
+                    {item.isNew && (
+                      <div className="absolute top-3 right-3">
+                        <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                          ✨ New
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Remove Button */}
+                    <div className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button className="bg-white/90 backdrop-blur-sm text-red-500 p-2 rounded-full hover:bg-white hover:scale-110 transition-all shadow-lg">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Content Section */}
+                  <div className="p-5">
+                    {/* Category */}
+                    <div className="mb-2">
+                      <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded font-medium">
+                        {item.category}
+                      </span>
+                    </div>
+
+                    {/* Equipment Name */}
+                    <h3 className="font-semibold text-gray-900 mb-2 text-lg leading-tight group-hover:text-blue-600 transition-colors">
+                      {item.name}
+                    </h3>
+
+                    {/* Rating & Brand */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-1">
+                        <span className="text-yellow-500 text-sm">★</span>
+                        <span className="text-sm font-medium text-gray-700">{item.rating}</span>
+                      </div>
+                      <span className="text-xs text-gray-500">{item.brand}</span>
+                    </div>
+
+                    {/* Pricing */}
+                    <div className="flex items-baseline gap-2 mb-3">
+                      <span className="text-xl font-bold text-green-600">{item.price}</span>
+                      <span className="text-gray-500 line-through text-sm">{item.originalPrice}</span>
+                      <span className="text-xs text-gray-600">{item.period}</span>
+                    </div>
+
+                    {/* Location & Date */}
+                    <div className="flex items-center justify-between text-xs text-gray-500 mb-4">
+                      <div className="flex items-center gap-1">
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        <span>{item.location}</span>
+                      </div>
+                      <span>Added {item.dateAdded}</span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      <button className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2 px-4 rounded-lg font-medium hover:from-blue-700 hover:to-indigo-700 transition-all transform hover:scale-105 text-sm">
+                        Rent Now
+                      </button>
+                      <button className="bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* List View */}
+        {viewMode === 'list' && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Equipment</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Details</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Price</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Status</th>
+                    <th className="text-left py-4 px-6 font-semibold text-gray-900 text-sm">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {wishlistItems.map((item) => {
+                    const statusConfig = getStatusConfig(item.status);
+                    return (
+                      <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                        {/* Equipment */}
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-4">
+                            <div className="relative">
+                              <img 
+                                src={item.image} 
+                                alt={item.name}
+                                className="w-16 h-16 object-cover rounded-lg"
+                                onError={(e) => {
+                                  e.target.src = `https://via.placeholder.com/64x64/f3f4f6/6b7280?text=${encodeURIComponent(item.name.charAt(0))}`;
+                                }}
+                              />
+                              {item.isNew && (
+                                <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                                  <span className="text-white text-xs">!</span>
+                                </div>
+                              )}
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-gray-900">{item.name}</h4>
+                              <p className="text-sm text-gray-600">{item.category}</p>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Details */}
+                        <td className="py-4 px-6">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1">
+                              <span className="text-yellow-500 text-sm">★</span>
+                              <span className="text-sm text-gray-700">{item.rating}</span>
+                              <span className="text-xs text-gray-500">• {item.brand}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-xs text-gray-500">
+                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                              </svg>
+                              <span>{item.location}</span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Price */}
+                        <td className="py-4 px-6">
+                          <div className="flex items-baseline gap-2">
+                            <span className="text-lg font-bold text-green-600">{item.price}</span>
+                            <span className="text-gray-500 line-through text-sm">{item.originalPrice}</span>
+                          </div>
+                          <span className="text-xs text-gray-600">{item.period}</span>
+                        </td>
+
+                        {/* Status */}
+                        <td className="py-4 px-6">
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${statusConfig.color}`}>
+                            {statusConfig.icon} {item.status}
+                          </span>
+                        </td>
+
+                        {/* Actions */}
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-2">
+                            <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                              Rent Now
+                            </button>
+                            <button className="text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors">
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Empty State */}
+        {wishlistItems.length === 0 && (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-12 text-center">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Your wishlist is empty</h3>
+            <p className="text-gray-600 mb-6">Start browsing equipment to add items to your wishlist</p>
+            <button className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium">
+              Browse Equipment
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

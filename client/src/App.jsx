@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Layout from './components/layout/Layout'
 import CustomerLayout from './components/layout/CustomerLayout'
 import { ProtectedRoute } from './components'
+import { CartProvider } from './context/CartContext'
 import Landing from './Pages/Landing'
 import Dashboard from './Pages/Dashboard'
 import Products from './Pages/Products'
@@ -15,11 +16,15 @@ import Reports from './Pages/Reports'
 import ProductGallery from './customer/Pages/ProductGallery'
 import WishlistItems from './customer/Pages/wishlistItems'
 import OrderRegistered from './customer/Pages/OrderRegistered'
+import BillingDetails from './customer/Pages/BillingDetails'
+import OrderConfirmation from './customer/Pages/OrderConfirmation'
+import Cart from './customer/Pages/Cart'
 
 function App() {
   return (
-    <Router>
-      <Routes>
+    <CartProvider>
+      <Router>
+        <Routes>
         {/* Landing page */}
         <Route path="/" element={<Landing />} />
         
@@ -38,8 +43,12 @@ function App() {
         <Route path="/customer/customer-dashboard" element={<ProtectedRoute><CustomerLayout><ProductGallery /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/wishlist" element={<ProtectedRoute><CustomerLayout><WishlistItems /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/order-success" element={<ProtectedRoute><CustomerLayout><OrderRegistered /></CustomerLayout></ProtectedRoute>} />
-      </Routes>
-    </Router>
+        <Route path="/customer/billing-details" element={<ProtectedRoute><CustomerLayout><BillingDetails /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/order-confirmation" element={<ProtectedRoute><CustomerLayout><OrderConfirmation /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/cart" element={<ProtectedRoute><CustomerLayout><Cart /></CustomerLayout></ProtectedRoute>} />
+        </Routes>
+      </Router>
+    </CartProvider>
   )
 }
 
