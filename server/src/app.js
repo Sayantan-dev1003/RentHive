@@ -12,6 +12,7 @@ const paymentRoutes = require('./routes/payment.route');
 const notificationRoutes = require('./routes/notification.route');
 const reportRoutes = require('./routes/report.route');
 const aiRoutes = require('./routes/aiRoutes');
+const devRoutes = require('./routes/dev.route');
 
 // Import middleware
 const { errorHandler } = require('./middlewares/errorHandler');
