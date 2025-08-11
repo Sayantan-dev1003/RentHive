@@ -8,12 +8,21 @@ class ApiService {
   // Helper method for making API requests
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`
+    // Default headers, to be overridden if a FormData body is used
+    const defaultHeaders = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    }
+
     const config = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers,
-      },
+      headers: defaultHeaders,
       ...options,
+    }
+
+    // If the body is an instance of FormData, remove the Content-Type header
+    // so the browser can set it correctly as 'multipart/form-data'
+    if (options.body instanceof FormData) {
+      delete config.headers['Content-Type']
     }
 
     try {
@@ -42,35 +51,34 @@ class ApiService {
     return this.request('/products/categories')
   }
 
-  async createProduct(productData) {
-    return this.request('/dev/products', {
+  // Renamed and updated to use the correct endpoint
+  async createProduct(formData) {
+    // The endpoint should be `/products`, not `/dev/products`
+    return this.request('/products', {
       method: 'POST',
-      body: JSON.stringify(productData)
-    })
-  }
-
-  async uploadProductImages(images) {
-    const formData = new FormData()
-    images.forEach((image, index) => {
-      formData.append('images', image)
-    })
-    
-    return this.request('/dev/products/upload-images', {
-      method: 'POST',
-      headers: {}, // Remove Content-Type to let browser set it for FormData
       body: formData
     })
   }
 
-  async updateProduct(id, productData) {
-    return this.request(`/dev/products/${id}`, {
+  async uploadProductImages(formData) {
+    return this.request('/products/upload-images', {
+      method: 'POST',
+      body: formData,
+    });
+  }
+
+  // This function is now responsible for sending FormData with files
+  async updateProduct(id, formData) {
+    // The endpoint should be `/products/${id}`, not `/dev/products/${id}`
+    return this.request(`/products/${id}`, {
       method: 'PUT',
-      body: JSON.stringify(productData)
+      body: formData
     })
   }
 
+  // Assuming `deleteProduct` should also use the non-dev endpoint
   async deleteProduct(id) {
-    return this.request(`/dev/products/${id}`, {
+    return this.request(`/products/${id}`, {
       method: 'DELETE'
     })
   }
