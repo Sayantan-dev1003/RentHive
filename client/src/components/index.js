@@ -3,6 +3,9 @@ export { default as Layout } from './layout/Layout'
 export { default as Sidebar } from './layout/Sidebar'
 export { default as Header } from './layout/Header'
 
+// Authentication Components
+export { default as ProtectedRoute } from './ProtectedRoute'
+
 // Common Components (can be added later)
 // export { default as Button } from './common/Button'
 // export { default as Modal } from './common/Modal'

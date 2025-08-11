@@ -1,6 +1,7 @@
 import { Bars3Icon, BellIcon, MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Link, useLocation } from 'react-router-dom'
-import { useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import Logo2 from '/Logo2.png'
 
 const navigation = [
@@ -13,7 +14,33 @@ const navigation = [
 
 const Header = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { logout, user } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
+  const dropdownRef = useRef(null)
+
+  const handleLogout = () => {
+    logout()
+    navigate('/signin')
+  }
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowUserDropdown(false)
+      }
+    }
+
+    if (showUserDropdown) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [showUserDropdown])
 
   return (
     <header className="bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200/50 sticky top-0 z-20 w-full animate-slideInDown">
@@ -94,26 +121,52 @@ const Header = () => {
           </button>
 
           {/* User profile */}
-          <div className="flex items-center space-x-3 group cursor-pointer">
-            <div className="relative">
-              <div className="w-10 h-10 bg-gradient-to-br from-[#2542ff] via-[#3b82f6] to-[#1e40af] rounded-xl flex items-center justify-center shadow-xl hover-lift hover-glow transition-all duration-300">
-                <span className="text-white text-sm font-bold">A</span>
+          <div className="relative" ref={dropdownRef}>
+            <div 
+              className="flex items-center space-x-3 group cursor-pointer"
+              onClick={() => setShowUserDropdown(!showUserDropdown)}
+            >
+              <div className="relative">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#2542ff] via-[#3b82f6] to-[#1e40af] rounded-xl flex items-center justify-center shadow-xl hover-lift hover-glow transition-all duration-300">
+                  <span className="text-white text-sm font-bold">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </span>
+                </div>
+                {/* Online indicator */}
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
               </div>
-              {/* Online indicator */}
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-white shadow-lg animate-pulse"></div>
-            </div>
-            
-            <div className="hidden md:block animate-fadeIn">
-              <p className="text-sm font-bold text-slate-900">Admin User</p>
-              <p className="text-xs text-slate-500 font-medium">admin@renthive.com</p>
+              
+              <div className="hidden md:block animate-fadeIn">
+                <p className="text-sm font-bold text-slate-900">{user?.name || 'User'}</p>
+                <p className="text-xs text-slate-500 font-medium">{user?.email || 'user@example.com'}</p>
+              </div>
+
+              {/* Dropdown arrow */}
+              <div className="hidden lg:block text-slate-400 group-hover:text-slate-600 transition-colors duration-300">
+                <svg className={`w-4 h-4 transition-transform duration-300 ${showUserDropdown ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
             </div>
 
-            {/* Dropdown arrow */}
-            <div className="hidden lg:block text-slate-400 group-hover:text-slate-600 transition-colors duration-300">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
+            {/* User Dropdown */}
+            {showUserDropdown && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50 animate-in slide-in-from-top-2 duration-200">
+                <div className="px-4 py-2 border-b border-gray-100">
+                  <p className="text-sm font-semibold text-gray-900">{user?.name || 'User'}</p>
+                  <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors duration-200 flex items-center space-x-2"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -162,6 +215,31 @@ const Header = () => {
                 placeholder="Search products, customers..."
                 className="block w-full pl-10 pr-3 py-2.5 border border-slate-200 rounded-xl bg-slate-50/50 text-slate-900 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#2542ff]/20 focus:border-[#2542ff] transition-all duration-300 text-sm"
               />
+            </div>
+          </div>
+
+          {/* Mobile User Actions */}
+          <div className="px-4 py-3 border-t border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-[#2542ff] via-[#3b82f6] to-[#1e40af] rounded-lg flex items-center justify-center shadow-lg">
+                  <span className="text-white text-xs font-bold">
+                    {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                  </span>
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{user?.name || 'User'}</p>
+                  <p className="text-xs text-gray-500">{user?.email || 'user@example.com'}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </button>
             </div>
           </div>
         </div>

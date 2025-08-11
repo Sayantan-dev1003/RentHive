@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
-import Layout from './Components/layout/Layout'
+import Layout from './components/layout/Layout'
 import CustomerLayout from './components/layout/CustomerLayout'
+import { ProtectedRoute } from './components'
 import Landing from './Pages/Landing'
 import Dashboard from './Pages/Dashboard'
 import Products from './Pages/Products'
@@ -26,17 +27,17 @@ function App() {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         
-        {/* Routes with layout (main app pages) */}
-        <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-        <Route path="/products" element={<Layout><Products /></Layout>} />
-        <Route path="/bookings" element={<Layout><Bookings /></Layout>} />
-        <Route path="/orders" element={<Layout><Orders /></Layout>} />
-        <Route path="/reports" element={<Layout><Reports /></Layout>} />
+        {/* Protected routes with layout (main app pages) */}
+        <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+        <Route path="/products" element={<ProtectedRoute><Layout><Products /></Layout></ProtectedRoute>} />
+        <Route path="/bookings" element={<ProtectedRoute><Layout><Bookings /></Layout></ProtectedRoute>} />
+        <Route path="/orders" element={<ProtectedRoute><Layout><Orders /></Layout></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
         
-        {/* Customer Routes */}
-        <Route path="/customer/customer-dashboard" element={<CustomerLayout><ProductGallery /></CustomerLayout>} />
-        <Route path="/customer/wishlist" element={<CustomerLayout><WishlistItems /></CustomerLayout>} />
-        <Route path="/customer/order-success" element={<CustomerLayout><OrderRegistered /></CustomerLayout>} />
+        {/* Protected Customer Routes */}
+        <Route path="/customer/customer-dashboard" element={<ProtectedRoute><CustomerLayout><ProductGallery /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/wishlist" element={<ProtectedRoute><CustomerLayout><WishlistItems /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/order-success" element={<ProtectedRoute><CustomerLayout><OrderRegistered /></CustomerLayout></ProtectedRoute>} />
       </Routes>
     </Router>
   )
