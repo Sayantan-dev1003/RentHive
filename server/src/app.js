@@ -11,6 +11,7 @@ const orderRoutes = require('./routes/order.route');
 const paymentRoutes = require('./routes/payment.route');
 const notificationRoutes = require('./routes/notification.route');
 const reportRoutes = require('./routes/report.route');
+const aiRoutes = require('./routes/aiRoutes');
 
 // Import middleware
 const { errorHandler } = require('./middlewares/errorHandler');
@@ -175,6 +176,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/ai', aiRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {
