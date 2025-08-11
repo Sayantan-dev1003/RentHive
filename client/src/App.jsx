@@ -15,9 +15,8 @@ import Reports from './Pages/Reports'
 // Customer Components
 import ProductGallery from './customer/Pages/ProductGallery'
 import WishlistItems from './customer/Pages/wishlistItems'
-import OrderRegistered from './customer/Pages/OrderRegistered'
+
 import BillingDetails from './customer/Pages/BillingDetails'
-import OrderConfirmation from './customer/Pages/OrderConfirmation'
 import Cart from './customer/Pages/Cart'
 
 function App() {
@@ -42,9 +41,7 @@ function App() {
         {/* Protected Customer Routes */}
         <Route path="/customer/customer-dashboard" element={<ProtectedRoute><CustomerLayout><ProductGallery /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/wishlist" element={<ProtectedRoute><CustomerLayout><WishlistItems /></CustomerLayout></ProtectedRoute>} />
-        <Route path="/customer/order-success" element={<ProtectedRoute><CustomerLayout><OrderRegistered /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/billing-details" element={<ProtectedRoute><CustomerLayout><BillingDetails /></CustomerLayout></ProtectedRoute>} />
-        <Route path="/customer/order-confirmation" element={<ProtectedRoute><CustomerLayout><OrderConfirmation /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/cart" element={<ProtectedRoute><CustomerLayout><Cart /></CustomerLayout></ProtectedRoute>} />
         </Routes>
       </Router>
