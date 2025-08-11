@@ -1,6 +1,6 @@
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
-import { useAuth } from "../../Context/AuthContext"; // Adjust the path as necessary
+import { useAuth } from "../../context/AuthContext"; // Fixed case-sensitive path
 
 const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
   const { logout } = useAuth(); // Access the logout function from AuthContext
