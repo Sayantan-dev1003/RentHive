@@ -11,13 +11,8 @@ const inputClass =
 const SignUp = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
-<<<<<<< HEAD
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-=======
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
->>>>>>> 430cceec735e332f7ee3930fbf715432879c675a
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -187,11 +182,7 @@ const SignUp = () => {
                 <button 
                   type="submit" 
                   disabled={loading}
-<<<<<<< HEAD
                   className={gradientButtonClass}
-=======
-                  className={`${gradientButtonClass} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
->>>>>>> 430cceec735e332f7ee3930fbf715432879c675a
                 >
                   {loading ? 'Creating account...' : 'Create account'}
                 </button>
