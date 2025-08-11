@@ -73,10 +73,10 @@ const productSchema = new mongoose.Schema({
       default: 1
     }
   }],
-  images: [{
-    type: String, // URL paths to images
-    trim: true
-  }],
+  images: {
+    type: [String], // The data type should be an array of strings
+    default: [],
+  },
   specifications: {
     type: Map,
     of: String,

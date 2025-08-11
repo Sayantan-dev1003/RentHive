@@ -9,11 +9,23 @@ const {
   getAvailabilityCalendar,
   getCategories,
   searchProducts,
-  getFeaturedProducts
+  getFeaturedProducts,
+  hardDeleteProduct, // You should also include this for the dev route
+  getAllProductsIncludingInactive // And this one
 } = require('../controllers/product.controller');
 const { auth, adminOnly, optionalAuth } = require('../middlewares/authMiddleware');
+const { upload } = require('../config/multerConfig');
 
 const router = express.Router();
+
+router.route('/')
+  .post(auth, adminOnly, upload.array('images', 5), createProduct)
+  .get(getProducts);
+
+router.route('/:id')
+  .get(getProductById)
+  .put(auth, adminOnly, upload.array('images', 5), updateProduct)
+  .delete(auth, adminOnly, deleteProduct);
 
 /**
  * @swagger
@@ -285,8 +297,8 @@ router.get('/:id/availability', checkAvailability);
 router.get('/:id/calendar', getAvailabilityCalendar);
 
 // Protected routes (admin only)
-router.post('/', auth, adminOnly, createProduct);
-router.put('/:id', auth, adminOnly, updateProduct);
+router.post('/', auth, adminOnly, upload.array('images', 5), createProduct);
+router.put('/:id', auth, adminOnly, upload.array('images', 5), updateProduct);
 router.delete('/:id', auth, adminOnly, deleteProduct);
 
 module.exports = router;
