@@ -23,7 +23,7 @@ const auth = async (req, res, next) => {
     }
     
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-jwt-secret-for-development-only');
     
     // Find user and attach to request
     const user = await User.findById(decoded.userId).select('-password');
@@ -97,7 +97,7 @@ const optionalAuth = async (req, res, next) => {
     }
     
     // Verify token
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback-jwt-secret-for-development-only');
     
     // Find user and attach to request
     const user = await User.findById(decoded.userId).select('-password');
@@ -155,7 +155,7 @@ const ownerOrAdmin = (resourceUserIdField = 'customerId') => {
 const generateToken = (userId) => {
   return jwt.sign(
     { userId },
-    process.env.JWT_SECRET,
+    process.env.JWT_SECRET || 'fallback-jwt-secret-for-development-only',
     { 
       expiresIn: process.env.JWT_EXPIRES_IN || '7d',
       issuer: 'renthive-api'
@@ -166,7 +166,7 @@ const generateToken = (userId) => {
 // Verify JWT token
 const verifyToken = (token) => {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET);
+    return jwt.verify(token, process.env.JWT_SECRET || 'fallback-jwt-secret-for-development-only');
   } catch (error) {
     throw new Error('Invalid token');
   }

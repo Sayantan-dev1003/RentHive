@@ -11,8 +11,13 @@ const inputClass =
 const SignUp = () => {
   const navigate = useNavigate()
   const [showPassword, setShowPassword] = useState(false)
+<<<<<<< HEAD
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+=======
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+>>>>>>> 430cceec735e332f7ee3930fbf715432879c675a
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -83,6 +88,11 @@ const SignUp = () => {
             )}
 
             <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+              {error && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-4">
+                  <p className="text-sm text-red-600">{error}</p>
+                </div>
+              )}
               <div>
                 <label htmlFor="name" className="mb-1 block text-xs font-medium uppercase tracking-wide text-slate-600">
                   Name
@@ -169,7 +179,7 @@ const SignUp = () => {
                   onChange={handleChange}
                 >
                   <option value="customer">Customer</option>
-                  <option value="admin">Admin</option>
+                  <option value="end_user">Admin</option>
                 </select>
               </div>
 
@@ -177,7 +187,11 @@ const SignUp = () => {
                 <button 
                   type="submit" 
                   disabled={loading}
+<<<<<<< HEAD
                   className={gradientButtonClass}
+=======
+                  className={`${gradientButtonClass} ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+>>>>>>> 430cceec735e332f7ee3930fbf715432879c675a
                 >
                   {loading ? 'Creating account...' : 'Create account'}
                 </button>

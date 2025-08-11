@@ -6,7 +6,7 @@ module.exports = {
   NODE_ENV: process.env.NODE_ENV || 'development',
 
   // MongoDB configuration
-  MONGODB_URI: process.env.MONGODB_URI || 'mongodb://localhost:27017/renthive',
+  MONGODB_URI: process.env.MONGO_URI || 'mongodb+srv://sayantanhalder78:F0vDLk5Afmxx6rHb@renthive.4dl7vm0.mongodb.net/?retryWrites=true&w=majority&appName=RentHive',
 
   // JWT configuration
   JWT_SECRET: process.env.JWT_SECRET,

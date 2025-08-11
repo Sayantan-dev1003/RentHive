@@ -427,9 +427,11 @@ const options = {
   swaggerDefinition,
   // Paths to files containing OpenAPI definitions
   apis: [
-    './src/routes/*.js',
-    './src/controllers/*.js',
-    './src/models/*.js'
+    './src/routes/auth.route.js'
+    // Temporarily disabled other routes due to YAML parsing errors
+    // './src/routes/*.js',
+    // './src/controllers/*.js',
+    // './src/models/*.js'
   ]
 };
 
