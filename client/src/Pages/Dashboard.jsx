@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const Dashboard = () => {
   const [animateStats, setAnimateStats] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState("All");
+  // const [selectedFilter, setSelectedFilter] = useState("All");
   const [viewMode, setViewMode] = useState("Card");
 
   // Mock data for rental products
@@ -186,11 +186,10 @@ const Dashboard = () => {
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("Card")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                viewMode === "Card"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "Card"
+                ? "bg-white text-blue-600 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
@@ -199,11 +198,10 @@ const Dashboard = () => {
             </button>
             <button
               onClick={() => setViewMode("List")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${
-                viewMode === "List"
-                  ? "bg-white text-blue-600 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "List"
+                ? "bg-white text-blue-600 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path
@@ -221,81 +219,79 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="w-full">
         {viewMode === "Card" ? (
-          /* Card View */
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {rentalProducts.map((product, index) => (
               <div
                 key={product.id}
-                className={`relative bg-gradient-to-br ${
-                  product.bgGradient
-                } rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 hover-lift ${
-                  animateStats
+                className={`bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-transform transform hover:-translate-y-1 ${animateStats
                     ? "translate-y-0 opacity-100"
                     : "translate-y-8 opacity-0"
-                }`}
+                  }`}
                 style={{ transitionDelay: `${index * 100}ms` }}
               >
-                {/* Status Badge */}
-                <div className="absolute top-4 left-4">
-                  <div
-                    className={`flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium text-white ${getStatusColor(
-                      product.status
+                {/* Image */}
+                <div className="relative">
+                  <img
+                    src={`https://via.placeholder.com/400x250?text=${encodeURIComponent(
+                      product.brand
                     )}`}
-                  >
-                    <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                    {product.status}
-                  </div>
-                </div>
-
-                {/* Highlight Banner */}
-                {product.highlight && (
-                  <div className="absolute top-16 left-0 bg-yellow-400 text-black px-3 py-1 text-xs font-bold transform -rotate-12 shadow-lg">
-                    <span className="mr-1">⚡</span>
-                    {product.highlight}
-                  </div>
-                )}
-
-                {/* Product Image */}
-                <div className="flex justify-center my-8">
-                  <div className="text-6xl transform hover:scale-110 transition-transform duration-300">
-                    {product.image}
-                  </div>
-                </div>
-
-                {/* Product Info */}
-                <div className="text-center">
-                  <h3 className="text-xl font-bold mb-1">{product.name}</h3>
-                  <div className="flex items-center justify-center gap-2 text-sm opacity-90 mb-4">
-                    <span>{product.brand}</span>
-                    <span>•</span>
-                    <span>{product.category}</span>
-                  </div>
-
-                  {/* Performance */}
-                  <div className="flex items-center justify-center gap-2 text-sm">
-                    <span className="font-semibold">{product.performance}</span>
-                    <span>•</span>
-                    <span
-                      className={`${
-                        product.performanceType === "Good Performance"
-                          ? "text-green-200"
-                          : "text-red-200"
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <span
+                    className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-full ${product.status === "Active"
+                        ? "bg-green-100 text-green-800"
+                        : product.status === "Idle"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : "bg-red-100 text-red-800"
                       }`}
-                    >
-                      {product.performanceType}
-                    </span>
-                  </div>
+                  >
+                    ● {product.status}
+                  </span>
                 </div>
 
-                {/* Background Pattern */}
-                <div className="absolute inset-0 bg-white/5 rounded-2xl opacity-50"></div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full transform translate-x-16 -translate-y-16"></div>
-                <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/10 rounded-full transform -translate-x-12 translate-y-12"></div>
+                {/* Content */}
+                <div className="p-4">
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {product.name}
+                  </h3>
+                  <p className="text-sm text-gray-500">
+                    {product.brand}, {product.category}
+                  </p>
+
+                  {/* Stats Row */}
+                  <div className="flex justify-between text-gray-600 text-sm mt-3">
+                    <div className="flex items-center gap-1">
+                      ⚙️ <span>{product.performance}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      📊 <span>{product.performanceType}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      🏷 <span>{product.id}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      🧑‍🔧 <span>{product.highlight || "N/A"}</span>
+                    </div>
+                  </div>
+
+                  {/* Price Section (Placeholder) */}
+                  <div className="mt-4 flex justify-between items-center">
+                    <div>
+                      <p className="text-xs text-gray-500">Estimated Value</p>
+                      <p className="text-lg font-bold text-green-600">$50,000</p>
+                    </div>
+                    <div className="flex flex-col items-end text-xs text-gray-600">
+                      <span>Token price: $500</span>
+                      <span>Projected IRR: 12%</span>
+                      <span>Projected APR: 8%</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             ))}
           </div>
         ) : (
-          /* List View */
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
             {/* Pagination Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
@@ -406,11 +402,10 @@ const Dashboard = () => {
               {rentalProducts.map((product, index) => (
                 <div
                   key={product.id}
-                  className={`grid grid-cols-7 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors ${
-                    animateStats
-                      ? "translate-y-0 opacity-100"
-                      : "translate-y-4 opacity-0"
-                  }`}
+                  className={`grid grid-cols-7 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors ${animateStats
+                    ? "translate-y-0 opacity-100"
+                    : "translate-y-4 opacity-0"
+                    }`}
                   style={{ transitionDelay: `${index * 50}ms` }}
                 >
                   {/* Vehicle ID */}
@@ -461,26 +456,24 @@ const Dashboard = () => {
                   {/* Status */}
                   <div className="flex items-center">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                        product.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : product.status === "Idle"
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${product.status === "Active"
+                        ? "bg-green-100 text-green-700"
+                        : product.status === "Idle"
                           ? "bg-gray-100 text-gray-700"
                           : product.status === "Maintenance"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-purple-100 text-purple-700"
-                      }`}
+                            ? "bg-red-100 text-red-700"
+                            : "bg-purple-100 text-purple-700"
+                        }`}
                     >
                       <div
-                        className={`w-1.5 h-1.5 rounded-full ${
-                          product.status === "Active"
-                            ? "bg-green-500"
-                            : product.status === "Idle"
+                        className={`w-1.5 h-1.5 rounded-full ${product.status === "Active"
+                          ? "bg-green-500"
+                          : product.status === "Idle"
                             ? "bg-gray-500"
                             : product.status === "Maintenance"
-                            ? "bg-red-500"
-                            : "bg-purple-500"
-                        }`}
+                              ? "bg-red-500"
+                              : "bg-purple-500"
+                          }`}
                       ></div>
                       {product.status}
                     </span>
@@ -493,11 +486,10 @@ const Dashboard = () => {
                         {product.performance}
                       </span>
                       <span
-                        className={`text-xs px-1.5 py-0.5 rounded ${
-                          product.performanceType === "Good Performance"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                        }`}
+                        className={`text-xs px-1.5 py-0.5 rounded ${product.performanceType === "Good Performance"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                          }`}
                       >
                         {product.performanceType === "Good Performance"
                           ? "Good"

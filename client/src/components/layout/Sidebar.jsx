@@ -15,7 +15,7 @@ const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
             <div className="flex justify-end">
               <button
                 onClick={() => setSidebarCollapsed(true)}
-                className="p-2.5 bg-blue-500 rounded-xl text-slate-400 hover:text-white transition-all duration-300 hover-lift"
+                className="p-2.5 bg-blue-500 rounded-xl text-white transition-all duration-300 hover-lift"
                 title="Collapse sidebar"
               >
                 <IoIosArrowForward />
@@ -132,7 +132,7 @@ const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
             {/* Collapsed indicators */}
             <button
               onClick={() => setSidebarCollapsed(false)}
-              className="p-2.5 rounded-xl bg-gradient-to-br from-green-500/30 to-orange-500/30 text-slate-400 hover:text-white transition-all duration-300 hover-lift cursor-pointer"
+              className="p-2.5 rounded-xl bg-blue-500 text-white transition-all duration-300 hover-lift cursor-pointer"
               title="Expand sidebar"
             >
               <IoIosArrowBack />
