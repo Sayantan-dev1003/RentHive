@@ -1,13 +1,14 @@
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
-import { useAuth } from "../../Context/AuthContext";
+import { useContext } from "react";
+import { useAuth } from "../../Context/AuthContext"; // Adjust the path as necessary
 
 const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
-  const { logout } = useAuth();
+  const { logout } = useAuth(); // Access the logout function from AuthContext
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/login";
+    window.location.href = '/'; // Redirect to the login page
   };
 
   return (
@@ -161,21 +162,14 @@ const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
         )}
       </div>
 
-      <button
-        onClick={handleLogout}
-        className="w-full flex items-center justify-center my-3"
-      >
-        {sidebarCollapsed ? (
+      {sidebarCollapsed ? (
+        <FiLogOut onClick={handleLogout} className="text-white flex items-center justify-center w-full mb-6 cursor-pointer" />
+      ) : (
+        <button onClick={handleLogout} className="flex items-center justify-center gap-2 px-6 py-2 mx-6 mb-5 cursor-pointer text-white rounded-xl bg-red-700 transition-all duration-300">
           <FiLogOut />
-        ) : (
-          <>
-            <FiLogOut />
-            <span className="flex items-center justify-center px-6 py-2 mx-6 mb-5 cursor-pointer text-white rounded-xl bg-red-700 transition-all duration-300">
-              Logout
-            </span>
-          </>
-        )}
-      </button>
+          <span>Logout</span>
+        </button>
+      )}
 
       {/* Footer */}
       {!sidebarCollapsed && (

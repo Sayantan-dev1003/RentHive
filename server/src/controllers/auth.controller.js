@@ -300,6 +300,20 @@ const deleteUser = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * Logout user
+ * @route POST /api/auth/logout
+ */
+const logout = asyncHandler(async (req, res) => {
+  // For stateless JWT, we cannot directly invalidate the token.
+  // However, we can implement token blacklisting or rely on token expiration.
+
+  res.status(200).json({
+    success: true,
+    message: 'Logout successful',
+  });
+});
+
 module.exports = {
   register,
   login,
@@ -308,5 +322,6 @@ module.exports = {
   changePassword,
   refreshToken,
   getAllUsers,
-  deleteUser
+  deleteUser,
+  logout
 };
