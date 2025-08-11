@@ -1,130 +1,142 @@
 import { useEffect, useState } from "react";
+import apiService from "../services/api";
 
 const Dashboard = () => {
   const [animateStats, setAnimateStats] = useState(false);
-  // const [selectedFilter, setSelectedFilter] = useState("All");
   const [viewMode, setViewMode] = useState("Card");
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalProducts: 0,
+    activeProducts: 0,
+    totalOrders: 0,
+    totalRevenue: 0
+  });
 
-  // Mock data for rental products
-  const rentalProducts = [
-    {
-      id: 1,
-      name: "TA 2173 XRQ",
-      brand: "Tata Ace",
-      category: "Medium",
-      status: "Active",
-      performance: "90%",
-      performanceType: "Good Performance",
-      image: "🚛",
-      bgGradient: "from-blue-600 to-purple-600",
-      highlight: "Chandan Bishoyi",
-    },
-    {
-      id: 2,
-      name: "MJ 3928 XRS",
-      brand: "Mahindra Jeeto",
-      category: "Medium",
-      status: "Idle",
-      performance: "50%",
-      performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-indigo-600 to-blue-600",
-    },
-    {
-      id: 3,
-      name: "BMC 5568 XRW",
-      brand: "Bajaj Maxima",
-      category: "Medium",
-      status: "Idle",
-      performance: "0%",
-      performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-purple-600 to-indigo-600",
-    },
-    {
-      id: 4,
-      name: "MJ 3928 XRS",
-      brand: "Mahindra Jeeto",
-      category: "Medium",
-      status: "Idle",
-      performance: "50%",
-      performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-blue-700 to-purple-700",
-    },
-    {
-      id: 5,
-      name: "TA 2173 XRQ",
-      brand: "Tata Ace",
-      category: "Medium",
-      status: "Active",
-      performance: "90%",
-      performanceType: "Good Performance",
-      image: "🚛",
-      bgGradient: "from-green-600 to-blue-600",
-    },
-    {
-      id: 6,
-      name: "MJ 3928 XRS",
-      brand: "Mahindra Jeeto",
-      category: "Medium",
-      status: "Idle",
-      performance: "50%",
-      performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-indigo-600 to-purple-600",
-    },
-    {
-      id: 7,
-      name: "BMC 5568 XRW",
-      brand: "Bajaj Maxima",
-      category: "Medium",
-      status: "Maintenance",
-      performance: "0%",
-      performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-orange-600 to-red-600",
-    },
-    {
-      id: 8,
-      name: "MJ 3928 XRS",
-      brand: "Mahindra Jeeto",
-      category: "Medium",
-      status: "Idle",
-      performance: "50%",
-      performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-purple-700 to-indigo-700",
-    },
-  ];
+  // Transformed products for display
+  const rentalProducts = products.map((product, index) => ({
+    id: product._id,
+    name: product.name,
+    brand: product.name,
+    category: product.category,
+    status: product.currentAvailableStock > 0 ? "Available" : product.currentAvailableStock === 0 ? "Rented" : "Maintenance",
+    performance: `${Math.floor((product.currentAvailableStock / product.stock) * 100)}%`,
+    performanceType: (product.currentAvailableStock / product.stock) > 0.7 ? "Good Performance" : "Bad Performance",
+    image: apiService.getProductIcon(product.category),
+    bgGradient: [
+      "from-blue-600 to-purple-600",
+      "from-indigo-600 to-blue-600", 
+      "from-purple-600 to-indigo-600",
+      "from-blue-700 to-purple-700",
+      "from-green-600 to-blue-600",
+      "from-indigo-600 to-purple-600",
+      "from-orange-600 to-red-600",
+      "from-purple-700 to-indigo-700"
+    ][index % 8],
+    highlight: product.currentAvailableStock === 0 ? "In Use" : "Available",
+    originalData: product
+  }));
 
+  // Calculate real-time status data from orders
   const rentalStatusData = [
-    { label: "Reserved", count: 16, color: "bg-green-500" },
-    { label: "Quotation", count: 1, color: "bg-orange-500" },
+    { 
+      label: "Reserved", 
+      count: orders.filter(order => order.status === 'reserved').length, 
+      color: "bg-green-500" 
+    },
+    { 
+      label: "Quotation", 
+      count: orders.filter(order => order.status === 'quotation').length, 
+      color: "bg-orange-500" 
+    },
   ];
 
   const invoiceStatusData = [
-    { label: "Fully Invoice", count: 16, color: "bg-blue-500" },
-    { label: "Partly to Issue", count: 3, color: "bg-purple-500" },
-    { label: "To Invoice", count: 8, color: "bg-gray-500" },
+    { 
+      label: "Fully Paid", 
+      count: orders.filter(order => order.paymentStatus === 'paid').length, 
+      color: "bg-blue-500" 
+    },
+    { 
+      label: "Partial Payment", 
+      count: orders.filter(order => order.paymentStatus === 'partial').length, 
+      color: "bg-purple-500" 
+    },
+    { 
+      label: "Pending Payment", 
+      count: orders.filter(order => order.paymentStatus === 'pending').length, 
+      color: "bg-gray-500" 
+    },
   ];
 
   const pickupReturnData = [
-    { label: "Picked Up", count: 4, color: "bg-green-600" },
-    { label: "Returned", count: 1, color: "bg-blue-600" },
+    { 
+      label: "Picked Up", 
+      count: orders.filter(order => order.status === 'picked_up').length, 
+      color: "bg-green-600" 
+    },
+    { 
+      label: "Returned", 
+      count: orders.filter(order => order.status === 'returned').length, 
+      color: "bg-blue-600" 
+    },
   ];
 
+  // Fetch data from backend
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch products and orders in parallel
+      const [productsResponse, ordersResponse] = await Promise.all([
+        apiService.getProducts(),
+        apiService.getOrders()
+      ]);
+
+      if (productsResponse.success) {
+        setProducts(productsResponse.data.products || []);
+      }
+
+      if (ordersResponse.success) {
+        setOrders(ordersResponse.data.orders || []);
+      }
+
+      // Calculate dashboard stats
+      const totalProducts = productsResponse.data.products?.length || 0;
+      const activeProducts = productsResponse.data.products?.filter(p => p.currentAvailableStock > 0).length || 0;
+      const totalOrders = ordersResponse.data.orders?.length || 0;
+      const totalRevenue = ordersResponse.data.orders?.reduce((sum, order) => sum + (order.totalAmount || 0), 0) || 0;
+
+      setDashboardStats({
+        totalProducts,
+        activeProducts,
+        totalOrders,
+        totalRevenue
+      });
+
+    } catch (err) {
+      setError('Failed to fetch dashboard data: ' + err.message);
+      console.error('Dashboard data fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    fetchDashboardData();
     const timer = setTimeout(() => setAnimateStats(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
   const getStatusColor = (status) => {
     switch (status) {
-      case "Active":
+      case "Available":
         return "bg-green-500";
-      case "Idle":
-        return "bg-gray-500";
+      case "Rented":
+        return "bg-blue-500";
       case "Maintenance":
         return "bg-red-500";
       default:
@@ -134,6 +146,19 @@ const Dashboard = () => {
 
   return (
     <div className="w-full space-y-6 animate-fadeIn">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+          {error}
+          <button 
+            onClick={fetchDashboardData}
+            className="ml-4 text-red-600 hover:text-red-800 underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex justify-center items-center gap-3">
@@ -221,7 +246,18 @@ const Dashboard = () => {
 
       {/* Main Content */}
       <div className="w-full">
-        {viewMode === "Card" ? (
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <span className="ml-4 text-gray-600">Loading dashboard data...</span>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📦</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+            <p className="text-gray-600">Add some products to get started</p>
+          </div>
+        ) : viewMode === "Card" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {rentalProducts.map((product, index) => (
               <div
@@ -242,10 +278,10 @@ const Dashboard = () => {
                     className="w-full h-48 object-cover"
                   />
                   <span
-                    className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-full ${product.status === "Active"
+                    className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-full ${product.status === "Available"
                       ? "bg-green-100 text-green-800"
-                      : product.status === "Idle"
-                        ? "bg-yellow-100 text-yellow-800"
+                      : product.status === "Rented"
+                        ? "bg-blue-100 text-blue-800"
                         : "bg-red-100 text-red-800"
                       }`}
                   >
@@ -278,16 +314,16 @@ const Dashboard = () => {
                     </div>
                   </div>
 
-                  {/* Price Section (Placeholder) */}
+                  {/* Price Section */}
                   <div className="mt-4 flex justify-between items-center">
                     <div>
-                      <p className="text-xs text-gray-500">Estimated Value</p>
-                      <p className="text-lg font-bold text-green-600">$50,000</p>
+                      <p className="text-xs text-gray-500">Daily Rate</p>
+                      <p className="text-lg font-bold text-green-600">₹{product.originalData?.pricing?.day || 'N/A'}</p>
                     </div>
                     <div className="flex flex-col items-end text-xs text-gray-600">
-                      <span>Token price: $500</span>
-                      <span>Projected IRR: 12%</span>
-                      <span>Projected APR: 8%</span>
+                      <span>Stock: {product.originalData?.stock || 'N/A'}</span>
+                      <span>Available: {product.originalData?.currentAvailableStock || 0}</span>
+                      <span>Category: {product.category}</span>
                     </div>
                   </div>
                 </div>
@@ -397,23 +433,23 @@ const Dashboard = () => {
                   {/* Status */}
                   <div className="flex items-center">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${product.status === "Active"
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${product.status === "Available"
                         ? "bg-green-100 text-green-700"
-                        : product.status === "Idle"
-                          ? "bg-gray-100 text-gray-700"
+                        : product.status === "Rented"
+                          ? "bg-blue-100 text-blue-700"
                           : product.status === "Maintenance"
                             ? "bg-red-100 text-red-700"
-                            : "bg-purple-100 text-purple-700"
+                            : "bg-gray-100 text-gray-700"
                         }`}
                     >
                       <div
-                        className={`w-1.5 h-1.5 rounded-full ${product.status === "Active"
+                        className={`w-1.5 h-1.5 rounded-full ${product.status === "Available"
                           ? "bg-green-500"
-                          : product.status === "Idle"
-                            ? "bg-gray-500"
+                          : product.status === "Rented"
+                            ? "bg-blue-500"
                             : product.status === "Maintenance"
                               ? "bg-red-500"
-                              : "bg-purple-500"
+                              : "bg-gray-500"
                           }`}
                       ></div>
                       {product.status}

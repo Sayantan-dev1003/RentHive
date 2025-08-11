@@ -1,49 +1,98 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import apiService from '../services/api'
 
 const Bookings = () => {
-  const [bookings] = useState([
-    {
-      id: 1,
-      customer: 'John Doe',
-      product: 'Drill Machine',
-      startDate: '2024-01-20',
-      endDate: '2024-01-25',
-      duration: '5 days',
-      totalAmount: '₹1,000',
-      status: 'Confirmed',
-      pickupDate: '2024-01-20',
-      returnDate: '2024-01-25'
-    },
-    {
-      id: 2,
-      customer: 'Jane Smith',
-      product: 'Ladder',
-      startDate: '2024-01-22',
-      endDate: '2024-01-24',
-      duration: '2 days',
-      totalAmount: '₹300',
-      status: 'Pending',
-      pickupDate: '2024-01-22',
-      returnDate: '2024-01-24'
-    },
-    {
-      id: 3,
-      customer: 'Mike Johnson',
-      product: 'Generator',
-      startDate: '2024-01-25',
-      endDate: '2024-02-01',
-      duration: '7 days',
-      totalAmount: '₹3,500',
-      status: 'Confirmed',
-      pickupDate: '2024-01-25',
-      returnDate: '2024-02-01'
-    }
-  ])
-
+  const [bookings, setBookings] = useState([])
+  const [products, setProducts] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
+
+  // Fetch bookings (orders) data
+  const fetchBookingsData = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      const [ordersResponse, productsResponse] = await Promise.all([
+        apiService.getOrders(),
+        apiService.getProducts()
+      ])
+
+      if (ordersResponse.success) {
+        const ordersList = ordersResponse.data.orders || []
+        
+        // Transform orders to bookings format
+        const transformedBookings = ordersList.map(order => {
+          const orderProducts = order.items?.map(item => {
+            const product = productsResponse.data.products?.find(p => p._id === item.productId)
+            return product ? product.name : 'Unknown Product'
+          }) || []
+
+          const startDate = order.items?.[0]?.rentalDuration?.startDate 
+            ? new Date(order.items[0].rentalDuration.startDate).toLocaleDateString()
+            : new Date(order.createdAt).toLocaleDateString()
+          
+          const endDate = order.items?.[0]?.rentalDuration?.endDate
+            ? new Date(order.items[0].rentalDuration.endDate).toLocaleDateString()
+            : ''
+
+          const start = new Date(order.items?.[0]?.rentalDuration?.startDate || order.createdAt)
+          const end = new Date(order.items?.[0]?.rentalDuration?.endDate || start)
+          const diffTime = Math.abs(end - start)
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+          return {
+            id: order._id,
+            customer: 'Customer', // We'll show customer ID for now
+            product: orderProducts.join(', ') || 'Multiple Items',
+            startDate,
+            endDate,
+            duration: `${diffDays} day${diffDays !== 1 ? 's' : ''}`,
+            totalAmount: `₹${order.totalAmount || 0}`,
+            status: order.status === 'reserved' ? 'Confirmed' : 
+                   order.status === 'quotation' ? 'Pending' : 
+                   order.status.charAt(0).toUpperCase() + order.status.slice(1),
+            pickupDate: startDate,
+            returnDate: endDate,
+            originalData: order
+          }
+        })
+        
+        setBookings(transformedBookings)
+      }
+
+      if (productsResponse.success) {
+        setProducts(productsResponse.data.products || [])
+      }
+
+    } catch (err) {
+      setError('Failed to fetch bookings data: ' + err.message)
+      console.error('Bookings data fetch error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchBookingsData()
+  }, [])
 
   return (
     <div className="space-y-6">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+          {error}
+          <button 
+            onClick={fetchBookingsData}
+            className="ml-4 text-red-600 hover:text-red-800 underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Page Header */}
       <div className="flex justify-between items-center">
         <div>
@@ -84,22 +133,34 @@ const Bookings = () => {
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Recent Bookings</h2>
         </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pickup Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return Date</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {bookings.map((booking) => (
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-4 text-gray-600">Loading bookings...</span>
+          </div>
+        ) : bookings.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📅</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No bookings found</h3>
+            <p className="text-gray-600">Bookings will appear here once customers make reservations</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Duration</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pickup Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {bookings.map((booking) => (
                 <tr key={booking.id}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">{booking.customer}</div>
@@ -125,10 +186,11 @@ const Bookings = () => {
                     </div>
                   </td>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       {/* Add Booking Modal */}
