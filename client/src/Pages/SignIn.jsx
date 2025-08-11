@@ -13,9 +13,9 @@ const SignIn = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -52,7 +52,7 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen bg-black lg:grid lg:grid-cols-2">
-      {/* Left: Background video with overlay */}
+      {/* Left: Background video */}
       <div className="relative hidden lg:block">
       <video
   src="/signIn.mp4"
@@ -71,41 +71,45 @@ const SignIn = () => {
 />
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60" />
-        {/* Decorative accent bars to echo reference */}
         <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 transform xl:block">
           <div className="h-0.5 w-20 bg-white/80" />
         </div>
       </div>
 
-      {/* Right: Auth card */}
+      {/* Right: Sign In Card */}
       <div className="flex min-h-screen items-center justify-center p-6 bg-gray-100">
-  <div className="w-full max-w-md">
-    <div className="rounded-2xl border border-white/20 bg-gray-200/40 shadow-xl backdrop-blur-md backdrop-saturate-150">
-      <div className="px-8 py-10">
-        {/* Heading */}
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold tracking-tight text-neutral-900">Back again?</h1>
-          <div className="mt-3 flex items-center justify-center text-neutral-500">
-            <span className="h-px w-10 bg-neutral-300" />
-            <span className="px-3 text-sm">Let's get your rentals rolling</span>
-            <span className="h-px w-10 bg-neutral-300" />
-          </div>
-        </div>
+        <div className="w-full max-w-md">
+          <div className="rounded-2xl border border-white/20 bg-gray-200/40 shadow-xl backdrop-blur-md backdrop-saturate-150">
+            <div className="px-8 py-10">
+              {/* Heading */}
+              <div className="mb-8 text-center">
+                <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
+                  Back again?
+                </h1>
+                <div className="mt-3 flex items-center justify-center text-neutral-500">
+                  <span className="h-px w-10 bg-neutral-300" />
+                  <span className="px-3 text-sm">
+                    Let's get your rentals rolling
+                  </span>
+                  <span className="h-px w-10 bg-neutral-300" />
+                </div>
+              </div>
 
-      
-      
-
-
+              {/* Error Message */}
               {error && (
                 <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {error}
                 </div>
               )}
 
+              {/* Sign In Form */}
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Email */}
                 <div>
-                  <label htmlFor="email" className="mb-2 block text-xs font-semibold tracking-wider text-neutral-900">
+                  <label
+                    htmlFor="email"
+                    className="mb-2 block text-xs font-semibold tracking-wider text-neutral-900"
+                  >
                     EMAIL
                   </label>
                   <input
@@ -122,7 +126,10 @@ const SignIn = () => {
 
                 {/* Password */}
                 <div>
-                  <label htmlFor="password" className="mb-2 block text-xs font-semibold tracking-wider text-neutral-900">
+                  <label
+                    htmlFor="password"
+                    className="mb-2 block text-xs font-semibold tracking-wider text-neutral-900"
+                  >
                     PASSWORD
                   </label>
                   <div className="relative">
@@ -142,11 +149,26 @@ const SignIn = () => {
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 transition hover:text-neutral-600"
                       onClick={() => setShowPassword(!showPassword)}
                     >
-                      <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg
+                        className="h-5 w-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
                         {showPassword ? (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                          />
                         ) : (
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.543 7-1.275 4.057-5.065 7-9.543 7-4.478 0-8.268-2.943-9.543-7zm9.542 3a3 3 0 100-6 3 3 0 000 6z" />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M2.458 12C3.732 7.943 7.522 5 12 5c4.478 0 8.268 2.943 9.543 7-1.275 4.057-5.065 7-9.543 7-4.478 0-8.268-2.943-9.543-7zm9.542 3a3 3 0 100-6 3 3 0 000 6z"
+                          />
                         )}
                       </svg>
                     </button>
@@ -167,7 +189,10 @@ const SignIn = () => {
               <div className="mt-6 space-y-2 text-center text-sm">
                 <p className="text-neutral-600">
                   Don't have an account?{' '}
-                  <Link to="/signup" className="font-semibold text-emerald-600 hover:text-emerald-700">
+                  <Link
+                    to="/signup"
+                    className="font-semibold text-emerald-600 hover:text-emerald-700"
+                  >
                     Create one
                   </Link>
                 </p>

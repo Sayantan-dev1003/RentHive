@@ -11,7 +11,7 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
     <div
       className={`h-full ${
         sidebarCollapsed ? "w-16" : "w-80"
-      } bg-gradient-to-b from-[#0f172a] via-[#1e293b] to-[#334155] flex flex-col shadow-2xl overflow-hidden transition-all duration-300 ease-in-out border-r border-slate-600/30`}
+      } bg-white flex flex-col shadow-xl overflow-hidden transition-all duration-300 ease-in-out border-r border-gray-200`}
     >
       {/* Content Area */}
       <div className={`flex-1 ${sidebarCollapsed ? "p-2" : "p-6"} overflow-y-auto`}>
@@ -21,7 +21,7 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
             <div className="flex justify-end">
               <button
                 onClick={() => setSidebarCollapsed(true)}
-                className="p-2.5 bg-blue-500 rounded-xl text-white transition-all duration-300 hover:bg-blue-400 hover:scale-110 shadow-lg"
+                className="p-2.5 bg-gray-100 rounded-xl text-gray-600 transition-all duration-300 hover:bg-gray-200 hover:text-gray-800 shadow-sm"
                 title="Collapse sidebar"
               >
                 <IoIosArrowForward />
@@ -29,28 +29,28 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
             </div>
 
             {/* Welcome Section */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-4 border border-blue-100">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white font-bold text-sm">👤</span>
                 </div>
                 <div>
-                  <h3 className="text-sm font-semibold text-white">Welcome back!</h3>
-                  <p className="text-xs text-slate-300">Customer Portal</p>
+                  <h3 className="text-sm font-semibold text-gray-900">Welcome back!</h3>
+                  <p className="text-xs text-gray-600">Customer Portal</p>
                 </div>
               </div>
-              <div className="text-xs text-slate-300">
-                Total Spent: <span className="text-white font-bold">₹{totalSpent.toLocaleString()}</span>
+              <div className="text-xs text-gray-700">
+                Total Spent: <span className="text-blue-600 font-bold">₹{totalSpent.toLocaleString()}</span>
               </div>
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold text-gray-900">
                   Quick Stats
                 </h3>
-                <button className="text-slate-400 hover:text-white transition-colors">
+                <button className="text-gray-400 hover:text-gray-600 transition-colors">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -67,24 +67,24 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gradient-to-br from-green-500 to-green-600 p-3 rounded-lg text-center text-white">
-                  <div className="text-lg font-bold">{activeOrders}</div>
-                  <div className="text-xs opacity-90">Active Orders</div>
+                <div className="bg-gradient-to-br from-green-50 to-green-100 p-3 rounded-lg text-center border border-green-200">
+                  <div className="text-lg font-bold text-green-700">{activeOrders}</div>
+                  <div className="text-xs text-green-600">Active Orders</div>
                 </div>
-                <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-3 rounded-lg text-center text-white">
-                  <div className="text-lg font-bold">{cartItems}</div>
-                  <div className="text-xs opacity-90">Cart Items</div>
+                <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-3 rounded-lg text-center border border-purple-200">
+                  <div className="text-lg font-bold text-purple-700">{cartItems}</div>
+                  <div className="text-xs text-purple-600">Cart Items</div>
                 </div>
               </div>
             </div>
 
             {/* Wishlist & Favorites */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-xl p-4 border border-rose-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold text-gray-900">
                   Wishlist & Favorites
                 </h3>
-                <button className="text-slate-400 hover:text-white transition-colors">
+                <button className="text-gray-400 hover:text-gray-600 transition-colors">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -102,28 +102,28 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
               </div>
               <div className="space-y-3">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gradient-to-br from-red-400 to-pink-500 rounded-lg flex items-center justify-center">
+                  <div className="w-8 h-8 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg flex items-center justify-center">
                     <span className="text-white text-xs">❤️</span>
                   </div>
                   <div className="flex-1">
-                    <div className="text-xs text-white font-medium">Wishlist Items</div>
-                    <div className="text-xs text-slate-300">{wishlistCount} products saved</div>
+                    <div className="text-xs text-gray-900 font-medium">Wishlist Items</div>
+                    <div className="text-xs text-gray-600">{wishlistCount} products saved</div>
                   </div>
-                  <span className="text-sm font-bold text-white">{wishlistCount}</span>
+                  <span className="text-sm font-bold text-gray-900">{wishlistCount}</span>
                 </div>
-                <button className="w-full text-xs text-slate-300 hover:text-white transition-colors py-2 border border-slate-600/50 rounded-lg hover:bg-slate-700/30">
+                <button className="w-full text-xs text-gray-700 hover:text-gray-900 transition-colors py-2 border border-rose-200 rounded-lg hover:bg-rose-100">
                   View All Favorites
                 </button>
               </div>
             </div>
 
             {/* Recent Activity */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-xl p-4 border border-yellow-200">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold text-gray-900">
                   Recent Activity
                 </h3>
-                <button className="text-slate-400 hover:text-white transition-colors">
+                <button className="text-gray-400 hover:text-gray-600 transition-colors">
                   <svg
                     className="w-4 h-4"
                     fill="none"
@@ -142,39 +142,39 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                  <span className="text-xs text-slate-300 flex-1">
+                  <span className="text-xs text-gray-700 flex-1">
                     Order #1234 delivered
                   </span>
-                  <span className="text-xs text-slate-400">2h ago</span>
+                  <span className="text-xs text-gray-500">2h ago</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                  <span className="text-xs text-slate-300 flex-1">
+                  <span className="text-xs text-gray-700 flex-1">
                     Payment processed
                   </span>
-                  <span className="text-xs text-slate-400">5h ago</span>
+                  <span className="text-xs text-gray-500">5h ago</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                  <span className="text-xs text-slate-300 flex-1">
+                  <span className="text-xs text-gray-700 flex-1">
                     New product added to wishlist
                   </span>
-                  <span className="text-xs text-slate-400">1d ago</span>
+                  <span className="text-xs text-gray-500">1d ago</span>
                 </div>
               </div>
             </div>
 
             {/* Customer Support */}
-            <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
+            <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-xl p-4 border border-indigo-200">
               <div className="text-center">
-                <div className="w-12 h-12 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-3">
                   <span className="text-white text-lg">💬</span>
                 </div>
-                <h3 className="text-sm font-semibold text-white mb-2">Need Help?</h3>
-                <p className="text-xs text-slate-300 mb-3">
+                <h3 className="text-sm font-semibold text-gray-900 mb-2">Need Help?</h3>
+                <p className="text-xs text-gray-600 mb-3">
                   Our support team is here to assist you
                 </p>
-                <button className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 text-white text-xs py-2 px-4 rounded-lg hover:from-yellow-600 hover:to-orange-600 transition-all duration-300 transform hover:scale-105">
+                <button className="w-full bg-gradient-to-r from-indigo-500 to-blue-500 text-white text-xs py-2 px-4 rounded-lg hover:from-indigo-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105 shadow-md">
                   Contact Support
                 </button>
               </div>
@@ -185,43 +185,28 @@ const CustomerSidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
             {/* Collapsed indicators */}
             <button
               onClick={() => setSidebarCollapsed(false)}
-              className="p-2.5 rounded-xl bg-blue-500 text-white transition-all duration-300 hover:bg-blue-400 hover:scale-110 cursor-pointer"
+              className="p-2.5 rounded-xl bg-gray-100 text-gray-600 transition-all duration-300 hover:bg-gray-200 hover:text-gray-800 cursor-pointer shadow-sm"
               title="Expand sidebar"
             >
               <IoIosArrowBack />
             </button>
-            <div className="w-8 h-8 bg-gradient-to-br from-green-500/30 to-purple-500/30 rounded-xl flex items-center justify-center cursor-pointer" title="Orders">
+            <div className="w-8 h-8 bg-green-50 border border-green-200 rounded-xl flex items-center justify-center cursor-pointer hover:bg-green-100 transition-colors" title="Orders">
               <span className="text-xs">📦</span>
             </div>
-            <div className="w-8 h-8 bg-gradient-to-br from-red-400/30 to-pink-500/30 rounded-xl flex items-center justify-center cursor-pointer" title="Wishlist">
+            <div className="w-8 h-8 bg-rose-50 border border-rose-200 rounded-xl flex items-center justify-center cursor-pointer hover:bg-rose-100 transition-colors" title="Wishlist">
               <span className="text-xs">❤️</span>
             </div>
-            <div className="w-8 h-8 bg-gradient-to-br from-blue-500/30 to-cyan-500/30 rounded-xl flex items-center justify-center cursor-pointer" title="Activity">
+            <div className="w-8 h-8 bg-blue-50 border border-blue-200 rounded-xl flex items-center justify-center cursor-pointer hover:bg-blue-100 transition-colors" title="Activity">
               <span className="text-xs">📊</span>
             </div>
-            <div className="w-8 h-8 bg-gradient-to-br from-yellow-400/30 to-orange-500/30 rounded-xl flex items-center justify-center cursor-pointer" title="Support">
+            <div className="w-8 h-8 bg-indigo-50 border border-indigo-200 rounded-xl flex items-center justify-center cursor-pointer hover:bg-indigo-100 transition-colors" title="Support">
               <span className="text-xs">💬</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Footer */}
-      {!sidebarCollapsed && (
-        <div className="p-6 border-t border-slate-600/50 bg-gradient-to-r from-slate-800/50 to-slate-700/50">
-          <div className="text-center">
-            <p className="text-xs text-slate-400 mb-2">
-              Rent, Enjoy, Return
-            </p>
-            <div className="flex items-center justify-center space-x-2">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-xs text-green-400 font-medium">
-                Online & Ready
-              </span>
-            </div>
-          </div>
-        </div>
-      )}
+     
     </div>
   );
 };
