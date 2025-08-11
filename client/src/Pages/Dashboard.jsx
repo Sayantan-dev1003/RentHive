@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import apiService from "../services/api";
 
 // Clean and simple animation styles
 const simpleAnimationStyles = `
@@ -29,138 +30,140 @@ const simpleAnimationStyles = `
 
 const Dashboard = () => {
   const [animateStats, setAnimateStats] = useState(false);
-  // const [selectedFilter, setSelectedFilter] = useState("All");
   const [viewMode, setViewMode] = useState("Card");
+  const [products, setProducts] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dashboardStats, setDashboardStats] = useState({
+    totalProducts: 0,
+    activeProducts: 0,
+    totalOrders: 0,
+    totalRevenue: 0
+  });
 
-  // Mock data for rental products
-  const rentalProducts = [
-    {
-      id: 1,
-      name: "TA 2173 XRQ",
-      brand: "Tata Ace",
-      category: "Medium",
-      status: "Reserved",
-      performance: 90,
-      performanceType: "Good Performance",
-      image: "/images/vehicles/tata-ace.jpg",
-     
-      highlight: "Chandan Bishoyi",
+  // Transformed products for display
+  const rentalProducts = products.map((product, index) => ({
+    id: product._id,
+    name: product.name,
+    brand: product.name,
+    category: product.category,
+    status: product.currentAvailableStock > 0 ? "Available" : product.currentAvailableStock === 0 ? "Rented" : "Maintenance",
+    performance: `${Math.floor((product.currentAvailableStock / product.stock) * 100)}%`,
+    performanceType: (product.currentAvailableStock / product.stock) > 0.7 ? "Good Performance" : "Bad Performance",
+    image: apiService.getProductIcon(product.category),
+    bgGradient: [
+      "from-blue-600 to-purple-600",
+      "from-indigo-600 to-blue-600", 
+      "from-purple-600 to-indigo-600",
+      "from-blue-700 to-purple-700",
+      "from-green-600 to-blue-600",
+      "from-indigo-600 to-purple-600",
+      "from-orange-600 to-red-600",
+      "from-purple-700 to-indigo-700"
+    ][index % 8],
+    highlight: product.currentAvailableStock === 0 ? "In Use" : "Available",
+    originalData: product
+  }));
+
+  // Calculate real-time status data from orders
+  const rentalStatusData = [
+    { 
+      label: "Reserved", 
+      count: orders.filter(order => order.status === 'reserved').length, 
+      color: "bg-green-500" 
     },
-    {
-      id: 2,
-      name: "MJ 3928 XRS",
-      brand: "Mahindra Jeeto",
-      category: "Medium",
-      status: "PickedUp",
-      performance: 50,
-      performanceType: "Bad Performance",
-      image: "/images/vehicles/mahindra-jeeto.jpg",
-      
-    },
-    {
-      id: 3,
-      name: "BMC 5568 XRW",
-      brand: "Bajaj Maxima",
-      category: "Medium",
-      status: "Quotation Sent",
-      performance: 0,
-      performanceType: "Bad Performance",
-      image: "/images/vehicles/bajaj-maxima.jpg",
-     
-    },
-    {
-      id: 4,
-      name: "MJ 3928 XRS",
-      brand: "Mahindra Jeeto",
-      category: "Medium",
-      status: "Returned",
-      performance: 50,
-      performanceType: "Bad Performance",
-      image: "/images/vehicles/mahindra-jeeto-2.jpg",
-     
-    },
-    {
-      id: 5,
-      name: "TA 2173 XRQ",
-      brand: "Tata Ace",
-      category: "Medium",
-      status: "Reserved",
-      performance: 90,
-      performanceType: "Good Performance",
-      image: "/images/vehicles/tata-ace-2.jpg",
-     
-    },
-    {
-      id: 6,
-      name: "MJ 3928 XRS",
-      brand: "Mahindra Jeeto",
-      category: "Medium",
-      status: "PickedUp",
-      performance: 50,
-      performanceType: "Bad Performance",
-      image: "/images/vehicles/mahindra-jeeto-3.jpg",
-      
-    },
-    {
-      id: 7,
-      name: "BMC 5568 XRW",
-      brand: "Bajaj Maxima",
-      category: "Medium",
-      status: "Maintenance",
-      performance: 0,
-      performanceType: "Bad Performance",
-      image: "/images/vehicles/bajaj-maxima-2.jpg",
-   
-    },
-    {
-      id: 8,
-      name: "MJ 3928 XRS",
-      brand: "Mahindra Jeeto",
-      category: "Medium",
-      status: "Quotation Sent",
-      performance: 50,
-      performanceType: "Bad Performance",
-      image: "/images/vehicles/tata-ace.jpg",
-   
+    { 
+      label: "Quotation", 
+      count: orders.filter(order => order.status === 'quotation').length, 
+      color: "bg-orange-500" 
     },
   ];
 
-  
+  const invoiceStatusData = [
+    { 
+      label: "Fully Paid", 
+      count: orders.filter(order => order.paymentStatus === 'paid').length, 
+      color: "bg-blue-500" 
+    },
+    { 
+      label: "Partial Payment", 
+      count: orders.filter(order => order.paymentStatus === 'partial').length, 
+      color: "bg-purple-500" 
+    },
+    { 
+      label: "Pending Payment", 
+      count: orders.filter(order => order.paymentStatus === 'pending').length, 
+      color: "bg-gray-500" 
+    },
+  ];
+
+  const pickupReturnData = [
+    { 
+      label: "Picked Up", 
+      count: orders.filter(order => order.status === 'picked_up').length, 
+      color: "bg-green-600" 
+    },
+    { 
+      label: "Returned", 
+      count: orders.filter(order => order.status === 'returned').length, 
+      color: "bg-blue-600" 
+    },
+  ];
+
+  // Fetch data from backend
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch products and orders in parallel
+      const [productsResponse, ordersResponse] = await Promise.all([
+        apiService.getProducts(),
+        apiService.getOrders()
+      ]);
+
+      if (productsResponse.success) {
+        setProducts(productsResponse.data.products || []);
+      }
+
+      if (ordersResponse.success) {
+        setOrders(ordersResponse.data.orders || []);
+      }
+
+      // Calculate dashboard stats
+      const totalProducts = productsResponse.data.products?.length || 0;
+      const activeProducts = productsResponse.data.products?.filter(p => p.currentAvailableStock > 0).length || 0;
+      const totalOrders = ordersResponse.data.orders?.length || 0;
+      const totalRevenue = ordersResponse.data.orders?.reduce((sum, order) => sum + (order.totalAmount || 0), 0) || 0;
+
+      setDashboardStats({
+        totalProducts,
+        activeProducts,
+        totalOrders,
+        totalRevenue
+      });
+
+    } catch (err) {
+      setError('Failed to fetch dashboard data: ' + err.message);
+      console.error('Dashboard data fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
+    fetchDashboardData();
     const timer = setTimeout(() => setAnimateStats(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
   const getStatusConfig = (status) => {
     switch (status) {
-      case "Reserved":
-        return {
-          bgColor: "bg-emerald-50/90",
-          textColor: "text-emerald-700",
-          dotColor: "bg-emerald-500",
-          label: "Reserved"
-        };
-      case "PickedUp":
-        return {
-          bgColor: "bg-rose-50/90",
-          textColor: "text-rose-700",
-          dotColor: "bg-rose-500",
-          label: "PickedUp"
-        };
-      case "Quotation Sent":
-        return {
-          bgColor: "bg-violet-50/90",
-          textColor: "text-violet-700",
-          dotColor: "bg-violet-500",
-          label: "Quotation Sent"
-        };
-      case "Returned":
-        return {
-          bgColor: "bg-red-50/90",
-          textColor: "text-red-700",
-          dotColor: "bg-red-500",
-          label: "Returned"
-        };
+      case "Available":
+        return "bg-green-500";
+      case "Rented":
+        return "bg-blue-500";
       case "Maintenance":
         return {
           bgColor: "bg-orange-50/90",
@@ -179,17 +182,26 @@ const Dashboard = () => {
   };
 
   return (
-    <>
-      {/* Inject clean animation styles */}
-      <style>{simpleAnimationStyles}</style>
-      
-      <div className="w-full space-y-6">
+    <div className="w-full space-y-6 animate-fadeIn">
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
+          {error}
+          <button 
+            onClick={fetchDashboardData}
+            className="ml-4 text-red-600 hover:text-red-800 underline"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <div className="animate-in slide-in-from-left-5 duration-500">
-          <h1 className="text-3xl font-bold text-gray-900">
-            Rental Orders
-          </h1>
+        <div className="flex justify-center items-center gap-3">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Rental Orders</h1>
+          </div>
         </div>
 
         <div className="flex items-center gap-4 animate-in slide-in-from-right-5 duration-500 delay-200">
@@ -198,7 +210,7 @@ const Dashboard = () => {
             <input
               type="text"
               placeholder="Search here..."
-              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80 bg-white transition-all duration-200 focus:scale-105"
+              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg outline-none cursor-pointer focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80 bg-white"
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
@@ -221,7 +233,7 @@ const Dashboard = () => {
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("Card")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 hover:scale-105 ${viewMode === "Card"
+              className={`px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "Card"
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-gray-600 hover:text-gray-900"
                 }`}
@@ -233,7 +245,7 @@ const Dashboard = () => {
             </button>
             <button
               onClick={() => setViewMode("List")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 hover:scale-105 ${viewMode === "List"
+              className={`px-4 py-2 rounded-md cursor-pointer text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "List"
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-gray-600 hover:text-gray-900"
                 }`}
@@ -248,136 +260,132 @@ const Dashboard = () => {
               List View
             </button>
           </div>
+
+          {/* Create button */}
+          <button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-2 px-4 rounded-full flex items-center justify-center gap-2 cursor-pointer transition-all duration-300 hover-lift shadow-lg hover:shadow-xl">
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
+            </svg>
+            Create
+          </button>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="w-full">
-        {viewMode === "Card" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {rentalProducts.map((product, index) => {
-              const statusConfig = getStatusConfig(product.status);
-              
-              return (
-                <div
-                  key={product.id}
-                  className={`bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 shadow-lg overflow-hidden card-hover relative ${animateStats
-                    ? "animate-fade-in-up"
-                    : "opacity-0"
+        {loading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <span className="ml-4 text-gray-600">Loading dashboard data...</span>
+          </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📦</div>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+            <p className="text-gray-600">Add some products to get started</p>
+          </div>
+        ) : viewMode === "Card" ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {rentalProducts.map((product, index) => (
+              <div
+                key={product.id}
+                className={`bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-transform transform hover:-translate-y-1 ${animateStats
+                  ? "translate-y-0 opacity-100"
+                  : "translate-y-8 opacity-0"
                   }`}
-                  style={{ 
-                    animationDelay: `${index * 100}ms`
-                  }}
-                >
-                  {/* Background Pattern */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-transparent to-purple-50/20 pointer-events-none"></div>
-                  
-                  <div className="relative p-6">
-                    {/* Status Badge */}
-                    <div className="flex justify-end mb-6">
-                      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold shadow-md border backdrop-blur-sm ${statusConfig.bgColor} ${statusConfig.textColor} border-white/30`}>
-                        <div className={`w-2.5 h-2.5 rounded-full ${statusConfig.dotColor} animate-pulse`}></div>
-                        {statusConfig.label}
-                      </span>
+                style={{ transitionDelay: `${index * 100}ms` }}
+              >
+                {/* Image */}
+                <div className="relative">
+                  <img
+                    src={`https://via.placeholder.com/400x250?text=${encodeURIComponent(
+                      product.brand
+                    )}`}
+                    alt={product.name}
+                    className="w-full h-48 object-cover"
+                  />
+                  <span
+                    className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-full ${product.status === "Available"
+                      ? "bg-green-100 text-green-800"
+                      : product.status === "Rented"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-red-100 text-red-800"
+                      }`}
+                  >
+                    ● {product.status}
+                  </span>
+                </div>
+
+                {/* Card Content */}
+                <div className="p-4">
+                  {/* Vehicle Info */}
+                  <div className="mb-4">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
+                      {product.name}
+                    </h3>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-gray-700 font-medium text-sm">{product.brand}</span>
+                      <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                      <span className="text-gray-500 text-sm">{product.category}</span>
                     </div>
+                  </div>
 
-                    {/* Main Content Layout */}
-                    <div className="flex items-center justify-between">
-                      {/* Left Section - Vehicle Info */}
-                      <div className="flex-1 pr-4">
-                        <div className="mb-6">
-                          <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
-                            {product.name}
-                          </h3>
-                          <div className="flex items-center gap-2 mb-3">
-                            <span className="text-gray-700 font-medium text-sm">{product.brand}</span>
-                            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                            <span className="text-gray-500 text-sm">{product.category}</span>
-                          </div>
-                        </div>
+                  {/* Performance Section */}
+                  <div className="bg-white/50 rounded-xl p-4 border border-gray-100 backdrop-blur-sm mb-4">
+                    <div className="flex justify-between items-center mb-3">
+                      <span className="text-gray-700 font-medium">Performance</span>
+                      <span className={`font-bold text-lg ${
+                        product.performance >= 70 
+                          ? 'text-green-600' 
+                          : product.performance >= 40 
+                          ? 'text-yellow-600' 
+                          : 'text-red-600'
+                      }`}>{product.performance}%</span>
+                    </div>
+                    
+                    {/* Performance Bar */}
+                    <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+                      <div 
+                        className={`h-3 rounded-full transition-all duration-1000 shadow-sm ${
+                          product.performance >= 70 
+                            ? 'bg-gradient-to-r from-green-400 to-green-600' 
+                            : product.performance >= 40 
+                            ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
+                            : 'bg-gradient-to-r from-red-400 to-red-600'
+                        }`}
+                        style={{ 
+                          width: animateStats ? `${product.performance}%` : '0%',
+                          transitionDelay: `${index * 100 + 300}ms`
+                        }}
+                      ></div>
+                    </div>
+                  </div>
 
-                        {/* Performance Section */}
-                        <div className="bg-white/50 rounded-xl p-4 border border-gray-100 backdrop-blur-sm">
-                          <div className="flex justify-between items-center mb-3">
-                            <span className="text-gray-700 font-medium">Performance</span>
-                            <span className={`font-bold text-lg ${
-                              product.performance >= 70 
-                                ? 'text-green-600' 
-                                : product.performance >= 40 
-                                ? 'text-yellow-600' 
-                                : 'text-red-600'
-                            }`}>{product.performance}%</span>
-                          </div>
-                          
-                          {/* Performance Bar */}
-                          <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
-                            <div 
-                              className={`h-3 rounded-full transition-all duration-1000 shadow-sm ${
-                                product.performance >= 70 
-                                  ? 'bg-gradient-to-r from-green-400 to-green-600' 
-                                  : product.performance >= 40 
-                                  ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
-                                  : 'bg-gradient-to-r from-red-400 to-red-600'
-                              }`}
-                              style={{ 
-                                width: animateStats ? `${product.performance}%` : '0%',
-                                transitionDelay: `${index * 100 + 300}ms`
-                              }}
-                            ></div>
-                          </div>
-                        </div>
-
-                        {/* Performance Type & Action */}
-                        <div className="flex items-center justify-between mt-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-3 h-3 rounded-full shadow-sm ${
-                              product.performanceType === "Good Performance" 
-                                ? 'bg-green-500' 
-                                : 'bg-red-500'
-                            }`}></div>
-                            <span className="text-gray-700 text-sm font-medium">
-                              {product.performanceType === "Good Performance" ? "Good Performance" : "Poor Performance"}
-                            </span>
-                          </div>
-                          
-                          {/* Action Button */}
-                          <button className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 hover:border-blue-300 rounded-xl p-3 transition-all duration-300 shadow-sm hover:shadow-md group">
-                            <svg className="w-4 h-4 text-blue-600 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* Right Section - Vehicle Image */}
-                      <div className="flex-shrink-0">
-                        <div className="relative w-28 h-24 bg-gradient-to-br from-white to-gray-100 rounded-2xl border-2 border-gray-200 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
-                          {/* Image Border Glow */}
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 to-purple-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                          
-                          <img
-                            src={product.image || "/public/truck.png"}
-                            alt={`${product.brand} ${product.name}`}
-                            className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110 relative z-10"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                          {/* Fallback emoji */}
-                          <div className="absolute inset-0 text-3xl text-gray-400 hidden items-center justify-center bg-gray-50">
-                            🚛
-                          </div>
-                          
-                          {/* Image Overlay on Hover */}
-                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 z-20"></div>
-                        </div>
-                      </div>
+                  {/* Price Section */}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xs text-gray-500">Daily Rate</p>
+                      <p className="text-lg font-bold text-green-600">₹{product.originalData?.pricing?.day || 'N/A'}</p>
+                    </div>
+                    <div className="flex flex-col items-end text-xs text-gray-600">
+                      <span>Stock: {product.originalData?.stock || 'N/A'}</span>
+                      <span>Available: {product.originalData?.currentAvailableStock || 0}</span>
+                      <span>Category: {product.category}</span>
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ))}
           </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -436,7 +444,7 @@ const Dashboard = () => {
             {/* Table Body */}
             <div className="divide-y divide-gray-200">
               {rentalProducts.map((product, index) => (
-                <div 
+                <div
                   key={product.id}
                   className={`grid grid-cols-7 gap-4 px-6 py-4 hover:bg-gray-50 transition-colors ${animateStats
                     ? "translate-y-0 opacity-100"
@@ -482,23 +490,23 @@ const Dashboard = () => {
                   {/* Status */}
                   <div className="flex items-center">
                     <span
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${product.status === "Active"
+                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${product.status === "Available"
                         ? "bg-green-100 text-green-700"
-                        : product.status === "Idle"
-                          ? "bg-gray-100 text-gray-700"
+                        : product.status === "Rented"
+                          ? "bg-blue-100 text-blue-700"
                           : product.status === "Maintenance"
                             ? "bg-red-100 text-red-700"
-                            : "bg-purple-100 text-purple-700"
+                            : "bg-gray-100 text-gray-700"
                         }`}
                     >
                       <div
-                        className={`w-1.5 h-1.5 rounded-full ${product.status === "Active"
+                        className={`w-1.5 h-1.5 rounded-full ${product.status === "Available"
                           ? "bg-green-500"
-                          : product.status === "Idle"
-                            ? "bg-gray-500"
+                          : product.status === "Rented"
+                            ? "bg-blue-500"
                             : product.status === "Maintenance"
                               ? "bg-red-500"
-                              : "bg-purple-500"
+                              : "bg-gray-500"
                           }`}
                       ></div>
                       {product.status}
@@ -543,8 +551,10 @@ const Dashboard = () => {
           </div>
         )}
       </div>
-      </div>
-    </>
+
+      {/* Inject animation styles */}
+      <style>{simpleAnimationStyles}</style>
+    </div>
   );
 };
 

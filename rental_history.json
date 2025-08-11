@@ -1,0 +1,1170 @@
+[
+    {
+      "rental_id": "a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789",
+      "customer_id": "c1d2e3f4-g5h6-4789-i012-j3k4l5m6n789",
+      "product_id": "p1q2r3s4-t5u6-4789-v012-w3x4y5z6a789",
+      "product_name": "Canon EOS R5 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "b2c3d4e5-f6g7-4890-b123-c4d5e6f7g890",
+      "customer_id": "d2e3f4g5-h6i7-4890-j123-k4l5m6n7o890",
+      "product_id": "q2r3s4t5-u6v7-4890-w123-x4y5z6a7b890",
+      "product_name": "Epson PowerLite Pro Cinema 4050 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "c3d4e5f6-g7h8-4901-c234-d5e6f7g8h901",
+      "customer_id": "e3f4g5h6-i7j8-4901-k234-l5m6n7o8p901",
+      "product_id": "r3s4t5u6-v7w8-4901-x234-y5z6a7b8c901",
+      "product_name": "MacBook Pro 16-inch",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "d4e5f6g7-h8i9-4012-d345-e6f7g8h9i012",
+      "customer_id": "f4g5h6i7-j8k9-4012-l345-m6n7o8p9q012",
+      "product_id": "s4t5u6v7-w8x9-4012-y345-z6a7b8c9d012",
+      "product_name": "Sony A7R IV Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "e5f6g7h8-i9j0-4123-e456-f7g8h9i0j123",
+      "customer_id": "g5h6i7j8-k9l0-4123-m456-n7o8p9q0r123",
+      "product_id": "t5u6v7w8-x9y0-4123-z456-a7b8c9d0e123",
+      "product_name": "BenQ MW632ST Short Throw Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "f6g7h8i9-j0k1-4234-f567-g8h9i0j1k234",
+      "customer_id": "h6i7j8k9-l0m1-4234-n567-o8p9q0r1s234",
+      "product_id": "u6v7w8x9-y0z1-4234-a567-b8c9d0e1f234",
+      "product_name": "iPad Pro 12.9-inch",
+      "rental_duration_days": 5,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "g7h8i9j0-k1l2-4345-g678-h9i0j1k2l345",
+      "customer_id": "i7j8k9l0-m1n2-4345-o678-p9q0r1s2t345",
+      "product_id": "v7w8x9y0-z1a2-4345-b678-c9d0e1f2g345",
+      "product_name": "Nikon D850 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "h8i9j0k1-l2m3-4456-h789-i0j1k2l3m456",
+      "customer_id": "j8k9l0m1-n2o3-4456-p789-q0r1s2t3u456",
+      "product_id": "w8x9y0z1-a2b3-4456-c789-d0e1f2g3h456",
+      "product_name": "Optoma UHD60 4K Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "i9j0k1l2-m3n4-4567-i890-j1k2l3m4n567",
+      "customer_id": "k9l0m1n2-o3p4-4567-q890-r1s2t3u4v567",
+      "product_id": "x9y0z1a2-b3c4-4567-d890-e1f2g3h4i567",
+      "product_name": "Dell XPS 15 Laptop",
+      "rental_duration_days": 10,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "j0k1l2m3-n4o5-4678-j901-k2l3m4n5o678",
+      "customer_id": "l0m1n2o3-p4q5-4678-r901-s2t3u4v5w678",
+      "product_id": "y0z1a2b3-c4d5-4678-e901-f2g3h4i5j678",
+      "product_name": "GoPro Hero 11 Black",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "k1l2m3n4-o5p6-4789-k012-l3m4n5o6p789",
+      "customer_id": "m1n2o3p4-q5r6-4789-s012-t3u4v5w6x789",
+      "product_id": "z1a2b3c4-d5e6-4789-f012-g3h4i5j6k789",
+      "product_name": "Epson EpiqVision Ultra LS500 Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "l2m3n4o5-p6q7-4890-l123-m4n5o6p7q890",
+      "customer_id": "n2o3p4q5-r6s7-4890-t123-u4v5w6x7y890",
+      "product_id": "a2b3c4d5-e6f7-4890-g123-h4i5j6k7l890",
+      "product_name": "Fujifilm X-T4 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "m3n4o5p6-q7r8-4901-m234-n5o6p7q8r901",
+      "customer_id": "o3p4q5r6-s7t8-4901-u234-v5w6x7y8z901",
+      "product_id": "b3c4d5e6-f7g8-4901-h234-i5j6k7l8m901",
+      "product_name": "Surface Pro 9",
+      "rental_duration_days": 12,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "n4o5p6q7-r8s9-4012-n345-o6p7q8r9s012",
+      "customer_id": "p4q5r6s7-t8u9-4012-v345-w6x7y8z9a012",
+      "product_id": "c4d5e6f7-g8h9-4012-i345-j6k7l8m9n012",
+      "product_name": "LG CineBeam HU70LA Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "o5p6q7r8-s9t0-4123-o456-p7q8r9s0t123",
+      "customer_id": "q5r6s7t8-u9v0-4123-w456-x7y8z9a0b123",
+      "product_id": "d5e6f7g8-h9i0-4123-j456-k7l8m9n0o123",
+      "product_name": "Panasonic Lumix GH5 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "p6q7r8s9-t0u1-4234-p567-q8r9s0t1u234",
+      "customer_id": "r6s7t8u9-v0w1-4234-x567-y8z9a0b1c234",
+      "product_id": "e6f7g8h9-i0j1-4234-k567-l8m9n0o1p234",
+      "product_name": "HP ZBook Studio G8",
+      "rental_duration_days": 21,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "q7r8s9t0-u1v2-4345-q678-r9s0t1u2v345",
+      "customer_id": "s7t8u9v0-w1x2-4345-y678-z9a0b1c2d345",
+      "product_id": "f7g8h9i0-j1k2-4345-l678-m9n0o1p2q345",
+      "product_name": "ViewSonic PX701-4K Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "r8s9t0u1-v2w3-4456-r789-s0t1u2v3w456",
+      "customer_id": "t8u9v0w1-x2y3-4456-z789-a0b1c2d3e456",
+      "product_id": "g8h9i0j1-k2l3-4456-m789-n0o1p2q3r456",
+      "product_name": "Blackmagic Pocket Cinema Camera 6K",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "s9t0u1v2-w3x4-4567-s890-t1u2v3w4x567",
+      "customer_id": "u9v0w1x2-y3z4-4567-a890-b1c2d3e4f567",
+      "product_id": "h9i0j1k2-l3m4-4567-n890-o1p2q3r4s567",
+      "product_name": "Lenovo ThinkPad X1 Carbon",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "t0u1v2w3-x4y5-4678-t901-u2v3w4x5y678",
+      "customer_id": "v0w1x2y3-z4a5-4678-b901-c2d3e4f5g678",
+      "product_id": "i0j1k2l3-m4n5-4678-o901-p2q3r4s5t678",
+      "product_name": "JVC DLA-RS3100 Projector",
+      "rental_duration_days": 5,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "u1v2w3x4-y5z6-4789-u012-v3w4x5y6z789",
+      "customer_id": "w1x2y3z4-a5b6-4789-c012-d3e4f5g6h789",
+      "product_id": "j1k2l3m4-n5o6-4789-p012-q3r4s5t6u789",
+      "product_name": "RED Komodo 6K Camera",
+      "rental_duration_days": 21,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "v2w3x4y5-z6a7-4890-v123-w4x5y6z7a890",
+      "customer_id": "x2y3z4a5-b6c7-4890-d123-e4f5g6h7i890",
+      "product_id": "k2l3m4n5-o6p7-4890-q123-r4s5t6u7v890",
+      "product_name": "Microsoft Surface Laptop Studio",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "w3x4y5z6-a7b8-4901-w234-x5y6z7a8b901",
+      "customer_id": "y3z4a5b6-c7d8-4901-e234-f5g6h7i8j901",
+      "product_id": "l3m4n5o6-p7q8-4901-r234-s5t6u7v8w901",
+      "product_name": "Epson Pro Cinema LS12000 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "x4y5z6a7-b8c9-4012-x345-y6z7a8b9c012",
+      "customer_id": "z4a5b6c7-d8e9-4012-f345-g6h7i8j9k012",
+      "product_id": "m4n5o6p7-q8r9-4012-s345-t6u7v8w9x012",
+      "product_name": "Sony FX3 Cinema Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "y5z6a7b8-c9d0-4123-y456-z7a8b9c0d123",
+      "customer_id": "a5b6c7d8-e9f0-4123-g456-h7i8j9k0l123",
+      "product_id": "n5o6p7q8-r9s0-4123-t456-u7v8w9x0y123",
+      "product_name": "ASUS ROG Zephyrus G15",
+      "rental_duration_days": 10,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "z6a7b8c9-d0e1-4234-z567-a8b9c0d1e234",
+      "customer_id": "b6c7d8e9-f0g1-4234-h567-i8j9k0l1m234",
+      "product_id": "o6p7q8r9-s0t1-4234-u567-v8w9x0y1z234",
+      "product_name": "NEC PX803UL Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "a7b8c9d0-e1f2-4345-a678-b9c0d1e2f345",
+      "customer_id": "c7d8e9f0-g1h2-4345-i678-j9k0l1m2n345",
+      "product_id": "p7q8r9s0-t1u2-4345-v678-w9x0y1z2a345",
+      "product_name": "Canon C300 Mark III Camera",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "b8c9d0e1-f2g3-4456-b789-c0d1e2f3g456",
+      "customer_id": "d8e9f0g1-h2i3-4456-j789-k0l1m2n3o456",
+      "product_id": "q8r9s0t1-u2v3-4456-w789-x0y1z2a3b456",
+      "product_name": "Razer Blade 17",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "c9d0e1f2-g3h4-4567-c890-d1e2f3g4h567",
+      "customer_id": "e9f0g1h2-i3j4-4567-k890-l1m2n3o4p567",
+      "product_id": "r9s0t1u2-v3w4-4567-x890-y1z2a3b4c567",
+      "product_name": "Sony VPL-VW295ES Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "d0e1f2g3-h4i5-4678-d901-e2f3g4h5i678",
+      "customer_id": "f0g1h2i3-j4k5-4678-l901-m2n3o4p5q678",
+      "product_id": "s0t1u2v3-w4x5-4678-y901-z2a3b4c5d678",
+      "product_name": "ARRI Alexa Mini Camera",
+      "rental_duration_days": 21,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "e1f2g3h4-i5j6-4789-e012-f3g4h5i6j789",
+      "customer_id": "g1h2i3j4-k5l6-4789-m012-n3o4p5q6r789",
+      "product_id": "t1u2v3w4-x5y6-4789-z012-a3b4c5d6e789",
+      "product_name": "MacBook Air M2",
+      "rental_duration_days": 10,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "f2g3h4i5-j6k7-4890-f123-g4h5i6j7k890",
+      "customer_id": "h2i3j4k5-l6m7-4890-n123-o4p5q6r7s890",
+      "product_id": "u2v3w4x5-y6z7-4890-a123-b4c5d6e7f890",
+      "product_name": "BenQ TK850 4K Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "g3h4i5j6-k7l8-4901-g234-h5i6j7k8l901",
+      "customer_id": "i3j4k5l6-m7n8-4901-o234-p5q6r7s8t901",
+      "product_id": "v3w4x5y6-z7a8-4901-b234-c5d6e7f8g901",
+      "product_name": "DJI Pocket 2 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "h4i5j6k7-l8m9-4012-h345-i6j7k8l9m012",
+      "customer_id": "j4k5l6m7-n8o9-4012-p345-q6r7s8t9u012",
+      "product_id": "w4x5y6z7-a8b9-4012-c345-d6e7f8g9h012",
+      "product_name": "HP Spectre x360 14",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "i5j6k7l8-m9n0-4123-i456-j7k8l9m0n123",
+      "customer_id": "k5l6m7n8-o9p0-4123-q456-r7s8t9u0v123",
+      "product_id": "x5y6z7a8-b9c0-4123-d456-e7f8g9h0i123",
+      "product_name": "Epson EH-TW9400 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "j6k7l8m9-n0o1-4234-j567-k8l9m0n1o234",
+      "customer_id": "l6m7n8o9-p0q1-4234-r567-s8t9u0v1w234",
+      "product_id": "y6z7a8b9-c0d1-4234-e567-f8g9h0i1j234",
+      "product_name": "Olympus OM-D E-M1 Mark III Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "k7l8m9n0-o1p2-4345-k678-l9m0n1o2p345",
+      "customer_id": "m7n8o9p0-q1r2-4345-s678-t9u0v1w2x345",
+      "product_id": "z7a8b9c0-d1e2-4345-f678-g9h0i1j2k345",
+      "product_name": "ThinkPad P1 Gen 4",
+      "rental_duration_days": 21,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "l8m9n0o1-p2q3-4456-l789-m0n1o2p3q456",
+      "customer_id": "n8o9p0q1-r2s3-4456-t789-u0v1w2x3y456",
+      "product_id": "a8b9c0d1-e2f3-4456-g789-h0i1j2k3l456",
+      "product_name": "Christie D13WU-H Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "m9n0o1p2-q3r4-4567-m890-n1o2p3q4r567",
+      "customer_id": "o9p0q1r2-s3t4-4567-u890-v1w2x3y4z567",
+      "product_id": "b9c0d1e2-f3g4-4567-h890-i1j2k3l4m567",
+      "product_name": "Phase One XF IQ4 Camera",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "n0o1p2q3-r4s5-4678-n901-o2p3q4r5s678",
+      "customer_id": "p0q1r2s3-t4u5-4678-v901-w2x3y4z5a678",
+      "product_id": "c0d1e2f3-g4h5-4678-i901-j2k3l4m5n678",
+      "product_name": "Alienware x17 R2",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "o1p2q3r4-s5t6-4789-o012-p3q4r5s6t789",
+      "customer_id": "q1r2s3t4-u5v6-4789-w012-x3y4z5a6b789",
+      "product_id": "d1e2f3g4-h5i6-4789-j012-k3l4m5n6o789",
+      "product_name": "Panasonic PT-RZ31K Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "p2q3r4s5-t6u7-4890-p123-q4r5s6t7u890",
+      "customer_id": "r2s3t4u5-v6w7-4890-x123-y4z5a6b7c890",
+      "product_id": "e2f3g4h5-i6j7-4890-k123-l4m5n6o7p890",
+      "product_name": "Leica SL2-S Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "q3r4s5t6-u7v8-4901-q234-r5s6t7u8v901",
+      "customer_id": "s3t4u5v6-w7x8-4901-y234-z5a6b7c8d901",
+      "product_id": "f3g4h5i6-j7k8-4901-l234-m5n6o7p8q901",
+      "product_name": "Framework Laptop",
+      "rental_duration_days": 12,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "r4s5t6u7-v8w9-4012-r345-s6t7u8v9w012",
+      "customer_id": "t4u5v6w7-x8y9-4012-z345-a6b7c8d9e012",
+      "product_id": "g4h5i6j7-k8l9-4012-m345-n6o7p8q9r012",
+      "product_name": "Optoma CinemaX P2 Projector",
+      "rental_duration_days": 5,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "s5t6u7v8-w9x0-4123-s456-t7u8v9w0x123",
+      "customer_id": "u5v6w7x8-y9z0-4123-a456-b7c8d9e0f123",
+      "product_id": "h5i6j7k8-l9m0-4123-n456-o7p8q9r0s123",
+      "product_name": "Hasselblad X1D II 50C Camera",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "t6u7v8w9-x0y1-4234-t567-u8v9w0x1y234",
+      "customer_id": "v6w7x8y9-z0a1-4234-b567-c8d9e0f1g234",
+      "product_id": "i6j7k8l9-m0n1-4234-o567-p8q9r0s1t234",
+      "product_name": "MSI GE76 Raider",
+      "rental_duration_days": 10,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "u7v8w9x0-y1z2-4345-u678-v9w0x1y2z345",
+      "customer_id": "w7x8y9z0-a1b2-4345-c678-d9e0f1g2h345",
+      "product_id": "j7k8l9m0-n1o2-4345-p678-q9r0s1t2u345",
+      "product_name": "LG HU810PW Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "v8w9x0y1-z2a3-4456-v789-w0x1y2z3a456",
+      "customer_id": "x8y9z0a1-b2c3-4456-d789-e0f1g2h3i456",
+      "product_id": "k8l9m0n1-o2p3-4456-q789-r0s1t2u3v456",
+      "product_name": "Sigma fp L Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "w9x0y1z2-a3b4-4567-w890-x1y2z3a4b567",
+      "customer_id": "y9z0a1b2-c3d4-4567-e890-f1g2h3i4j567",
+      "product_id": "l9m0n1o2-p3q4-4567-r890-s1t2u3v4w567",
+      "product_name": "Surface Book 3",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "x0y1z2a3-b4c5-4678-x901-y2z3a4b5c678",
+      "customer_id": "z0a1b2c3-d4e5-4678-f901-g2h3i4j5k678",
+      "product_id": "m0n1o2p3-q4r5-4678-s901-t2u3v4w5x678",
+      "product_name": "Barco UDX-W22 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "y1z2a3b4-c5d6-4789-y012-z3a4b5c6d789",
+      "customer_id": "a1b2c3d4-e5f6-4789-g012-h3i4j5k6l789",
+      "product_id": "n1o2p3q4-r5s6-4789-t012-u3v4w5x6y789",
+      "product_name": "Pentax 645Z Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "z2a3b4c5-d6e7-4890-z123-a4b5c6d7e890",
+      "customer_id": "b2c3d4e5-f6g7-4890-h123-i4j5k6l7m890",
+      "product_id": "o2p3q4r5-s6t7-4890-u123-v4w5x6y7z890",
+      "product_name": "ASUS ProArt StudioBook Pro 16",
+      "rental_duration_days": 21,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "a3b4c5d6-e7f8-4901-a234-b5c6d7e8f901",
+      "customer_id": "c3d4e5f6-g7h8-4901-i234-j5k6l7m8n901",
+      "product_id": "p3q4r5s6-t7u8-4901-v234-w5x6y7z8a901",
+      "product_name": "Digital Projection E-Vision Laser 13K Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "b4c5d6e7-f8g9-4012-b345-c6d7e8f9g012",
+      "customer_id": "d4e5f6g7-h8i9-4012-j345-k6l7m8n9o012",
+      "product_id": "q4r5s6t7-u8v9-4012-w345-x6y7z8a9b012",
+      "product_name": "Mamiya Leaf Credo 80 Camera",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "c5d6e7f8-g9h0-4123-c456-d7e8f9g0h123",
+      "customer_id": "e5f6g7h8-i9j0-4123-k456-l7m8n9o0p123",
+      "product_id": "r5s6t7u8-v9w0-4123-x456-y7z8a9b0c123",
+      "product_name": "Origin Neuron Gaming Laptop",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "d6e7f8g9-h0i1-4234-d567-e8f9g0h1i234",
+      "customer_id": "f6g7h8i9-j0k1-4234-l567-m8n9o0p1q234",
+      "product_id": "s6t7u8v9-w0x1-4234-y567-z8a9b0c1d234",
+      "product_name": "Epson Pro L25000U Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "e7f8g9h0-i1j2-4345-e678-f9g0h1i2j345",
+      "customer_id": "g7h8i9j0-k1l2-4345-m678-n9o0p1q2r345",
+      "product_id": "t7u8v9w0-x1y2-4345-z678-a9b0c1d2e345",
+      "product_name": "Fujifilm GFX100S Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "f8g9h0i1-j2k3-4456-f789-g0h1i2j3k456",
+      "customer_id": "h8i9j0k1-l2m3-4456-n789-o0p1q2r3s456",
+      "product_id": "u8v9w0x1-y2z3-4456-a789-b0c1d2e3f456",
+      "product_name": "Dell Precision 7770",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "g9h0i1j2-k3l4-4567-g890-h1i2j3k4l567",
+      "customer_id": "i9j0k1l2-m3n4-4567-o890-p1q2r3s4t567",
+      "product_id": "v9w0x1y2-z3a4-4567-b890-c1d2e3f4g567",
+      "product_name": "Samsung The Premiere LSP9T Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "h0i1j2k3-l4m5-4678-h901-i2j3k4l5m678",
+      "customer_id": "j0k1l2m3-n4o5-4678-p901-q2r3s4t5u678",
+      "product_id": "w0x1y2z3-a4b5-4678-c901-d2e3f4g5h678",
+      "product_name": "Canon EOS R3 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "i1j2k3l4-m5n6-4789-i012-j3k4l5m6n789",
+      "customer_id": "k1l2m3n4-o5p6-4789-q012-r3s4t5u6v789",
+      "product_id": "x1y2z3a4-b5c6-4789-d012-e3f4g5h6i789",
+      "product_name": "Gigabyte AERO 17 HDR",
+      "rental_duration_days": 10,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "j2k3l4m5-n6o7-4890-j123-k4l5m6n7o890",
+      "customer_id": "l2m3n4o5-p6q7-4890-r123-s4t5u6v7w890",
+      "product_id": "y2z3a4b5-c6d7-4890-e123-f4g5h6i7j890",
+      "product_name": "JVC DLA-NZ8 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "k3l4m5n6-o7p8-4901-k234-l5m6n7o8p901",
+      "customer_id": "m3n4o5p6-q7r8-4901-s234-t5u6v7w8x901",
+      "product_id": "z3a4b5c6-d7e8-4901-f234-g5h6i7j8k901",
+      "product_name": "Ricoh GR IIIx Camera",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "l4m5n6o7-p8q9-4012-l345-m6n7o8p9q012",
+      "customer_id": "n4o5p6q7-r8s9-4012-t345-u6v7w8x9y012",
+      "product_id": "a4b5c6d7-e8f9-4012-g345-h6i7j8k9l012",
+      "product_name": "HP ZBook Fury 17 G8",
+      "rental_duration_days": 21,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "m5n6o7p8-q9r0-4123-m456-n7o8p9q0r123",
+      "customer_id": "o5p6q7r8-s9t0-4123-u456-v7w8x9y0z123",
+      "product_id": "b5c6d7e8-f9g0-4123-h456-i7j8k9l0m123",
+      "product_name": "Optoma ZU606TST Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "n6o7p8q9-r0s1-4234-n567-o8p9q0r1s234",
+      "customer_id": "p6q7r8s9-t0u1-4234-v567-w8x9y0z1a234",
+      "product_id": "c6d7e8f9-g0h1-4234-i567-j8k9l0m1n234",
+      "product_name": "Nikon Z9 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "o7p8q9r0-s1t2-4345-o678-p9q0r1s2t345",
+      "customer_id": "q7r8s9t0-u1v2-4345-w678-x9y0z1a2b345",
+      "product_id": "d7e8f9g0-h1i2-4345-j678-k9l0m1n2o345",
+      "product_name": "Acer ConceptD 7 Ezel",
+      "rental_duration_days": 12,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "p8q9r0s1-t2u3-4456-p789-q0r1s2t3u456",
+      "customer_id": "r8s9t0u1-v2w3-4456-x789-y0z1a2b3c456",
+      "product_id": "e8f9g0h1-i2j3-4456-k789-l0m1n2o3p456",
+      "product_name": "BenQ X12000H Projector",
+      "rental_duration_days": 5,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "q9r0s1t2-u3v4-4567-q890-r1s2t3u4v567",
+      "customer_id": "s9t0u1v2-w3x4-4567-y890-z1a2b3c4d567",
+      "product_id": "f9g0h1i2-j3k4-4567-l890-m1n2o3p4q567",
+      "product_name": "Sony A1 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "r0s1t2u3-v4w5-4678-r901-s2t3u4v5w678",
+      "customer_id": "t0u1v2w3-x4y5-4678-z901-a2b3c4d5e678",
+      "product_id": "g0h1i2j3-k4l5-4678-m901-n2o3p4q5r678",
+      "product_name": "Lenovo Legion 7i",
+      "rental_duration_days": 10,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "s1t2u3v4-w5x6-4789-s012-t3u4v5w6x789",
+      "customer_id": "u1v2w3x4-y5z6-4789-a012-b3c4d5e6f789",
+      "product_id": "h1i2j3k4-l5m6-4789-n012-o3p4q5r6s789",
+      "product_name": "Epson EH-LS500B Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "t2u3v4w5-x6y7-4890-t123-u4v5w6x7y890",
+      "customer_id": "v2w3x4y5-z6a7-4890-b123-c4d5e6f7g890",
+      "product_id": "i2j3k4l5-m6n7-4890-o123-p4q5r6s7t890",
+      "product_name": "Panasonic S1H Camera",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "u3v4w5x6-y7z8-4901-u234-v5w6x7y8z901",
+      "customer_id": "w3x4y5z6-a7b8-4901-c234-d5e6f7g8h901",
+      "product_id": "j3k4l5m6-n7o8-4901-p234-q5r6s7t8u901",
+      "product_name": "Apple Mac Studio",
+      "rental_duration_days": 30,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "v4w5x6y7-z8a9-4012-v345-w6x7y8z9a012",
+      "customer_id": "x4y5z6a7-b8c9-4012-d345-e6f7g8h9i012",
+      "product_id": "k4l5m6n7-o8p9-4012-q345-r6s7t8u9v012",
+      "product_name": "ViewSonic X100-4K Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "w5x6y7z8-a9b0-4123-w456-x7y8z9a0b123",
+      "customer_id": "y5z6a7b8-c9d0-4123-e456-f7g8h9i0j123",
+      "product_id": "l5m6n7o8-p9q0-4123-r456-s7t8u9v0w123",
+      "product_name": "Leica M11 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "x6y7z8a9-b0c1-4234-x567-y8z9a0b1c234",
+      "customer_id": "z6a7b8c9-d0e1-4234-f567-g8h9i0j1k234",
+      "product_id": "m6n7o8p9-q0r1-4234-s567-t8u9v0w1x234",
+      "product_name": "MSI Creator Z17",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "y7z8a9b0-c1d2-4345-y678-z9a0b1c2d345",
+      "customer_id": "a7b8c9d0-e1f2-4345-g678-h9i0j1k2l345",
+      "product_id": "n7o8p9q0-r1s2-4345-t678-u9v0w1x2y345",
+      "product_name": "LG CineBeam HU85LA Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "z8a9b0c1-d2e3-4456-z789-a0b1c2d3e456",
+      "customer_id": "b8c9d0e1-f2g3-4456-h789-i0j1k2l3m456",
+      "product_id": "o8p9q0r1-s2t3-4456-u789-v0w1x2y3z456",
+      "product_name": "Canon EOS C70 Camera",
+      "rental_duration_days": 21,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "a9b0c1d2-e3f4-4567-a890-b1c2d3e4f567",
+      "customer_id": "c9d0e1f2-g3h4-4567-i890-j1k2l3m4n567",
+      "product_id": "p9q0r1s2-t3u4-4567-v890-w1x2y3z4a567",
+      "product_name": "ASUS Zenbook Pro 16X OLED",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "b0c1d2e3-f4g5-4678-b901-c2d3e4f5g678",
+      "customer_id": "d0e1f2g3-h4i5-4678-j901-k2l3m4n5o678",
+      "product_id": "q0r1s2t3-u4v5-4678-w901-x2y3z4a5b678",
+      "product_name": "Panasonic PT-AE8000U Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "c1d2e3f4-g5h6-4789-c012-d3e4f5g6h789",
+      "customer_id": "e1f2g3h4-i5j6-4789-k012-l3m4n5o6p789",
+      "product_id": "r1s2t3u4-v5w6-4789-x012-y3z4a5b6c789",
+      "product_name": "Hasselblad H6D-100c Camera",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "d2e3f4g5-h6i7-4890-d123-e4f5g6h7i890",
+      "customer_id": "f2g3h4i5-j6k7-4890-l123-m4n5o6p7q890",
+      "product_id": "s2t3u4v5-w6x7-4890-y123-z4a5b6c7d890",
+      "product_name": "Razer Blade 15 Advanced",
+      "rental_duration_days": 10,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "e3f4g5h6-i7j8-4901-e234-f5g6h7i8j901",
+      "customer_id": "g3h4i5j6-k7l8-4901-m234-n5o6p7q8r901",
+      "product_id": "t3u4v5w6-x7y8-4901-z234-a5b6c7d8e901",
+      "product_name": "Epson Pro Cinema 6050UB Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "f4g5h6i7-j8k9-4012-f345-g6h7i8j9k012",
+      "customer_id": "h4i5j6k7-l8m9-4012-n345-o6p7q8r9s012",
+      "product_id": "u4v5w6x7-y8z9-4012-a345-b6c7d8e9f012",
+      "product_name": "Phase One XT Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "g5h6i7j8-k9l0-4123-g456-h7i8j9k0l123",
+      "customer_id": "i5j6k7l8-m9n0-4123-o456-p7q8r9s0t123",
+      "product_id": "v5w6x7y8-z9a0-4123-b456-c7d8e9f0g123",
+      "product_name": "Origin Chronos Laptop",
+      "rental_duration_days": 21,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "h6i7j8k9-l0m1-4234-h567-i8j9k0l1m234",
+      "customer_id": "j6k7l8m9-n0o1-4234-p567-q8r9s0t1u234",
+      "product_id": "w6x7y8z9-a0b1-4234-c567-d8e9f0g1h234",
+      "product_name": "Christie D20WU-HS Projector",
+      "rental_duration_days": 5,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "i7j8k9l0-m1n2-4345-i678-j9k0l1m2n345",
+      "customer_id": "k7l8m9n0-o1p2-4345-q678-r9s0t1u2v345",
+      "product_id": "x7y8z9a0-b1c2-4345-d678-e9f0g1h2i345",
+      "product_name": "Fujifilm X-H2S Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "j8k9l0m1-n2o3-4456-j789-k0l1m2n3o456",
+      "customer_id": "l8m9n0o1-p2q3-4456-r789-s0t1u2v3w456",
+      "product_id": "y8z9a0b1-c2d3-4456-e789-f0g1h2i3j456",
+      "product_name": "Dell Alienware x15 R2",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "k9l0m1n2-o3p4-4567-k890-l1m2n3o4p567",
+      "customer_id": "m9n0o1p2-q3r4-4567-s890-t1u2v3w4x567",
+      "product_id": "z9a0b1c2-d3e4-4567-f890-g1h2i3j4k567",
+      "product_name": "Sony VPL-XW7000ES Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "l0m1n2o3-p4q5-4678-l901-m2n3o4p5q678",
+      "customer_id": "n0o1p2q3-r4s5-4678-t901-u2v3w4x5y678",
+      "product_id": "a0b1c2d3-e4f5-4678-g901-h2i3j4k5l678",
+      "product_name": "Olympus E-M1X Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "m1n2o3p4-q5r6-4789-m012-n3o4p5q6r789",
+      "customer_id": "o1p2q3r4-s5t6-4789-u012-v3w4x5y6z789",
+      "product_id": "b1c2d3e4-f5g6-4789-h012-i3j4k5l6m789",
+      "product_name": "HP Omen 17",
+      "rental_duration_days": 10,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "n2o3p4q5-r6s7-4890-n123-o4p5q6r7s890",
+      "customer_id": "p2q3r4s5-t6u7-4890-v123-w4x5y6z7a890",
+      "product_id": "c2d3e4f5-g6h7-4890-i123-j4k5l6m7n890",
+      "product_name": "NEC PA803UL Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "o3p4q5r6-s7t8-4901-o234-p5q6r7s8t901",
+      "customer_id": "q3r4s5t6-u7v8-4901-w234-x5y6z7a8b901",
+      "product_id": "d3e4f5g6-h7i8-4901-j234-k5l6m7n8o901",
+      "product_name": "Sigma fp Camera",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "p4q5r6s7-t8u9-4012-p345-q6r7s8t9u012",
+      "customer_id": "r4s5t6u7-v8w9-4012-x345-y6z7a8b9c012",
+      "product_id": "e4f5g6h7-i8j9-4012-k345-l6m7n8o9p012",
+      "product_name": "Acer Predator Helios 300",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "q5r6s7t8-u9v0-4123-q456-r7s8t9u0v123",
+      "customer_id": "s5t6u7v8-w9x0-4123-y456-z7a8b9c0d123",
+      "product_id": "f5g6h7i8-j9k0-4123-l456-m7n8o9p0q123",
+      "product_name": "BenQ W2700i Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "r6s7t8u9-v0w1-4234-r567-s8t9u0v1w234",
+      "customer_id": "t6u7v8w9-x0y1-4234-z567-a8b9c0d1e234",
+      "product_id": "g6h7i8j9-k0l1-4234-m567-n8o9p0q1r234",
+      "product_name": "Pentax K-3 Mark III Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "s7t8u9v0-w1x2-4345-s678-t9u0v1w2x345",
+      "customer_id": "u7v8w9x0-y1z2-4345-a678-b9c0d1e2f345",
+      "product_id": "h7i8j9k0-l1m2-4345-n678-o9p0q1r2s345",
+      "product_name": "MSI GS77 Stealth",
+      "rental_duration_days": 12,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "t8u9v0w1-x2y3-4456-t789-u0v1w2x3y456",
+      "customer_id": "v8w9x0y1-z2a3-4456-b789-c0d1e2f3g456",
+      "product_id": "i8j9k0l1-m2n3-4456-o789-p0q1r2s3t456",
+      "product_name": "Optoma UHZ65UST Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "u9v0w1x2-y3z4-4567-u890-v1w2x3y4z567",
+      "customer_id": "w9x0y1z2-a3b4-4567-c890-d1e2f3g4h567",
+      "product_id": "j9k0l1m2-n3o4-4567-p890-q1r2s3t4u567",
+      "product_name": "Ricoh Theta Z1 Camera",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "v0w1x2y3-z4a5-4678-v901-w2x3y4z5a678",
+      "customer_id": "x0y1z2a3-b4c5-4678-d901-e2f3g4h5i678",
+      "product_id": "k0l1m2n3-o4p5-4678-q901-r2s3t4u5v678",
+      "product_name": "Gigabyte AORUS 17X",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "w1x2y3z4-a5b6-4789-w012-x3y4z5a6b789",
+      "customer_id": "y1z2a3b4-c5d6-4789-e012-f3g4h5i6j789",
+      "product_id": "l1m2n3o4-p5q6-4789-r012-s3t4u5v6w789",
+      "product_name": "Epson EH-TW7400 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "x2y3z4a5-b6c7-4890-x123-y4z5a6b7c890",
+      "customer_id": "z2a3b4c5-d6e7-4890-f123-g4h5i6j7k890",
+      "product_id": "m2n3o4p5-q6r7-4890-s123-t4u5v6w7x890",
+      "product_name": "Canon EOS R6 Mark II Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "y3z4a5b6-c7d8-4901-y234-z5a6b7c8d901",
+      "customer_id": "a3b4c5d6-e7f8-4901-g234-h5i6j7k8l901",
+      "product_id": "n3o4p5q6-r7s8-4901-t234-u5v6w7x8y901",
+      "product_name": "System76 Oryx Pro",
+      "rental_duration_days": 21,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "z4a5b6c7-d8e9-4012-z345-a6b7c8d9e012",
+      "customer_id": "b4c5d6e7-f8g9-4012-h345-i6j7k8l9m012",
+      "product_id": "o4p5q6r7-s8t9-4012-u345-v6w7x8y9z012",
+      "product_name": "JVC DLA-NZ9 Projector",
+      "rental_duration_days": 5,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "a5b6c7d8-e9f0-4123-a456-b7c8d9e0f123",
+      "customer_id": "c5d6e7f8-g9h0-4123-i456-j7k8l9m0n123",
+      "product_id": "p5q6r7s8-t9u0-4123-v456-w7x8y9z0a123",
+      "product_name": "Tamron 28-75mm f/2.8 Lens",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "b6c7d8e9-f0g1-4234-b567-c8d9e0f1g234",
+      "customer_id": "d6e7f8g9-h0i1-4234-j567-k8l9m0n1o234",
+      "product_id": "q6r7s8t9-u0v1-4234-w567-x8y9z0a1b234",
+      "product_name": "ASUS TUF Gaming A17",
+      "rental_duration_days": 10,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "c7d8e9f0-g1h2-4345-c678-d9e0f1g2h345",
+      "customer_id": "e7f8g9h0-i1j2-4345-k678-l9m0n1o2p345",
+      "product_id": "r7s8t9u0-v1w2-4345-x678-y9z0a1b2c345",
+      "product_name": "Digital Projection HIGHlite Laser 4K Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "d8e9f0g1-h2i3-4456-d789-e0f1g2h3i456",
+      "customer_id": "f8g9h0i1-j2k3-4456-l789-m0n1o2p3q456",
+      "product_id": "s8t9u0v1-w2x3-4456-y789-z0a1b2c3d456",
+      "product_name": "Insta360 Pro 2 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "e9f0g1h2-i3j4-4567-e890-f1g2h3i4j567",
+      "customer_id": "g9h0i1j2-k3l4-4567-m890-n1o2p3q4r567",
+      "product_id": "t9u0v1w2-x3y4-4567-z890-a1b2c3d4e567",
+      "product_name": "Clevo X170SM-G Laptop",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "f0g1h2i3-j4k5-4678-f901-g2h3i4j5k678",
+      "customer_id": "h0i1j2k3-l4m5-4678-n901-o2p3q4r5s678",
+      "product_id": "u0v1w2x3-y4z5-4678-a901-b2c3d4e5f678",
+      "product_name": "Panasonic PT-RZ120 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "g1h2i3j4-k5l6-4789-g012-h3i4j5k6l789",
+      "customer_id": "i1j2k3l4-m5n6-4789-o012-p3q4r5s6t789",
+      "product_id": "v1w2x3y4-z5a6-4789-b012-c3d4e5f6g789",
+      "product_name": "Blackmagic URSA Mini Pro 12K Camera",
+      "rental_duration_days": 21,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "h2i3j4k5-l6m7-4890-h123-i4j5k6l7m890",
+      "customer_id": "j2k3l4m5-n6o7-4890-p123-q4r5s6t7u890",
+      "product_id": "w2x3y4z5-a6b7-4890-c123-d4e5f6g7h890",
+      "product_name": "MacBook Pro 14-inch M2",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "i3j4k5l6-m7n8-4901-i234-j5k6l7m8n901",
+      "customer_id": "k3l4m5n6-o7p8-4901-q234-r5s6t7u8v901",
+      "product_id": "x3y4z5a6-b7c8-4901-d234-e5f6g7h8i901",
+      "product_name": "ViewSonic LS830 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "j4k5l6m7-n8o9-4012-j345-k6l7m8n9o012",
+      "customer_id": "l4m5n6o7-p8q9-4012-r345-s6t7u8v9w012",
+      "product_id": "y4z5a6b7-c8d9-4012-e345-f6g7h8i9j012",
+      "product_name": "Sony A7S III Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "k5l6m7n8-o9p0-4123-k456-l7m8n9o0p123",
+      "customer_id": "m5n6o7p8-q9r0-4123-s456-t7u8v9w0x123",
+      "product_id": "z5a6b7c8-d9e0-4123-f456-g7h8i9j0k123",
+      "product_name": "ASUS ProArt Display PA278QV Monitor",
+      "rental_duration_days": 30,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "l6m7n8o9-p0q1-4234-l567-m8n9o0p1q234",
+      "customer_id": "n6o7p8q9-r0s1-4234-t567-u8v9w0x1y234",
+      "product_id": "a6b7c8d9-e0f1-4234-g567-h8i9j0k1l234",
+      "product_name": "BenQ SW321C Monitor",
+      "rental_duration_days": 21,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "m7n8o9p0-q1r2-4345-m678-n9o0p1q2r345",
+      "customer_id": "o7p8q9r0-s1t2-4345-u678-v9w0x1y2z345",
+      "product_id": "b7c8d9e0-f1g2-4345-h678-i9j0k1l2m345",
+      "product_name": "Epson LS11000 Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "n8o9p0q1-r2s3-4456-n789-o0p1q2r3s456",
+      "customer_id": "p8q9r0s1-t2u3-4456-v789-w0x1y2z3a456",
+      "product_id": "c8d9e0f1-g2h3-4456-i789-j0k1l2m3n456",
+      "product_name": "Nikon D780 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "o9p0q1r2-s3t4-4567-o890-p1q2r3s4t567",
+      "customer_id": "q9r0s1t2-u3v4-4567-w890-x1y2z3a4b567",
+      "product_id": "d9e0f1g2-h3i4-4567-j890-k1l2m3n4o567",
+      "product_name": "Corsair Voyager a1600 Laptop",
+      "rental_duration_days": 12,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "p0q1r2s3-t4u5-4678-p901-q2r3s4t5u678",
+      "customer_id": "r0s1t2u3-v4w5-4678-x901-y2z3a4b5c678",
+      "product_id": "e0f1g2h3-i4j5-4678-k901-l2m3n4o5p678",
+      "product_name": "Christie CP2230 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "q1r2s3t4-u5v6-4789-q012-r3s4t5u6v789",
+      "customer_id": "s1t2u3v4-w5x6-4789-y012-z3a4b5c6d789",
+      "product_id": "f1g2h3i4-j5k6-4789-l012-m3n4o5p6q789",
+      "product_name": "Lumix S5 II Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "r2s3t4u5-v6w7-4890-r123-s4t5u6v7w890",
+      "customer_id": "t2u3v4w5-x6y7-4890-z123-a4b5c6d7e890",
+      "product_id": "g2h3i4j5-k6l7-4890-m123-n4o5p6q7r890",
+      "product_name": "MSI Summit E16 Flip",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "s3t4u5v6-w7x8-4901-s234-t5u6v7w8x901",
+      "customer_id": "u3v4w5x6-y7z8-4901-a234-b5c6d7e8f901",
+      "product_id": "h3i4j5k6-l7m8-4901-n234-o5p6q7r8s901",
+      "product_name": "Sony VPL-XW5000ES Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "t4u5v6w7-x8y9-4012-t345-u6v7w8x9y012",
+      "customer_id": "v4w5x6y7-z8a9-4012-b345-c6d7e8f9g012",
+      "product_id": "i4j5k6l7-m8n9-4012-o345-p6q7r8s9t012",
+      "product_name": "Zeiss Otus 55mm f/1.4 Lens",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "u5v6w7x8-y9z0-4123-u456-v7w8x9y0z123",
+      "customer_id": "w5x6y7z8-a9b0-4123-c456-d7e8f9g0h123",
+      "product_id": "j5k6l7m8-n9o0-4123-p456-q7r8s9t0u123",
+      "product_name": "HP OMEN 45L Desktop",
+      "rental_duration_days": 30,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "v6w7x8y9-z0a1-4234-v567-w8x9y0z1a234",
+      "customer_id": "x6y7z8a9-b0c1-4234-d567-e8f9g0h1i234",
+      "product_id": "k6l7m8n9-o0p1-4234-q567-r8s9t0u1v234",
+      "product_name": "LG HU715QW Projector",
+      "rental_duration_days": 5,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "w7x8y9z0-a1b2-4345-w678-x9y0z1a2b345",
+      "customer_id": "y7z8a9b0-c1d2-4345-e678-f9g0h1i2j345",
+      "product_id": "l7m8n9o0-p1q2-4345-r678-s9t0u1v2w345",
+      "product_name": "Canon EOS R7 Camera",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "x8y9z0a1-b2c3-4456-x789-y0z1a2b3c456",
+      "customer_id": "z8a9b0c1-d2e3-4456-f789-g0h1i2j3k456",
+      "product_id": "m8n9o0p1-q2r3-4456-s789-t0u1v2w3x456",
+      "product_name": "Lenovo ThinkStation P620",
+      "rental_duration_days": 30,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "y9z0a1b2-c3d4-4567-y890-z1a2b3c4d567",
+      "customer_id": "a9b0c1d2-e3f4-4567-g890-h1i2j3k4l567",
+      "product_id": "n9o0p1q2-r3s4-4567-t890-u1v2w3x4y567",
+      "product_name": "Optoma ZU650+ Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "z0a1b2c3-d4e5-4678-z901-a2b3c4d5e678",
+      "customer_id": "b0c1d2e3-f4g5-4678-h901-i2j3k4l5m678",
+      "product_id": "o0p1q2r3-s4t5-4678-u901-v2w3x4y5z678",
+      "product_name": "Canon RF 85mm f/1.2L Lens",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "a1b2c3d4-e5f6-4789-a012-b3c4d5e6f789",
+      "customer_id": "c1d2e3f4-g5h6-4789-i012-j3k4l5m6n789",
+      "product_id": "p1q2r3s4-t5u6-4789-v012-w3x4y5z6a789",
+      "product_name": "Dell Precision 7760 Mobile Workstation",
+      "rental_duration_days": 21,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "b2c3d4e5-f6g7-4890-b123-c4d5e6f7g890",
+      "customer_id": "d2e3f4g5-h6i7-4890-j123-k4l5m6n7o890",
+      "product_id": "q2r3s4t5-u6v7-4890-w123-x4y5z6a7b890",
+      "product_name": "Epson EH-TW6150 Projector",
+      "rental_duration_days": 5,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "c3d4e5f6-g7h8-4901-c234-d5e6f7g8h901",
+      "customer_id": "e3f4g5h6-i7j8-4901-k234-l5m6n7o8p901",
+      "product_id": "r3s4t5u6-v7w8-4901-x234-y5z6a7b8c901",
+      "product_name": "Phase One IQ4 150MP Camera",
+      "rental_duration_days": 21,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "d4e5f6g7-h8i9-4012-d345-e6f7g8h9i012",
+      "customer_id": "f4g5h6i7-j8k9-4012-l345-m6n7o8p9q012",
+      "product_id": "s4t5u6v7-w8x9-4012-y345-z6a7b8c9d012",
+      "product_name": "ASUS ROG Strix SCAR 17",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "e5f6g7h8-i9j0-4123-e456-f7g8h9i0j123",
+      "customer_id": "g5h6i7j8-k9l0-4123-m456-n7o8p9q0r123",
+      "product_id": "t5u6v7w8-x9y0-4123-z456-a7b8c9d0e123",
+      "product_name": "BenQ TH685P Projector",
+      "rental_duration_days": 3,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "f6g7h8i9-j0k1-4234-f567-g8h9i0j1k234",
+      "customer_id": "h6i7j8k9-l0m1-4234-n567-o8p9q0r1s234",
+      "product_id": "u6v7w8x9-y0z1-4234-a567-b8c9d0e1f234",
+      "product_name": "DJI Mavic 3 Cine Camera",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "g7h8i9j0-k1l2-4345-g678-h9i0j1k2l345",
+      "customer_id": "i7j8k9l0-m1n2-4345-o678-p9q0r1s2t345",
+      "product_id": "v7w8x9y0-z1a2-4345-b678-c9d0e1f2g345",
+      "product_name": "Origin Millennium Gaming Desktop",
+      "rental_duration_days": 30,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "h8i9j0k1-l2m3-4456-h789-i0j1k2l3m456",
+      "customer_id": "j8k9l0m1-n2o3-4456-p789-q0r1s2t3u456",
+      "product_id": "w8x9y0z1-a2b3-4456-c789-d0e1f2g3h456",
+      "product_name": "Digital Projection E-Vision Laser 8K Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "i9j0k1l2-m3n4-4567-i890-j1k2l3m4n567",
+      "customer_id": "k9l0m1n2-o3p4-4567-q890-r1s2t3u4v567",
+      "product_id": "x9y0z1a2-b3c4-4567-d890-e1f2g3h4i567",
+      "product_name": "Tamron 70-200mm f/2.8 Lens",
+      "rental_duration_days": 7,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "j0k1l2m3-n4o5-4678-j901-k2l3m4n5o678",
+      "customer_id": "l0m1n2o3-p4q5-4678-r901-s2t3u4v5w678",
+      "product_id": "y0z1a2b3-c4d5-4678-e901-f2g3h4i5j678",
+      "product_name": "ASUS ROG Mothership GZ700",
+      "rental_duration_days": 14,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "k1l2m3n4-o5p6-4789-k012-l3m4n5o6p789",
+      "customer_id": "m1n2o3p4-q5r6-4789-s012-t3u4v5w6x789",
+      "product_id": "z1a2b3c4-d5e6-4789-f012-g3h4i5j6k789",
+      "product_name": "JVC DLA-RS4100 Projector",
+      "rental_duration_days": 5,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "l2m3n4o5-p6q7-4890-l123-m4n5o6p7q890",
+      "customer_id": "n2o3p4q5-r6s7-4890-t123-u4v5w6x7y890",
+      "product_id": "a2b3c4d5-e6f7-4890-g123-h4i5j6k7l890",
+      "product_name": "Sony FX6 Camera",
+      "rental_duration_days": 21,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "m3n4o5p6-q7r8-4901-m234-n5o6p7q8r901",
+      "customer_id": "o3p4q5r6-s7t8-4901-u234-v5w6x7y8z901",
+      "product_id": "b3c4d5e6-f7g8-4901-h234-i5j6k7l8m901",
+      "product_name": "Framework Laptop DIY Edition",
+      "rental_duration_days": 10,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "n4o5p6q7-r8s9-4012-n345-o6p7q8r9s012",
+      "customer_id": "p4q5r6s7-t8u9-4012-v345-w6x7y8z9a012",
+      "product_id": "c4d5e6f7-g8h9-4012-i345-j6k7l8m9n012",
+      "product_name": "Barco F80-4K13 Projector",
+      "rental_duration_days": 3,
+      "customer_type": "individual"
+    },
+    {
+      "rental_id": "o5p6q7r8-s9t0-4123-o456-p7q8r9s0t123",
+      "customer_id": "q5r6s7t8-u9v0-4123-w456-x7y8z9a0b123",
+      "product_id": "d5e6f7g8-h9i0-4123-j456-k7l8m9n0o123",
+      "product_name": "Canon EOS-1D X Mark III Camera",
+      "rental_duration_days": 14,
+      "customer_type": "corporate"
+    },
+    {
+      "rental_id": "p6q7r8s9-t0u1-4234-p567-q8r9s0t1u234",
+      "customer_id": "r6s7t8u9-v0w1-4234-x567-y8z9a0b1c234",
+      "product_id": "e6f7g8h9-i0j1-4234-k567-l8m9n0o1p234",
+      "product_name": "Acer Nitro 5 Gaming Laptop",
+      "rental_duration_days": 7,
+      "customer_type": "individual"
+    }
+]

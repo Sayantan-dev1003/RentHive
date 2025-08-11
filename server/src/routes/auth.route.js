@@ -2,6 +2,7 @@ const express = require('express');
 const {
   register,
   login,
+  logout,
   getProfile,
   updateProfile,
   changePassword,
@@ -22,6 +23,7 @@ router.get('/profile', auth, getProfile);
 router.put('/profile', auth, updateProfile);
 router.post('/change-password', auth, changePassword);
 router.post('/refresh', auth, refreshToken);
+router.post('/logout', auth, logout);
 
 // Admin only routes
 router.get('/users', auth, authorizeRoles('end_user'), getAllUsers);
@@ -315,6 +317,7 @@ router.get('/profile', getProfile);
 router.put('/profile', updateProfile);
 router.post('/change-password', changePassword);
 router.post('/refresh', refreshToken);
+router.post('/logout', logout);
 
 // Admin only routes
 router.get('/users', authorizeRoles('end_user'), getAllUsers);

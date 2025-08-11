@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-
-const API_BASE_URL = 'http://localhost:8000/api'
+import apiService from '../services/api'
 
 const Products = () => {
   const [products, setProducts] = useState([])
@@ -49,8 +48,7 @@ const Products = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const response = await fetch(`${API_BASE_URL}/products`)
-      const data = await response.json()
+      const data = await apiService.getProducts()
       
       if (data.success) {
         // Transform backend data to match frontend format
@@ -66,7 +64,7 @@ const Products = () => {
           status: product.currentAvailableStock > 0 ? 'Available' : 'Rented',
           stock: product.stock,
           currentAvailableStock: product.currentAvailableStock,
-          image: getProductIcon(product.category),
+          image: apiService.getProductIcon(product.category),
           rating: Math.random() * 0.5 + 4.5, // Random rating for demo
           totalRentals: Math.floor(Math.random() * 50) + 10, // Random rentals for demo
           originalData: product
@@ -74,7 +72,7 @@ const Products = () => {
         setProducts(transformedProducts)
       }
     } catch (err) {
-      setError('Failed to fetch products')
+      setError('Failed to fetch products: ' + err.message)
       console.error('Error fetching products:', err)
     } finally {
       setLoading(false)
@@ -83,8 +81,7 @@ const Products = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/products/categories`)
-      const data = await response.json()
+      const data = await apiService.getProductCategories()
       
       if (data.success) {
         setCategories(data.data.categories)
@@ -96,16 +93,7 @@ const Products = () => {
 
   const createProduct = async (productData) => {
     try {
-      // Use development route that bypasses auth
-      const response = await fetch(`${API_BASE_URL}/dev/products`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData)
-      })
-      
-      const data = await response.json()
+      const data = await apiService.createProduct(productData)
       
       if (data.success) {
         // Refresh products list
@@ -132,16 +120,7 @@ const Products = () => {
 
   const updateProduct = async (id, updateData) => {
     try {
-      // Use development route that bypasses auth
-      const response = await fetch(`${API_BASE_URL}/dev/products/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData)
-      })
-      
-      const data = await response.json()
+      const data = await apiService.updateProduct(id, updateData)
       
       if (data.success) {
         fetchProducts()
@@ -196,15 +175,7 @@ const Products = () => {
         return
       }
       
-      // Use development route that bypasses auth
-      const response = await fetch(`${API_BASE_URL}/dev/products/${id}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      })
-      
-      const data = await response.json()
+      const data = await apiService.deleteProduct(id)
       
       if (data.success) {
         fetchProducts()
@@ -218,19 +189,7 @@ const Products = () => {
     }
   }
 
-  // Helper function to get product icon based on category
-  const getProductIcon = (category) => {
-    const icons = {
-      'Electronics': '📱',
-      'Furniture': '🪑',
-      'Vehicles': '🚗',
-      'Sports': '⚽',
-      'Tools': '🔨',
-      'Events': '🎉',
-      'Other': '📦'
-    }
-    return icons[category] || '📦'
-  }
+
 
   // Filter products based on search and filters
   const filteredProducts = products.filter(product => {

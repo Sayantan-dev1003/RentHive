@@ -11,6 +11,7 @@ const orderRoutes = require('./routes/order.route');
 const paymentRoutes = require('./routes/payment.route');
 const notificationRoutes = require('./routes/notification.route');
 const reportRoutes = require('./routes/report.route');
+const aiRoutes = require('./routes/aiRoutes');
 const devRoutes = require('./routes/dev.route');
 
 // Import middleware
@@ -56,6 +57,7 @@ app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reports', reportRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Development routes (remove in production)
 app.use('/api/dev', devRoutes);
