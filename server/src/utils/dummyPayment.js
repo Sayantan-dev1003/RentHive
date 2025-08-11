@@ -231,7 +231,7 @@ const simulatePaymentMethod = async (method, paymentData) => {
         receipt_number: `CASH${Date.now()}`,
         amount: amount,
         currency: 'INR',
-        collected_by: 'staff_member'
+        collected_by: 'admin_user'
       };
       
     default:
@@ -245,18 +245,31 @@ const simulatePaymentMethod = async (method, paymentData) => {
 };
 
 /**
- * Process refund for a payment
- * @param {String} paymentId - Payment ID to refund
+ * Process refund for a payment or order
+ * @param {String} orderIdOrPaymentId - Order ID or Payment ID to refund
  * @param {Number} refundAmount - Amount to refund (optional, defaults to full amount)
  * @param {String} reason - Refund reason
  * @returns {Promise<Object>} Refund result
  */
-const processRefund = async (paymentId, refundAmount, reason = 'Customer request') => {
+const processRefund = async (orderIdOrPaymentId, refundAmount, reason = 'Order cancellation') => {
   try {
-    const payment = await Payment.findById(paymentId);
+    let payment;
+    let isOrderId = false;
+    
+    // Try to find by payment ID first
+    payment = await Payment.findById(orderIdOrPaymentId);
+    
+    // If not found, try to find the latest completed payment for this order
+    if (!payment) {
+      payment = await Payment.findOne({
+        orderId: orderIdOrPaymentId,
+        status: 'completed'
+      }).sort({ createdAt: -1 });
+      isOrderId = true;
+    }
     
     if (!payment) {
-      throw new Error('Payment not found');
+      throw new Error('No completed payment found for refund');
     }
 
     if (payment.status !== 'completed') {
@@ -269,25 +282,56 @@ const processRefund = async (paymentId, refundAmount, reason = 'Customer request
       throw new Error('Refund amount cannot exceed payment amount');
     }
 
-    // Simulate refund processing
+    // Generate refund transaction ID
+    const refundId = `refund_${shortid.generate()}`;
+    
+    // Simulate refund processing delay
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
 
     // 98% success rate for refunds
     const shouldSucceed = Math.random() > 0.02;
 
     if (shouldSucceed) {
-      // Process refund
-      await payment.processRefund(refundAmountFinal, reason);
+      // Create refund record
+      const refundData = {
+        refundId,
+        amount: refundAmountFinal,
+        reason,
+        processedAt: new Date(),
+        status: 'processed',
+        gatewayResponse: {
+          gateway: payment.method,
+          refundReference: refundId,
+          originalTransactionId: payment.transactionId,
+          timestamp: new Date().toISOString()
+        }
+      };
+
+      // Update payment with refund details
+      await Payment.findByIdAndUpdate(payment._id, {
+        status: 'refunded',
+        refundDetails: refundData,
+        refundAmount: refundAmountFinal
+      });
+
+      // If this was an order refund, update order payment status
+      if (isOrderId) {
+        await Order.findByIdAndUpdate(orderIdOrPaymentId, {
+          paymentStatus: 'refunded'
+        });
+      }
 
       return {
         success: true,
-        refundId: payment.refundDetails.refundId,
+        refundId,
         refundAmount: refundAmountFinal,
+        originalPaymentId: payment._id,
         message: 'Refund processed successfully',
-        estimatedArrival: '3-5 business days'
+        estimatedArrival: '3-5 business days',
+        refundDetails: refundData
       };
     } else {
-      throw new Error('Refund processing failed at gateway');
+      throw new Error('Refund processing failed at payment gateway');
     }
   } catch (error) {
     throw new Error(`Refund failed: ${error.message}`);

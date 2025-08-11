@@ -66,6 +66,27 @@ const orderSchema = new mongoose.Schema({
     default: 'quotation',
     required: true
   },
+  cancelledAt: {
+    type: Date
+  },
+  cancelReason: {
+    type: String,
+    trim: true,
+    maxlength: [500, 'Cancel reason cannot exceed 500 characters']
+  },
+  extendedUntil: {
+    type: Date
+  },
+  extensionHistory: [{
+    originalEndDate: Date,
+    newEndDate: Date,
+    additionalCost: Number,
+    extendedAt: {
+      type: Date,
+      default: Date.now
+    },
+    reason: String
+  }],
   pickupDate: {
     type: Date
   },

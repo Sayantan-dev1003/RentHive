@@ -1,6 +1,7 @@
 const Product = require('../models/Product');
 const { asyncHandler, createValidationError, createNotFoundError } = require('../middlewares/errorHandler');
-const { getAvailableQuantity, getAvailabilityCalendar: getProductAvailabilityCalendar } = require('../utils/availabilityHelper');
+const { getAvailableQuantity, getAvailabilityCalendar: getProductAvailabilityCalendar, isAvailable } = require('../utils/availabilityHelper');
+const { emitProductUpdate } = require('../utils/socket');
 
 /**
  * Create a new product
@@ -46,6 +47,16 @@ const createProduct = asyncHandler(async (req, res) => {
   });
 
   await product.save();
+
+  // Emit product update
+  emitProductUpdate(product._id.toString(), {
+    id: product._id,
+    name: product.name,
+    category: product.category,
+    stock: product.stock,
+    availability: product.availability,
+    rentable: product.rentable
+  });
 
   res.status(201).json({
     success: true,
@@ -98,6 +109,19 @@ const getProducts = asyncHandler(async (req, res) => {
     if (maxPrice) query['pricing.day'].$lte = parseFloat(maxPrice);
   }
 
+  // Date availability filtering
+  let dateFilter = null;
+  if (startDate && endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    if (start >= end) {
+      throw createValidationError('Start date must be before end date');
+    }
+    
+    dateFilter = { start, end };
+  }
+
   // Build sort object
   const sort = {};
   sort[sortBy] = sortOrder === 'asc' ? 1 : -1;
@@ -110,12 +134,24 @@ const getProducts = asyncHandler(async (req, res) => {
 
   const total = await Product.countDocuments(query);
 
-  // Add current available stock to each product
-  const productsWithAvailability = products.map(product => {
+  // Add current available stock and date-specific availability
+  const productsWithAvailability = await Promise.all(products.map(async product => {
     const productObj = product.toObject();
     productObj.currentAvailableStock = product.currentAvailableStock;
+    
+    // If date filter is provided, check availability for that period
+    if (dateFilter) {
+      const availableQty = await getAvailableQuantity(
+        product._id,
+        dateFilter.start,
+        dateFilter.end
+      );
+      productObj.availableForPeriod = availableQty;
+      productObj.isAvailableForPeriod = availableQty > 0;
+    }
+    
     return productObj;
-  });
+  }));
 
   res.status(200).json({
     success: true,

@@ -6,6 +6,8 @@ const { asyncHandler, createValidationError, createNotFoundError } = require('..
 const { calculatePrice, calculateLateFee } = require('../utils/pricingHelper');
 const { isAvailable, reserveProduct, releaseReservation, checkMultipleAvailability } = require('../utils/availabilityHelper');
 const { generateInvoicePDF } = require('../utils/pdfGenerator');
+const { processRefund } = require('../utils/dummyPayment');
+const { emitOrderUpdate, emitProductUpdate } = require('../utils/socket');
 
 /**
  * Create a quote for order items
@@ -461,50 +463,7 @@ const markReturn = asyncHandler(async (req, res) => {
   });
 });
 
-/**
- * Cancel order
- * PATCH /api/orders/:id/cancel
- */
-const cancelOrder = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { reason } = req.body;
 
-  const order = await Order.findById(id);
-
-  if (!order) {
-    throw createNotFoundError('Order');
-  }
-
-  if (order.status === 'picked_up' || order.status === 'returned') {
-    throw createValidationError('Cannot cancel order that has been picked up or returned');
-  }
-
-  // Update order
-  order.status = 'cancelled';
-  order.notes = (order.notes || '') + `\nCancellation reason: ${reason || 'No reason provided'}`;
-
-  await order.save();
-
-  // Release product reservations
-  for (const item of order.items) {
-    await releaseReservation(item.productId, order._id);
-  }
-
-  // Cancel invoice
-  if (order.invoiceId) {
-    await Invoice.findByIdAndUpdate(order.invoiceId, {
-      status: 'cancelled'
-    });
-  }
-
-  res.status(200).json({
-    success: true,
-    message: 'Order cancelled successfully',
-    data: {
-      order
-    }
-  });
-});
 
 /**
  * Generate and download invoice PDF
@@ -605,6 +564,229 @@ const getOrderStats = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * Cancel an order
+ * DELETE /api/orders/:id
+ */
+const cancelOrder = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { reason } = req.body;
+
+  const order = await Order.findById(id);
+  
+  if (!order) {
+    throw createNotFoundError('Order not found');
+  }
+
+  // Check if order can be cancelled
+  if (['returned', 'cancelled'].includes(order.status)) {
+    throw createValidationError('Order cannot be cancelled in current status');
+  }
+
+  // If order is picked up, require admin authorization
+  if (order.status === 'picked_up' && req.user.role !== 'admin') {
+    throw createValidationError('Cannot cancel order after pickup. Please contact support.');
+  }
+
+  // Release reserved products
+  for (const item of order.items) {
+    await releaseReservation(
+      item.productId,
+      item.rentalDuration.startDate,
+      item.rentalDuration.endDate,
+      order._id,
+      item.quantity
+    );
+
+    // Emit product update
+    const product = await Product.findById(item.productId);
+    if (product) {
+      emitProductUpdate(item.productId.toString(), {
+        availability: product.availability,
+        stock: product.stock
+      });
+    }
+  }
+
+  // Process refund if payment was made
+  let refundDetails = null;
+  if (['partial', 'paid'].includes(order.paymentStatus)) {
+    try {
+      refundDetails = await processRefund(id, null, reason || 'Order cancellation');
+    } catch (refundError) {
+      console.error('Refund processing failed:', refundError);
+      // Continue with cancellation even if refund fails
+    }
+  }
+
+  // Update order status
+  order.status = 'cancelled';
+  order.cancelledAt = new Date();
+  order.cancelReason = reason;
+  if (refundDetails) {
+    order.paymentStatus = 'refunded';
+  }
+
+  await order.save();
+
+  // Emit order update
+  emitOrderUpdate(id, {
+    status: order.status,
+    cancelledAt: order.cancelledAt,
+    cancelReason: order.cancelReason,
+    refundDetails
+  }, order.customerId.toString());
+
+  res.status(200).json({
+    success: true,
+    message: 'Order cancelled successfully',
+    data: {
+      order,
+      refundDetails
+    }
+  });
+});
+
+/**
+ * Extend order rental period
+ * POST /api/orders/:id/extend
+ */
+const extendOrder = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { newEndDate, reason } = req.body;
+
+  if (!newEndDate) {
+    throw createValidationError('New end date is required');
+  }
+
+  const order = await Order.findById(id).populate('items.productId');
+  
+  if (!order) {
+    throw createNotFoundError('Order not found');
+  }
+
+  // Check if order can be extended
+  if (!['reserved', 'picked_up'].includes(order.status)) {
+    throw createValidationError('Order cannot be extended in current status');
+  }
+
+  const newEndDateTime = new Date(newEndDate);
+  
+  // Validate new end date
+  for (const item of order.items) {
+    const currentEndDate = new Date(item.rentalDuration.endDate);
+    
+    if (newEndDateTime <= currentEndDate) {
+      throw createValidationError('New end date must be after current end date');
+    }
+
+    // Check availability for extended period
+    const isExtensionAvailable = await isAvailable(
+      item.productId,
+      currentEndDate,
+      newEndDateTime,
+      item.quantity
+    );
+
+    if (!isExtensionAvailable) {
+      throw createValidationError(`Product ${item.productId.name} is not available for the extended period`);
+    }
+  }
+
+  // Calculate additional cost
+  let totalAdditionalCost = 0;
+  const priceBreakdown = [];
+
+  for (const item of order.items) {
+    const currentEndDate = new Date(item.rentalDuration.endDate);
+    const extensionDays = Math.ceil((newEndDateTime - currentEndDate) / (1000 * 60 * 60 * 24));
+    
+    // Use daily rate for extensions
+    const dailyRate = item.productId.pricing.day;
+    const extensionCost = dailyRate * item.quantity * extensionDays;
+    
+    totalAdditionalCost += extensionCost;
+    
+    priceBreakdown.push({
+      productId: item.productId._id,
+      productName: item.productId.name,
+      quantity: item.quantity,
+      extensionDays,
+      dailyRate,
+      extensionCost
+    });
+
+    // Reserve the extended period
+    await reserveProduct(
+      item.productId._id,
+      currentEndDate,
+      newEndDateTime,
+      order._id,
+      item.quantity
+    );
+
+    // Update item end date
+    item.rentalDuration.endDate = newEndDateTime;
+  }
+
+  // Update order
+  order.returnDate = newEndDateTime;
+  order.extendedUntil = newEndDateTime;
+  order.totalAmount += totalAdditionalCost;
+
+  // Add to extension history
+  order.extensionHistory.push({
+    originalEndDate: order.items[0].rentalDuration.endDate,
+    newEndDate: newEndDateTime,
+    additionalCost: totalAdditionalCost,
+    reason: reason || 'Customer request'
+  });
+
+  await order.save();
+
+  // Update invoice if exists
+  const invoice = await Invoice.findOne({ orderId: id });
+  if (invoice) {
+    invoice.amount += totalAdditionalCost;
+    invoice.extensionDetails = {
+      additionalAmount: totalAdditionalCost,
+      priceBreakdown,
+      extendedUntil: newEndDateTime
+    };
+    await invoice.save();
+  }
+
+  // Emit updates
+  emitOrderUpdate(id, {
+    status: order.status,
+    totalAmount: order.totalAmount,
+    returnDate: order.returnDate,
+    extensionHistory: order.extensionHistory
+  }, order.customerId.toString());
+
+  // Emit product updates
+  for (const item of order.items) {
+    const product = await Product.findById(item.productId);
+    if (product) {
+      emitProductUpdate(item.productId._id.toString(), {
+        availability: product.availability,
+        stock: product.stock
+      });
+    }
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Order extended successfully',
+    data: {
+      order,
+      additionalCost: totalAdditionalCost,
+      priceBreakdown,
+      newEndDate: newEndDateTime
+    }
+  });
+});
+
 module.exports = {
   createQuote,
   confirmOrder,
@@ -613,6 +795,7 @@ module.exports = {
   markPickup,
   markReturn,
   cancelOrder,
+  extendOrder,
   generateInvoice,
   getOrderStats
 };

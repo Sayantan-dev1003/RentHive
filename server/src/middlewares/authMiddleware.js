@@ -81,6 +81,59 @@ const authorizeRoles = (...roles) => {
   };
 };
 
+// Admin only access
+const adminOnly = authorizeRoles('admin');
+
+// Customer only access
+const customerOnly = authorizeRoles('customer');
+
+// Resource ownership check (customer can only access their own orders)
+const checkResourceOwnership = (resourceModel) => {
+  return async (req, res, next) => {
+    try {
+      if (!req.user) {
+        return res.status(401).json({
+          success: false,
+          message: 'Authentication required.'
+        });
+      }
+
+      // Admin can access all resources
+      if (req.user.role === 'admin') {
+        return next();
+      }
+
+      // For customers, check if they own the resource
+      const resourceId = req.params.id;
+      const Model = require(`../models/${resourceModel}`);
+      const resource = await Model.findById(resourceId);
+
+      if (!resource) {
+        return res.status(404).json({
+          success: false,
+          message: `${resourceModel} not found`
+        });
+      }
+
+      // Check ownership based on customerId field
+      if (resource.customerId && resource.customerId.toString() !== req.user._id.toString()) {
+        return res.status(403).json({
+          success: false,
+          message: 'Access denied. You can only access your own resources.'
+        });
+      }
+
+      next();
+    } catch (error) {
+      console.error('Resource ownership check error:', error);
+      res.status(500).json({
+        success: false,
+        message: 'Error checking resource ownership.'
+      });
+    }
+  };
+};
+
 // Optional auth middleware (doesn't fail if no token)
 const optionalAuth = async (req, res, next) => {
   try {
@@ -175,6 +228,9 @@ const verifyToken = (token) => {
 module.exports = {
   auth,
   authorizeRoles,
+  adminOnly,
+  customerOnly,
+  checkResourceOwnership,
   optionalAuth,
   ownerOrAdmin,
   generateToken,

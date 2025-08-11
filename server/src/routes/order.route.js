@@ -7,10 +7,11 @@ const {
   markPickup,
   markReturn,
   cancelOrder,
+  extendOrder,
   generateInvoice,
   getOrderStats
 } = require('../controllers/order.controller');
-const { auth, authorizeRoles, ownerOrAdmin } = require('../middlewares/authMiddleware');
+const { auth, authorizeRoles, adminOnly, customerOnly, checkResourceOwnership } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -326,13 +327,18 @@ router.post('/', confirmOrder);
 
 // Order listing and details
 router.get('/', getOrders);
-router.get('/stats', authorizeRoles('end_user'), getOrderStats);
+router.get('/stats', adminOnly, getOrderStats);
 router.get('/:id', getOrderById);
 
 // Order management (admin only)
-router.patch('/:id/pickup', authorizeRoles('end_user'), markPickup);
-router.patch('/:id/return', authorizeRoles('end_user'), markReturn);
-router.patch('/:id/cancel', cancelOrder); // Both customers and admins can cancel
+router.patch('/:id/pickup', adminOnly, markPickup);
+router.patch('/:id/return', adminOnly, markReturn);
+
+// Order cancellation - customers can cancel their own, admins can cancel any
+router.delete('/:id', cancelOrder);
+
+// Order extension - customers can extend their own orders
+router.post('/:id/extend', extendOrder);
 
 // Invoice generation
 router.get('/:id/invoice', generateInvoice);

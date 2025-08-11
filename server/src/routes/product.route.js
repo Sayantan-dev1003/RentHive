@@ -11,7 +11,7 @@ const {
   searchProducts,
   getFeaturedProducts
 } = require('../controllers/product.controller');
-const { auth, authorizeRoles, optionalAuth } = require('../middlewares/authMiddleware');
+const { auth, adminOnly, optionalAuth } = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
@@ -285,8 +285,8 @@ router.get('/:id/availability', checkAvailability);
 router.get('/:id/calendar', getAvailabilityCalendar);
 
 // Protected routes (admin only)
-router.post('/', auth, authorizeRoles('end_user'), createProduct);
-router.put('/:id', auth, authorizeRoles('end_user'), updateProduct);
-router.delete('/:id', auth, authorizeRoles('end_user'), deleteProduct);
+router.post('/', auth, adminOnly, createProduct);
+router.put('/:id', auth, adminOnly, updateProduct);
+router.delete('/:id', auth, adminOnly, deleteProduct);
 
 module.exports = router;

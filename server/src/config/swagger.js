@@ -17,11 +17,11 @@ const swaggerDefinition = {
       url: 'https://opensource.org/licenses/MIT'
     }
   },
-  servers: [
-    {
-      url: 'http://localhost:5000',
-      description: 'Development server'
-    },
+        servers: [
+        {
+          url: 'http://localhost:8000',
+          description: 'Development server'
+        },
     {
       url: 'https://api.renthive.com',
       description: 'Production server'
