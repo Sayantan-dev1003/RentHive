@@ -1,8 +1,17 @@
+/**
+ * Report Controller
+ * Enhanced reporting with export capabilities
+ */
+
 const Order = require('../models/Order');
 const Product = require('../models/Product');
-const Payment = require('../models/Payment');
 const User = require('../models/User');
+const Payment = require('../models/Payment');
 const { asyncHandler, createValidationError } = require('../middlewares/errorHandler');
+const { generateReportPDF } = require('../utils/pdf');
+const csv = require('fast-csv');
+const fs = require('fs');
+const path = require('path');
 const moment = require('moment');
 
 /**
@@ -10,21 +19,19 @@ const moment = require('moment');
  * GET /api/reports/most-rented-products
  */
 const getMostRentedProducts = asyncHandler(async (req, res) => {
-  const { start, end, limit = 10 } = req.query;
+  const { startDate, endDate, limit = 10 } = req.query;
 
   // Build date filter
   const dateFilter = {};
-  if (start || end) {
-    dateFilter.createdAt = {};
-    if (start) dateFilter.createdAt.$gte = new Date(start);
-    if (end) dateFilter.createdAt.$lte = new Date(end);
+  if (startDate && endDate) {
+    dateFilter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
   }
 
-  // Add status filter to exclude cancelled orders
-  dateFilter.status = { $ne: 'cancelled' };
-
-  const pipeline = [
-    { $match: dateFilter },
+  const mostRentedProducts = await Order.aggregate([
+    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
     { $unwind: '$items' },
     {
       $group: {
@@ -32,13 +39,14 @@ const getMostRentedProducts = asyncHandler(async (req, res) => {
         totalRentals: { $sum: 1 },
         totalQuantity: { $sum: '$items.quantity' },
         totalRevenue: { $sum: '$items.priceApplied.totalPrice' },
-        averagePrice: { $avg: '$items.priceApplied.totalPrice' },
-        uniqueCustomers: { $addToSet: '$customerId' }
-      }
-    },
-    {
-      $addFields: {
-        uniqueCustomerCount: { $size: '$uniqueCustomers' }
+        averageRentalDuration: {
+          $avg: {
+            $divide: [
+              { $subtract: ['$items.rentalDuration.endDate', '$items.rentalDuration.startDate'] },
+              1000 * 60 * 60 * 24 // Convert to days
+            ]
+          }
+        }
       }
     },
     {
@@ -52,28 +60,24 @@ const getMostRentedProducts = asyncHandler(async (req, res) => {
     { $unwind: '$product' },
     {
       $project: {
-        productId: '$_id',
         productName: '$product.name',
         category: '$product.category',
         totalRentals: 1,
         totalQuantity: 1,
-        totalRevenue: { $round: ['$totalRevenue', 2] },
-        averagePrice: { $round: ['$averagePrice', 2] },
-        uniqueCustomerCount: 1
+        totalRevenue: 1,
+        averageRentalDuration: { $round: ['$averageRentalDuration', 1] }
       }
     },
     { $sort: { totalRentals: -1 } },
     { $limit: parseInt(limit) }
-  ];
-
-  const mostRentedProducts = await Order.aggregate(pipeline);
+  ]);
 
   res.status(200).json({
     success: true,
     data: {
       products: mostRentedProducts,
-      period: { start, end },
-      reportGenerated: new Date()
+      period: { startDate, endDate },
+      generatedAt: new Date()
     }
   });
 });
@@ -83,99 +87,77 @@ const getMostRentedProducts = asyncHandler(async (req, res) => {
  * GET /api/reports/total-revenue
  */
 const getTotalRevenue = asyncHandler(async (req, res) => {
-  const { start, end, groupBy = 'month' } = req.query;
+  const { startDate, endDate, groupBy = 'month' } = req.query;
 
   // Build date filter
   const dateFilter = {};
-  if (start || end) {
-    dateFilter.paidAt = {};
-    if (start) dateFilter.paidAt.$gte = new Date(start);
-    if (end) dateFilter.paidAt.$lte = new Date(end);
+  if (startDate && endDate) {
+    dateFilter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
   }
 
-  // Only include completed payments
-  dateFilter.status = 'completed';
-
-  // Build group stage based on groupBy parameter
-  let groupStage;
+  // Group by format based on groupBy parameter
+  let groupFormat;
   switch (groupBy) {
     case 'day':
-      groupStage = {
-        _id: {
-          year: { $year: '$paidAt' },
-          month: { $month: '$paidAt' },
-          day: { $dayOfMonth: '$paidAt' }
-        }
-      };
+      groupFormat = '%Y-%m-%d';
       break;
     case 'week':
-      groupStage = {
-        _id: {
-          year: { $year: '$paidAt' },
-          week: { $week: '$paidAt' }
-        }
-      };
+      groupFormat = '%Y-%U';
+      break;
+    case 'month':
+      groupFormat = '%Y-%m';
       break;
     case 'year':
-      groupStage = {
-        _id: {
-          year: { $year: '$paidAt' }
-        }
-      };
+      groupFormat = '%Y';
       break;
-    default: // month
-      groupStage = {
-        _id: {
-          year: { $year: '$paidAt' },
-          month: { $month: '$paidAt' }
-        }
-      };
+    default:
+      groupFormat = '%Y-%m';
   }
 
-  const pipeline = [
-    { $match: dateFilter },
+  const revenueData = await Order.aggregate([
+    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
     {
       $group: {
-        ...groupStage,
-        totalRevenue: { $sum: '$amount' },
-        transactionCount: { $sum: 1 },
-        averageTransaction: { $avg: '$amount' }
+        _id: { $dateToString: { format: groupFormat, date: '$createdAt' } },
+        totalRevenue: { $sum: '$totalAmount' },
+        totalOrders: { $sum: 1 },
+        averageOrderValue: { $avg: '$totalAmount' },
+        totalLateFees: { $sum: '$lateFee' }
       }
     },
-    {
-      $addFields: {
-        totalRevenue: { $round: ['$totalRevenue', 2] },
-        averageTransaction: { $round: ['$averageTransaction', 2] }
-      }
-    },
-    { $sort: { '_id.year': 1, '_id.month': 1, '_id.week': 1, '_id.day': 1 } }
-  ];
+    { $sort: { '_id': 1 } }
+  ]);
 
-  const revenueData = await Payment.aggregate(pipeline);
-
-  // Get overall totals
-  const totalsPipeline = [
-    { $match: dateFilter },
+  // Calculate totals
+  const summary = await Order.aggregate([
+    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
     {
       $group: {
         _id: null,
-        grandTotal: { $sum: '$amount' },
-        totalTransactions: { $sum: 1 },
-        averageTransaction: { $avg: '$amount' }
+        totalRevenue: { $sum: '$totalAmount' },
+        totalOrders: { $sum: 1 },
+        averageOrderValue: { $avg: '$totalAmount' },
+        totalLateFees: { $sum: '$lateFee' }
       }
     }
-  ];
-
-  const totals = await Payment.aggregate(totalsPipeline);
+  ]);
 
   res.status(200).json({
     success: true,
     data: {
-      revenueBreakdown: revenueData,
-      totals: totals[0] || { grandTotal: 0, totalTransactions: 0, averageTransaction: 0 },
-      period: { start, end },
+      summary: summary[0] || {
+        totalRevenue: 0,
+        totalOrders: 0,
+        averageOrderValue: 0,
+        totalLateFees: 0
+      },
+      breakdown: revenueData,
+      period: { startDate, endDate },
       groupBy,
-      reportGenerated: new Date()
+      generatedAt: new Date()
     }
   });
 });
@@ -185,30 +167,27 @@ const getTotalRevenue = asyncHandler(async (req, res) => {
  * GET /api/reports/top-customers
  */
 const getTopCustomers = asyncHandler(async (req, res) => {
-  const { start, end, limit = 10 } = req.query;
+  const { startDate, endDate, limit = 10 } = req.query;
 
   // Build date filter
   const dateFilter = {};
-  if (start || end) {
-    dateFilter.createdAt = {};
-    if (start) dateFilter.createdAt.$gte = new Date(start);
-    if (end) dateFilter.createdAt.$lte = new Date(end);
+  if (startDate && endDate) {
+    dateFilter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
   }
 
-  // Exclude cancelled orders
-  dateFilter.status = { $ne: 'cancelled' };
-
-  const pipeline = [
-    { $match: dateFilter },
+  const topCustomers = await Order.aggregate([
+    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
     {
       $group: {
         _id: '$customerId',
         totalOrders: { $sum: 1 },
         totalSpent: { $sum: '$totalAmount' },
         averageOrderValue: { $avg: '$totalAmount' },
-        firstOrder: { $min: '$createdAt' },
-        lastOrder: { $max: '$createdAt' },
-        totalItems: { $sum: { $size: '$items' } }
+        lastOrderDate: { $max: '$createdAt' },
+        totalLateFees: { $sum: '$lateFee' }
       }
     },
     {
@@ -222,368 +201,491 @@ const getTopCustomers = asyncHandler(async (req, res) => {
     { $unwind: '$customer' },
     {
       $project: {
-        customerId: '$_id',
         customerName: '$customer.name',
         customerEmail: '$customer.email',
         customerPhone: '$customer.phone',
         totalOrders: 1,
-        totalSpent: { $round: ['$totalSpent', 2] },
+        totalSpent: 1,
         averageOrderValue: { $round: ['$averageOrderValue', 2] },
-        firstOrder: 1,
-        lastOrder: 1,
-        totalItems: 1,
-        customerSince: '$customer.createdAt'
+        lastOrderDate: 1,
+        totalLateFees: 1
       }
     },
     { $sort: { totalSpent: -1 } },
     { $limit: parseInt(limit) }
-  ];
-
-  const topCustomers = await Order.aggregate(pipeline);
+  ]);
 
   res.status(200).json({
     success: true,
     data: {
       customers: topCustomers,
-      period: { start, end },
-      reportGenerated: new Date()
+      period: { startDate, endDate },
+      generatedAt: new Date()
     }
   });
 });
 
 /**
- * Get order status distribution report
- * GET /api/reports/order-status
+ * Get inventory report
+ * GET /api/reports/inventory
  */
-const getOrderStatusReport = asyncHandler(async (req, res) => {
-  const { start, end } = req.query;
+const getInventoryReport = asyncHandler(async (req, res) => {
+  const { category, lowStockThreshold = 5 } = req.query;
 
-  // Build date filter
-  const dateFilter = {};
-  if (start || end) {
-    dateFilter.createdAt = {};
-    if (start) dateFilter.createdAt.$gte = new Date(start);
-    if (end) dateFilter.createdAt.$lte = new Date(end);
+  // Build category filter
+  const categoryFilter = {};
+  if (category) {
+    categoryFilter.category = category;
   }
 
-  const pipeline = [
-    { $match: dateFilter },
+  const inventoryData = await Product.aggregate([
+    { $match: { ...categoryFilter, isActive: true } },
     {
-      $group: {
-        _id: '$status',
-        count: { $sum: 1 },
-        totalValue: { $sum: '$totalAmount' },
-        averageValue: { $avg: '$totalAmount' }
+      $addFields: {
+        currentAvailableStock: {
+          $subtract: [
+            '$stock',
+            {
+              $size: {
+                $filter: {
+                  input: '$availability',
+                  as: 'avail',
+                  cond: {
+                    $and: [
+                      { $lte: ['$$avail.startDate', new Date()] },
+                      { $gte: ['$$avail.endDate', new Date()] }
+                    ]
+                  }
+                }
+              }
+            }
+          ]
+        }
       }
     },
     {
       $addFields: {
-        totalValue: { $round: ['$totalValue', 2] },
-        averageValue: { $round: ['$averageValue', 2] }
-      }
-    },
-    { $sort: { count: -1 } }
-  ];
-
-  const statusDistribution = await Order.aggregate(pipeline);
-
-  // Get payment status distribution
-  const paymentPipeline = [
-    { $match: dateFilter },
-    {
-      $group: {
-        _id: '$paymentStatus',
-        count: { $sum: 1 },
-        totalValue: { $sum: '$totalAmount' }
+        stockStatus: {
+          $cond: {
+            if: { $lte: ['$currentAvailableStock', parseInt(lowStockThreshold)] },
+            then: 'low',
+            else: 'adequate'
+          }
+        }
       }
     },
     {
-      $addFields: {
-        totalValue: { $round: ['$totalValue', 2] }
+      $project: {
+        name: 1,
+        category: 1,
+        totalStock: '$stock',
+        currentAvailableStock: 1,
+        stockStatus: 1,
+        rentable: 1,
+        pricing: 1
       }
     },
-    { $sort: { count: -1 } }
-  ];
+    { $sort: { currentAvailableStock: 1 } }
+  ]);
 
-  const paymentDistribution = await Order.aggregate(paymentPipeline);
+  // Summary statistics
+  const summary = {
+    totalProducts: inventoryData.length,
+    lowStockItems: inventoryData.filter(item => item.stockStatus === 'low').length,
+    totalStockUnits: inventoryData.reduce((sum, item) => sum + item.totalStock, 0),
+    totalAvailableUnits: inventoryData.reduce((sum, item) => sum + item.currentAvailableStock, 0)
+  };
 
   res.status(200).json({
     success: true,
     data: {
-      orderStatus: statusDistribution,
-      paymentStatus: paymentDistribution,
-      period: { start, end },
-      reportGenerated: new Date()
+      summary,
+      inventory: inventoryData,
+      filters: { category, lowStockThreshold },
+      generatedAt: new Date()
     }
   });
 });
 
 /**
- * Get inventory utilization report
- * GET /api/reports/inventory-utilization
- */
-const getInventoryUtilization = asyncHandler(async (req, res) => {
-  const { start, end } = req.query;
-
-  // Get all active products
-  const products = await Product.find({ isActive: true }).select('name category stock availability');
-
-  const utilizationData = products.map(product => {
-    // Calculate utilization metrics
-    let totalReservations = 0;
-    let activeReservations = 0;
-    const now = new Date();
-
-    if (start && end) {
-      // Filter reservations by date range
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      
-      const filteredReservations = product.availability.filter(reservation => {
-        const resStart = new Date(reservation.startDate);
-        const resEnd = new Date(reservation.endDate);
-        // Check if reservation overlaps with the query period
-        return resStart <= endDate && resEnd >= startDate;
-      });
-      
-      totalReservations = filteredReservations.length;
-      activeReservations = filteredReservations.filter(reservation => 
-        new Date(reservation.startDate) <= now && new Date(reservation.endDate) >= now
-      ).length;
-    } else {
-      totalReservations = product.availability.length;
-      activeReservations = product.availability.filter(reservation => 
-        new Date(reservation.startDate) <= now && new Date(reservation.endDate) >= now
-      ).length;
-    }
-
-    const utilizationRate = product.stock > 0 ? (activeReservations / product.stock) * 100 : 0;
-
-    return {
-      productId: product._id,
-      productName: product.name,
-      category: product.category,
-      totalStock: product.stock,
-      activeReservations,
-      availableStock: product.stock - activeReservations,
-      utilizationRate: Math.round(utilizationRate * 100) / 100,
-      totalBookings: totalReservations
-    };
-  });
-
-  // Sort by utilization rate
-  utilizationData.sort((a, b) => b.utilizationRate - a.utilizationRate);
-
-  // Calculate category-wise utilization
-  const categoryUtilization = {};
-  utilizationData.forEach(item => {
-    if (!categoryUtilization[item.category]) {
-      categoryUtilization[item.category] = {
-        totalStock: 0,
-        activeReservations: 0,
-        totalBookings: 0,
-        productCount: 0
-      };
-    }
-    
-    const cat = categoryUtilization[item.category];
-    cat.totalStock += item.totalStock;
-    cat.activeReservations += item.activeReservations;
-    cat.totalBookings += item.totalBookings;
-    cat.productCount += 1;
-  });
-
-  // Calculate utilization rates for categories
-  Object.keys(categoryUtilization).forEach(category => {
-    const cat = categoryUtilization[category];
-    cat.utilizationRate = cat.totalStock > 0 ? 
-      Math.round((cat.activeReservations / cat.totalStock) * 10000) / 100 : 0;
-  });
-
-  res.status(200).json({
-    success: true,
-    data: {
-      products: utilizationData,
-      categoryBreakdown: categoryUtilization,
-      summary: {
-        totalProducts: utilizationData.length,
-        averageUtilization: utilizationData.reduce((sum, item) => sum + item.utilizationRate, 0) / utilizationData.length || 0,
-        highestUtilization: utilizationData[0]?.utilizationRate || 0,
-        fullyUtilized: utilizationData.filter(item => item.utilizationRate >= 100).length
-      },
-      period: { start, end },
-      reportGenerated: new Date()
-    }
-  });
-});
-
-/**
- * Get financial summary report
- * GET /api/reports/financial-summary
- */
-const getFinancialSummary = asyncHandler(async (req, res) => {
-  const { start, end } = req.query;
-
-  // Build date filter
-  const dateFilter = {};
-  if (start || end) {
-    dateFilter.createdAt = {};
-    if (start) dateFilter.createdAt.$gte = new Date(start);
-    if (end) dateFilter.createdAt.$lte = new Date(end);
-  }
-
-  // Get order financial data
-  const orderStats = await Order.aggregate([
-    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
-    {
-      $group: {
-        _id: null,
-        totalOrders: { $sum: 1 },
-        totalRevenue: { $sum: '$totalAmount' },
-        totalDeposits: { $sum: '$depositAmount' },
-        totalLateFees: { $sum: '$lateFee' },
-        averageOrderValue: { $avg: '$totalAmount' }
-      }
-    }
-  ]);
-
-  // Get payment financial data
-  const paymentFilter = { ...dateFilter, status: 'completed' };
-  if (start || end) {
-    paymentFilter.paidAt = dateFilter.createdAt;
-    delete paymentFilter.createdAt;
-  }
-
-  const paymentStats = await Payment.aggregate([
-    { $match: paymentFilter },
-    {
-      $group: {
-        _id: null,
-        totalCollected: { $sum: '$amount' },
-        totalTransactions: { $sum: 1 },
-        averageTransaction: { $avg: '$amount' }
-      }
-    }
-  ]);
-
-  // Get refund data
-  const refundStats = await Payment.aggregate([
-    { $match: { ...paymentFilter, status: 'refunded' } },
-    {
-      $group: {
-        _id: null,
-        totalRefunds: { $sum: '$refundDetails.refundAmount' },
-        refundCount: { $sum: 1 }
-      }
-    }
-  ]);
-
-  const orderData = orderStats[0] || {
-    totalOrders: 0,
-    totalRevenue: 0,
-    totalDeposits: 0,
-    totalLateFees: 0,
-    averageOrderValue: 0
-  };
-
-  const paymentData = paymentStats[0] || {
-    totalCollected: 0,
-    totalTransactions: 0,
-    averageTransaction: 0
-  };
-
-  const refundData = refundStats[0] || {
-    totalRefunds: 0,
-    refundCount: 0
-  };
-
-  // Calculate net revenue
-  const netRevenue = paymentData.totalCollected - (refundData.totalRefunds || 0);
-
-  res.status(200).json({
-    success: true,
-    data: {
-      orders: {
-        ...orderData,
-        totalRevenue: Math.round(orderData.totalRevenue * 100) / 100,
-        averageOrderValue: Math.round(orderData.averageOrderValue * 100) / 100
-      },
-      payments: {
-        ...paymentData,
-        totalCollected: Math.round(paymentData.totalCollected * 100) / 100,
-        averageTransaction: Math.round(paymentData.averageTransaction * 100) / 100
-      },
-      refunds: {
-        ...refundData,
-        totalRefunds: Math.round((refundData.totalRefunds || 0) * 100) / 100
-      },
-      summary: {
-        netRevenue: Math.round(netRevenue * 100) / 100,
-        collectionRate: orderData.totalRevenue > 0 ? 
-          Math.round((paymentData.totalCollected / orderData.totalRevenue) * 10000) / 100 : 0,
-        refundRate: paymentData.totalCollected > 0 ? 
-          Math.round(((refundData.totalRefunds || 0) / paymentData.totalCollected) * 10000) / 100 : 0
-      },
-      period: { start, end },
-      reportGenerated: new Date()
-    }
-  });
-});
-
-/**
- * Export report data
+ * Export reports in PDF or CSV format
  * GET /api/reports/export
  */
 const exportReport = asyncHandler(async (req, res) => {
-  const { type, format = 'json', start, end } = req.query;
+  const { 
+    type, 
+    format = 'pdf', 
+    startDate, 
+    endDate,
+    ...reportParams 
+  } = req.query;
 
   if (!type) {
     throw createValidationError('Report type is required');
   }
 
-  let reportData;
+  if (!['pdf', 'csv'].includes(format)) {
+    throw createValidationError('Format must be either pdf or csv');
+  }
 
-  // Generate report based on type
+  let reportData;
+  let filename;
+
+  // Generate report data based on type
   switch (type) {
     case 'revenue':
-      const revenueReq = { query: { start, end } };
-      const revenueRes = { 
-        status: () => ({ json: (data) => { reportData = data; } })
-      };
-      await getTotalRevenue(revenueReq, revenueRes, () => {});
+      reportData = await generateRevenueReport(startDate, endDate, reportParams);
+      filename = `revenue-report-${moment().format('YYYY-MM-DD')}`;
       break;
-      
+    case 'products':
+      reportData = await generateProductReport(startDate, endDate, reportParams);
+      filename = `product-report-${moment().format('YYYY-MM-DD')}`;
+      break;
     case 'customers':
-      const customersReq = { query: { start, end } };
-      const customersRes = { 
-        status: () => ({ json: (data) => { reportData = data; } })
-      };
-      await getTopCustomers(customersReq, customersRes, () => {});
+      reportData = await generateCustomerReport(startDate, endDate, reportParams);
+      filename = `customer-report-${moment().format('YYYY-MM-DD')}`;
       break;
-      
+    case 'inventory':
+      reportData = await generateInventoryReportData(reportParams);
+      filename = `inventory-report-${moment().format('YYYY-MM-DD')}`;
+      break;
+    case 'orders':
+      reportData = await generateOrderReport(startDate, endDate, reportParams);
+      filename = `order-report-${moment().format('YYYY-MM-DD')}`;
+      break;
     default:
       throw createValidationError('Invalid report type');
   }
 
-  // Format response based on requested format
-  if (format === 'csv') {
-    // For CSV format, you would implement CSV conversion here
-    res.setHeader('Content-Type', 'text/csv');
-    res.setHeader('Content-Disposition', `attachment; filename="${type}-report-${Date.now()}.csv"`);
-    res.status(200).send('CSV export not implemented yet');
-  } else {
-    res.setHeader('Content-Type', 'application/json');
-    res.setHeader('Content-Disposition', `attachment; filename="${type}-report-${Date.now()}.json"`);
-    res.status(200).json(reportData);
+  const exportDir = path.join(process.cwd(), 'tmp', 'exports');
+  if (!fs.existsSync(exportDir)) {
+    fs.mkdirSync(exportDir, { recursive: true });
   }
+
+  let filePath;
+  
+  if (format === 'pdf') {
+    filePath = path.join(exportDir, `${filename}.pdf`);
+    await generateReportPDF(reportData, type, filePath);
+    
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}.pdf"`);
+  } else {
+    filePath = path.join(exportDir, `${filename}.csv`);
+    await generateCSVReport(reportData, type, filePath);
+    
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}.csv"`);
+  }
+
+  // Stream file to response
+  const fileStream = fs.createReadStream(filePath);
+  fileStream.pipe(res);
+  
+  // Clean up file after streaming
+  fileStream.on('end', () => {
+    setTimeout(() => {
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }, 1000);
+  });
 });
+
+// Helper functions for generating report data
+const generateRevenueReport = async (startDate, endDate, params) => {
+  const dateFilter = {};
+  if (startDate && endDate) {
+    dateFilter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
+  }
+
+  const summary = await Order.aggregate([
+    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
+    {
+      $group: {
+        _id: null,
+        totalRevenue: { $sum: '$totalAmount' },
+        totalOrders: { $sum: 1 },
+        averageOrderValue: { $avg: '$totalAmount' },
+        completedOrders: {
+          $sum: { $cond: [{ $eq: ['$status', 'returned'] }, 1, 0] }
+        }
+      }
+    }
+  ]);
+
+  const monthlyBreakdown = await Order.aggregate([
+    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
+    {
+      $group: {
+        _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+        totalRevenue: { $sum: '$totalAmount' },
+        totalOrders: { $sum: 1 },
+        averageOrder: { $avg: '$totalAmount' }
+      }
+    },
+    { $sort: { '_id': 1 } }
+  ]);
+
+  return {
+    type: 'revenue',
+    summary: summary[0] || {},
+    monthlyBreakdown,
+    period: { startDate, endDate }
+  };
+};
+
+const generateProductReport = async (startDate, endDate, params) => {
+  const dateFilter = {};
+  if (startDate && endDate) {
+    dateFilter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
+  }
+
+  const products = await Order.aggregate([
+    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
+    { $unwind: '$items' },
+    {
+      $group: {
+        _id: '$items.productId',
+        totalRentals: { $sum: 1 },
+        totalRevenue: { $sum: '$items.priceApplied.totalPrice' }
+      }
+    },
+    {
+      $lookup: {
+        from: 'products',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'product'
+      }
+    },
+    { $unwind: '$product' },
+    {
+      $project: {
+        name: '$product.name',
+        category: '$product.category',
+        totalRentals: 1,
+        totalRevenue: 1
+      }
+    },
+    { $sort: { totalRentals: -1 } }
+  ]);
+
+  return {
+    type: 'products',
+    products,
+    period: { startDate, endDate }
+  };
+};
+
+const generateCustomerReport = async (startDate, endDate, params) => {
+  const dateFilter = {};
+  if (startDate && endDate) {
+    dateFilter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
+  }
+
+  const customers = await Order.aggregate([
+    { $match: { ...dateFilter, status: { $ne: 'cancelled' } } },
+    {
+      $group: {
+        _id: '$customerId',
+        totalOrders: { $sum: 1 },
+        totalSpent: { $sum: '$totalAmount' },
+        lastOrderDate: { $max: '$createdAt' }
+      }
+    },
+    {
+      $lookup: {
+        from: 'users',
+        localField: '_id',
+        foreignField: '_id',
+        as: 'customer'
+      }
+    },
+    { $unwind: '$customer' },
+    {
+      $project: {
+        name: '$customer.name',
+        email: '$customer.email',
+        totalOrders: 1,
+        totalSpent: 1,
+        lastOrderDate: 1
+      }
+    },
+    { $sort: { totalSpent: -1 } }
+  ]);
+
+  return {
+    type: 'customers',
+    customers,
+    period: { startDate, endDate }
+  };
+};
+
+const generateInventoryReportData = async (params) => {
+  const products = await Product.find({ isActive: true });
+  
+  return {
+    type: 'inventory',
+    products: products.map(product => ({
+      name: product.name,
+      category: product.category,
+      stock: product.stock,
+      currentAvailableStock: product.currentAvailableStock,
+      dailyRate: product.pricing.day
+    }))
+  };
+};
+
+const generateOrderReport = async (startDate, endDate, params) => {
+  const dateFilter = {};
+  if (startDate && endDate) {
+    dateFilter.createdAt = {
+      $gte: new Date(startDate),
+      $lte: new Date(endDate)
+    };
+  }
+
+  const orders = await Order.find(dateFilter)
+    .populate('customerId', 'name email')
+    .select('_id customerId status totalAmount paymentStatus createdAt')
+    .sort({ createdAt: -1 })
+    .limit(1000); // Limit for performance
+
+  const orderSummary = await Order.aggregate([
+    { $match: dateFilter },
+    {
+      $group: {
+        _id: null,
+        total: { $sum: 1 },
+        completed: { $sum: { $cond: [{ $eq: ['$status', 'returned'] }, 1, 0] } },
+        pending: { $sum: { $cond: [{ $eq: ['$status', 'reserved'] }, 1, 0] } },
+        cancelled: { $sum: { $cond: [{ $eq: ['$status', 'cancelled'] }, 1, 0] } }
+      }
+    }
+  ]);
+
+  return {
+    type: 'orders',
+    orderSummary: orderSummary[0] || {},
+    orders: orders.map(order => ({
+      _id: order._id,
+      customerName: order.customerId?.name || 'N/A',
+      status: order.status,
+      totalAmount: order.totalAmount,
+      createdAt: order.createdAt
+    })),
+    period: { startDate, endDate }
+  };
+};
+
+const generateCSVReport = async (reportData, type, filePath) => {
+  return new Promise((resolve, reject) => {
+    const csvStream = csv.format({ headers: true });
+    const writableStream = fs.createWriteStream(filePath);
+
+    csvStream.pipe(writableStream);
+
+    try {
+      switch (type) {
+        case 'revenue':
+          if (reportData.monthlyBreakdown) {
+            reportData.monthlyBreakdown.forEach(row => {
+              csvStream.write({
+                Month: row._id,
+                'Total Revenue': row.totalRevenue,
+                'Total Orders': row.totalOrders,
+                'Average Order': row.averageOrder
+              });
+            });
+          }
+          break;
+
+        case 'products':
+          if (reportData.products) {
+            reportData.products.forEach(row => {
+              csvStream.write({
+                'Product Name': row.name,
+                Category: row.category,
+                'Total Rentals': row.totalRentals,
+                'Total Revenue': row.totalRevenue
+              });
+            });
+          }
+          break;
+
+        case 'customers':
+          if (reportData.customers) {
+            reportData.customers.forEach(row => {
+              csvStream.write({
+                'Customer Name': row.name,
+                Email: row.email,
+                'Total Orders': row.totalOrders,
+                'Total Spent': row.totalSpent,
+                'Last Order': moment(row.lastOrderDate).format('YYYY-MM-DD')
+              });
+            });
+          }
+          break;
+
+        case 'inventory':
+          if (reportData.products) {
+            reportData.products.forEach(row => {
+              csvStream.write({
+                'Product Name': row.name,
+                Category: row.category,
+                'Total Stock': row.stock,
+                'Available Stock': row.currentAvailableStock,
+                'Daily Rate': row.dailyRate
+              });
+            });
+          }
+          break;
+
+        case 'orders':
+          if (reportData.orders) {
+            reportData.orders.forEach(row => {
+              csvStream.write({
+                'Order ID': row._id.toString().slice(-6).toUpperCase(),
+                'Customer Name': row.customerName,
+                Status: row.status,
+                Amount: row.totalAmount,
+                Date: moment(row.createdAt).format('YYYY-MM-DD')
+              });
+            });
+          }
+          break;
+      }
+
+      csvStream.end();
+      
+      writableStream.on('finish', () => {
+        resolve(filePath);
+      });
+
+      writableStream.on('error', (error) => {
+        reject(error);
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
 
 module.exports = {
   getMostRentedProducts,
   getTotalRevenue,
   getTopCustomers,
-  getOrderStatusReport,
-  getInventoryUtilization,
-  getFinancialSummary,
+  getInventoryReport,
   exportReport
+};
 };

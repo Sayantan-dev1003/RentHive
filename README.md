@@ -54,7 +54,7 @@ Create a `.env` file in the `server` directory:
 
 ```env
 # Server Configuration
-PORT=5000
+PORT=8000
 NODE_ENV=development
 
 # Database Configuration (assuming external MongoDB connection)
@@ -108,20 +108,20 @@ Production mode:
 npm start
 ```
 
-The server will start on `http://localhost:5000`
+The server will start on `http://localhost:8000`
 
 ## 🧪 API Testing
 
 ### Health Check
 ```bash
-curl http://localhost:5000/health
+curl http://localhost:8000/health
 ```
 
 ### Sample API Workflow
 
 #### 1. Register a new user (end_user/admin)
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
+curl -X POST http://localhost:8000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Admin User",
@@ -134,7 +134,7 @@ curl -X POST http://localhost:5000/api/auth/register \
 
 #### 2. Login and get JWT token
 ```bash
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "admin@renthive.com",
@@ -146,7 +146,7 @@ Save the token from the response for subsequent requests.
 
 #### 3. Create a product (requires admin token)
 ```bash
-curl -X POST http://localhost:5000/api/products \
+curl -X POST http://localhost:8000/api/products \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -d '{
@@ -165,7 +165,7 @@ curl -X POST http://localhost:5000/api/products \
 
 #### 4. Register a customer
 ```bash
-curl -X POST http://localhost:5000/api/auth/register \
+curl -X POST http://localhost:8000/api/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "name": "John Customer",
@@ -178,7 +178,7 @@ curl -X POST http://localhost:5000/api/auth/register \
 
 #### 5. Customer login
 ```bash
-curl -X POST http://localhost:5000/api/auth/login \
+curl -X POST http://localhost:8000/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "email": "customer@example.com",
@@ -188,7 +188,7 @@ curl -X POST http://localhost:5000/api/auth/login \
 
 #### 6. Request a quote
 ```bash
-curl -X POST http://localhost:5000/api/orders/quote \
+curl -X POST http://localhost:8000/api/orders/quote \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer CUSTOMER_JWT_TOKEN" \
   -d '{
@@ -204,7 +204,7 @@ curl -X POST http://localhost:5000/api/orders/quote \
 
 #### 7. Confirm order
 ```bash
-curl -X POST http://localhost:5000/api/orders \
+curl -X POST http://localhost:8000/api/orders \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer CUSTOMER_JWT_TOKEN" \
   -d '{
@@ -221,7 +221,7 @@ curl -X POST http://localhost:5000/api/orders \
 
 #### 8. Process payment (dummy payment)
 ```bash
-curl -X POST http://localhost:5000/api/payments/process \
+curl -X POST http://localhost:8000/api/payments/process \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer CUSTOMER_JWT_TOKEN" \
   -d '{
@@ -233,7 +233,7 @@ curl -X POST http://localhost:5000/api/payments/process \
 
 #### 9. Mark order as picked up (admin only)
 ```bash
-curl -X PATCH http://localhost:5000/api/orders/ORDER_ID/pickup \
+curl -X PATCH http://localhost:8000/api/orders/ORDER_ID/pickup \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ADMIN_JWT_TOKEN" \
   -d '{
@@ -243,7 +243,7 @@ curl -X PATCH http://localhost:5000/api/orders/ORDER_ID/pickup \
 
 #### 10. Mark order as returned (admin only)
 ```bash
-curl -X PATCH http://localhost:5000/api/orders/ORDER_ID/return \
+curl -X PATCH http://localhost:8000/api/orders/ORDER_ID/return \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ADMIN_JWT_TOKEN" \
   -d '{
@@ -330,7 +330,7 @@ The system automatically sends notifications for:
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `PORT` | `5000` | Server port |
+| `PORT` | `8000` | Server port |
 | `NODE_ENV` | `development` | Environment mode |
 | `JWT_SECRET` | Required | JWT signing secret |
 | `JWT_EXPIRES_IN` | `7d` | JWT expiration time |
@@ -361,7 +361,7 @@ The system automatically sends notifications for:
 
 4. **Port Already in Use**
    - Change PORT in .env file
-   - Kill process using the port: `lsof -ti:5000 | xargs kill`
+   - Kill process using the port: `lsof -ti:8000 | xargs kill`
 
 ### Logs and Debugging
 
@@ -402,7 +402,7 @@ The system automatically sends notifications for:
 ### Production Environment Variables
 ```env
 NODE_ENV=production
-PORT=5000
+PORT=8000
 JWT_SECRET=your-production-jwt-secret
 MONGODB_URI=your-production-mongodb-uri
 MAIL_HOST=your-production-smtp-host
