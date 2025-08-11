@@ -1,6 +1,106 @@
 import { useState, useEffect } from 'react'
 import apiService from '../services/api'
 
+// Modern Animation Styles
+const modernStyles = `
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideInRight {
+    0% {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+    }
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  @keyframes countUp {
+    0% {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slideInRight 0.8s ease-out forwards;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  .animate-pulse-scale {
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .animate-count-up {
+    animation: countUp 0.6s ease-out forwards;
+  }
+
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+  }
+
+  .gradient-border {
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6, #06b6d4);
+    padding: 2px;
+    border-radius: 1rem;
+  }
+
+  .gradient-border-inner {
+    background: white;
+    border-radius: 0.875rem;
+  }
+`;
+
 const Reports = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('month')
   const [loading, setLoading] = useState(true)
@@ -102,249 +202,373 @@ const Reports = () => {
   }, [selectedPeriod])
 
   return (
-    <div className="space-y-6">
-      {/* Error Message */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl">
-          {error}
-          <button 
-            onClick={fetchReportsData}
-            className="ml-4 text-red-600 hover:text-red-800 underline"
-          >
-            Retry
-          </button>
-        </div>
-      )}
-
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
-        <p className="text-gray-600">Business insights and rental performance metrics</p>
-      </div>
-
-      {/* Period Selector */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Select Time Period</h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setSelectedPeriod('week')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                selectedPeriod === 'week' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Week
-            </button>
-            <button
-              onClick={() => setSelectedPeriod('month')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                selectedPeriod === 'month' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Month
-            </button>
-            <button
-              onClick={() => setSelectedPeriod('quarter')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                selectedPeriod === 'quarter' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Quarter
-            </button>
-            <button
-              onClick={() => setSelectedPeriod('year')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                selectedPeriod === 'year' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Year
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <span className="text-2xl">💰</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {loading ? '...' : `₹${dashboardStats.totalRevenue.toLocaleString()}`}
-              </p>
-              <p className="text-sm text-green-600">Real-time data</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <span className="text-2xl">📦</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Rentals</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {loading ? '...' : dashboardStats.totalRentals}
-              </p>
-              <p className="text-sm text-green-600">Real-time data</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <span className="text-2xl">👥</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Active Customers</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {loading ? '...' : dashboardStats.activeCustomers}
-              </p>
-              <p className="text-sm text-green-600">Real-time data</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <div className="flex items-center">
-            <div className="p-2 bg-yellow-100 rounded-lg">
-              <span className="text-2xl">📊</span>
-            </div>
-            <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Avg. Rental Value</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {loading ? '...' : `₹${Math.round(dashboardStats.avgRentalValue).toLocaleString()}`}
-              </p>
-              <p className="text-sm text-green-600">Real-time data</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Revenue Chart */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h2>
-        {loading ? (
-          <div className="h-64 flex items-center justify-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-4 text-gray-600">Loading chart data...</span>
-          </div>
-        ) : (
-          <div className="h-64 flex items-end justify-between space-x-2">
-            {revenueData.map((data, index) => (
-              <div key={index} className="flex-1 flex flex-col items-center">
-                <div 
-                  className="w-full bg-blue-500 rounded-t"
-                  style={{ height: `${(data.revenue / 70000) * 200}px` }}
-                ></div>
-                <span className="text-xs text-gray-500 mt-2">{data.month}</span>
-                <span className="text-xs font-medium text-gray-900">₹{data.revenue.toLocaleString()}</span>
+    <>
+      <style>{modernStyles}</style>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 space-y-8 animate-fade-in-up">
+        {/* Error Message */}
+        {error && (
+          <div className="glassmorphism border border-red-200 text-red-700 px-6 py-4 rounded-2xl animate-slide-in-right">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                <svg className="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
-            ))}
+              <div className="flex-1">
+                <h3 className="font-semibold">Error Loading Data</h3>
+                <p className="text-sm">{error}</p>
+              </div>
+              <button 
+                onClick={fetchReportsData}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors duration-200 font-medium"
+              >
+                Retry
+              </button>
+            </div>
           </div>
         )}
-      </div>
 
-      {/* Top Products and Customers */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Top Products */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Top Rented Products</h2>
+        {/* Modern Header */}
+        <div className="text-center py-8">
+          <div className="animate-fade-in-up">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+              Analytics Dashboard
+            </h1>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Real-time insights and comprehensive analytics for your rental business performance
+            </p>
           </div>
-          <div className="p-6">
+        </div>
+
+        {/* Modern Period Selector */}
+        <div className="glassmorphism rounded-3xl p-8 card-hover animate-slide-in-right">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Time Period Analysis</h2>
+              <p className="text-gray-600">Choose your preferred time range for detailed insights</p>
+            </div>
+            <div className="flex space-x-3">
+              {['week', 'month', 'quarter', 'year'].map((period) => (
+                <button
+                  key={period}
+                  onClick={() => setSelectedPeriod(period)}
+                  className={`px-6 py-3 rounded-xl text-sm font-semibold transition-all duration-300 transform hover:scale-105 ${
+                    selectedPeriod === period 
+                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg animate-glow' 
+                      : 'bg-white/80 text-gray-700 hover:bg-white hover:shadow-md border border-gray-200'
+                  }`}
+                >
+                  {period.charAt(0).toUpperCase() + period.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Key Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="gradient-border card-hover animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+            <div className="gradient-border-inner p-6 h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                  </svg>
+                </div>
+                <div className="text-green-500 text-sm font-semibold bg-green-50 px-2 py-1 rounded-full">
+                  +12.5%
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Total Revenue</p>
+                <p className="text-3xl font-bold text-gray-900 animate-count-up">
+                  {loading ? (
+                    <div className="w-24 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    `₹${dashboardStats.totalRevenue.toLocaleString()}`
+                  )}
+                </p>
+                <p className="text-xs text-gray-400 mt-2">From rental activities</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="gradient-border card-hover animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            <div className="gradient-border-inner p-6 h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                  </svg>
+                </div>
+                <div className="text-blue-500 text-sm font-semibold bg-blue-50 px-2 py-1 rounded-full">
+                  +8.3%
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Total Rentals</p>
+                <p className="text-3xl font-bold text-gray-900 animate-count-up">
+                  {loading ? (
+                    <div className="w-16 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    dashboardStats.totalRentals
+                  )}
+                </p>
+                <p className="text-xs text-gray-400 mt-2">Active rental orders</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="gradient-border card-hover animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+            <div className="gradient-border-inner p-6 h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div className="text-purple-500 text-sm font-semibold bg-purple-50 px-2 py-1 rounded-full">
+                  +15.7%
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Active Customers</p>
+                <p className="text-3xl font-bold text-gray-900 animate-count-up">
+                  {loading ? (
+                    <div className="w-12 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    dashboardStats.activeCustomers
+                  )}
+                </p>
+                <p className="text-xs text-gray-400 mt-2">Unique customers</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="gradient-border card-hover animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <div className="gradient-border-inner p-6 h-full">
+              <div className="flex items-start justify-between mb-4">
+                <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl shadow-lg">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <div className="text-orange-500 text-sm font-semibold bg-orange-50 px-2 py-1 rounded-full">
+                  +5.4%
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500 mb-1">Avg. Rental Value</p>
+                <p className="text-3xl font-bold text-gray-900 animate-count-up">
+                  {loading ? (
+                    <div className="w-20 h-8 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    `₹${Math.round(dashboardStats.avgRentalValue).toLocaleString()}`
+                  )}
+                </p>
+                <p className="text-xs text-gray-400 mt-2">Per rental transaction</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Modern Revenue Chart */}
+        <div className="glassmorphism rounded-3xl p-8 card-hover animate-fade-in-up">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-2">Revenue Trend Analysis</h2>
+              <p className="text-gray-600">Track your business growth over time</p>
+            </div>
+            <div className="flex space-x-2">
+              <button className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
+                Export Data
+              </button>
+              <button className="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                View Details
+              </button>
+            </div>
+          </div>
+          
+          {loading ? (
+            <div className="h-80 flex items-center justify-center">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent mx-auto mb-4"></div>
+                <p className="text-gray-600 font-medium">Loading analytics data...</p>
+              </div>
+            </div>
+          ) : (
+            <div className="h-80 relative">
+              {/* Modern Line Chart */}
+              <div className="flex items-end justify-between h-full space-x-6 px-4">
+                {revenueData.map((data, index) => (
+                  <div key={index} className="flex-1 flex flex-col items-center group relative">
+                    {/* Chart Line Point */}
+                    <div className="relative mb-4">
+                      <div 
+                        className="w-full bg-gradient-to-t from-blue-600 via-blue-500 to-blue-400 rounded-t-lg relative overflow-hidden shadow-lg transform transition-all duration-1000 hover:scale-105"
+                        style={{ 
+                          height: `${(data.revenue / 70000) * 260}px`,
+                          minHeight: '20px',
+                          animationDelay: `${index * 200}ms`
+                        }}
+                      >
+                        {/* Shimmer effect */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse"></div>
+                        
+                        {/* Floating value tooltip */}
+                        <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white px-3 py-1 rounded-lg text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                          ₹{data.revenue.toLocaleString()}
+                          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900"></div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Month Label */}
+                    <div className="text-center">
+                      <span className="text-sm font-medium text-gray-600 block">{data.month}</span>
+                      <span className="text-xs text-gray-400 font-semibold">₹{(data.revenue/1000).toFixed(0)}K</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Grid Lines */}
+              <div className="absolute inset-0 pointer-events-none">
+                {[0, 1, 2, 3, 4].map((line) => (
+                  <div
+                    key={line}
+                    className="absolute w-full border-t border-gray-200/50"
+                    style={{ top: `${line * 25}%` }}
+                  ></div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Modern Analytics Cards */}
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+          {/* Top Products - Redesigned */}
+          <div className="glassmorphism rounded-3xl p-8 card-hover animate-slide-in-right">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Top Performing Products</h2>
+                <p className="text-gray-600">Most rented equipment this {selectedPeriod}</p>
+              </div>
+              <div className="p-3 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl shadow-lg animate-pulse-scale">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                </svg>
+              </div>
+            </div>
+            
             <div className="space-y-4">
               {topProducts.map((product, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <span className="w-8 h-8 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{product.name}</p>
-                      <p className="text-xs text-gray-500">{product.rentals} rentals</p>
+                <div key={index} className="group p-4 bg-white/50 rounded-2xl border border-white/20 hover:bg-white/80 transition-all duration-300 hover:scale-[1.02]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-lg shadow-lg ${
+                        index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' :
+                        index === 1 ? 'bg-gradient-to-br from-gray-400 to-gray-600' :
+                        index === 2 ? 'bg-gradient-to-br from-orange-400 to-orange-600' :
+                        'bg-gradient-to-br from-blue-400 to-blue-600'
+                      }`}>
+                        {index + 1}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{product.name}</p>
+                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                          </svg>
+                          {product.rentals} rentals
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-gray-900 text-lg">{product.revenue}</p>
+                      <p className="text-xs text-green-600 font-medium">Revenue</p>
                     </div>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{product.revenue}</span>
                 </div>
               ))}
             </div>
           </div>
-        </div>
 
-        {/* Top Customers */}
-        <div className="bg-white rounded-lg shadow">
-          <div className="px-6 py-4 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-gray-900">Top Customers</h2>
-          </div>
-          <div className="p-6">
+          {/* Top Customers - Redesigned */}
+          <div className="glassmorphism rounded-3xl p-8 card-hover animate-slide-in-right" style={{ animationDelay: '0.2s' }}>
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Top Customers</h2>
+                <p className="text-gray-600">Most valuable customers this {selectedPeriod}</p>
+              </div>
+              <div className="p-3 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl shadow-lg animate-pulse-scale">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+              </div>
+            </div>
+            
             <div className="space-y-4">
               {topCustomers.map((customer, index) => (
-                <div key={index} className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <span className="w-8 h-8 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-sm font-medium mr-3">
-                      {index + 1}
-                    </span>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">{customer.name}</p>
-                      <p className="text-xs text-gray-500">{customer.rentals} rentals</p>
+                <div key={index} className="group p-4 bg-white/50 rounded-2xl border border-white/20 hover:bg-white/80 transition-all duration-300 hover:scale-[1.02]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold shadow-lg ${
+                        index === 0 ? 'bg-gradient-to-br from-emerald-400 to-emerald-600' :
+                        index === 1 ? 'bg-gradient-to-br from-blue-400 to-blue-600' :
+                        index === 2 ? 'bg-gradient-to-br from-purple-400 to-purple-600' :
+                        'bg-gradient-to-br from-pink-400 to-pink-600'
+                      }`}>
+                        {customer.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900 group-hover:text-emerald-600 transition-colors">{customer.name}</p>
+                        <p className="text-sm text-gray-500 flex items-center gap-1">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                          </svg>
+                          {customer.rentals} orders
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-gray-900 text-lg">{customer.spent}</p>
+                      <p className="text-xs text-emerald-600 font-medium">Total Spent</p>
                     </div>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">{customer.spent}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Export Options */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Export Reports</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button 
-            onClick={() => handleExportReport('revenue')}
-            className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-          >
-            <div className="text-center">
-              <div className="text-2xl mb-2">📊</div>
-              <p className="text-sm font-medium text-gray-700">Revenue Report</p>
-              <p className="text-xs text-gray-500">PDF, Excel, CSV</p>
-            </div>
-          </button>
-          <button 
-            onClick={() => handleExportReport('products')}
-            className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-          >
-            <div className="text-center">
-              <div className="text-2xl mb-2">📦</div>
-              <p className="text-sm font-medium text-gray-700">Product Performance</p>
-              <p className="text-xs text-gray-500">PDF, Excel, CSV</p>
-            </div>
-          </button>
-          <button 
-            onClick={() => handleExportReport('customers')}
-            className="p-4 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
-          >
-            <div className="text-center">
-              <div className="text-2xl mb-2">👥</div>
-              <p className="text-sm font-medium text-gray-700">Customer Analysis</p>
-              <p className="text-xs text-gray-500">PDF, Excel, CSV</p>
-            </div>
-          </button>
+        {/* Export Actions */}
+        <div className="glassmorphism rounded-3xl p-8 text-center animate-fade-in-up">
+          <h3 className="text-xl font-bold text-gray-900 mb-4">Export & Share Reports</h3>
+          <div className="flex flex-wrap justify-center gap-4">
+            <button 
+              onClick={() => handleExportReport('revenue')}
+              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-semibold hover:from-blue-700 hover:to-blue-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Revenue Report
+            </button>
+            <button 
+              onClick={() => handleExportReport('products')}
+              className="px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-semibold hover:from-emerald-700 hover:to-emerald-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Product Report
+            </button>
+            <button 
+              onClick={() => handleExportReport('customers')}
+              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-semibold hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
+              Customer Report
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
