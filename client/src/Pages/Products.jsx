@@ -7,14 +7,31 @@ const Products = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showAddModal, setShowAddModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
   const [animateCards, setAnimateCards] = useState(false)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('')
   const [categories, setCategories] = useState([])
+  const [editingProduct, setEditingProduct] = useState(null)
   
   // Form state for adding new product
   const [newProduct, setNewProduct] = useState({
+    name: '',
+    category: '',
+    description: '',
+    pricing: {
+      hour: '',
+      day: '',
+      week: '',
+      month: ''
+    },
+    stock: 1,
+    images: []
+  })
+
+  // Form state for editing product
+  const [editProduct, setEditProduct] = useState({
     name: '',
     category: '',
     description: '',
@@ -128,6 +145,16 @@ const Products = () => {
       
       if (data.success) {
         fetchProducts()
+        setShowEditModal(false)
+        setEditingProduct(null)
+        setEditProduct({
+          name: '',
+          category: '',
+          description: '',
+          pricing: { hour: '', day: '', week: '', month: '' },
+          stock: 1,
+          images: []
+        })
         setError(null)
       } else {
         throw new Error(data.message || 'Failed to update product')
@@ -136,6 +163,31 @@ const Products = () => {
       setError('Failed to update product: ' + err.message)
       console.error('Error updating product:', err)
     }
+  }
+
+  // Function to open edit modal with product data
+  const openEditModal = (product) => {
+    setEditingProduct(product)
+    setEditProduct({
+      name: product.name,
+      category: product.category,
+      description: product.description,
+      pricing: {
+        hour: product.originalData?.pricing?.hour || product.hourlyRate?.replace('₹', '') || '',
+        day: product.originalData?.pricing?.day || product.dailyRate?.replace('₹', '') || '',
+        week: product.originalData?.pricing?.week || product.weeklyRate?.replace('₹', '') || '',
+        month: product.originalData?.pricing?.month || product.monthlyRate?.replace('₹', '') || ''
+      },
+      stock: product.stock || product.originalData?.stock || 1,
+      images: product.originalData?.images || []
+    })
+    setShowEditModal(true)
+  }
+
+  // Function to handle edit form submission
+  const handleEditSubmit = (e) => {
+    e.preventDefault()
+    updateProduct(editingProduct.id, editProduct)
   }
 
   const deleteProduct = async (id) => {
@@ -299,7 +351,7 @@ const Products = () => {
 
       {/* Products Grid */}
       {!loading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 w-full">
           {filteredProducts.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <div className="text-6xl mb-4">📦</div>
@@ -364,7 +416,7 @@ const Products = () => {
               {/* Actions */}
               <div className="flex space-x-2">
                 <button 
-                  onClick={() => console.log('Edit product:', product.id)}
+                  onClick={() => openEditModal(product)}
                   className="flex-1 bg-gradient-to-r from-[#2542ff] to-[#1e3a8a] text-white px-3 lg:px-4 py-2 lg:py-3 rounded-xl text-xs lg:text-sm font-semibold hover:from-[#1e3a8a] hover:to-[#1e40af] transition-all duration-200 transform hover:scale-105 shadow-lg"
                 >
                   Edit
@@ -380,7 +432,7 @@ const Products = () => {
           </div>
         ))
           )}
-        </div>
+      </div>
       )}
 
       {/* Add Product Modal */}
@@ -522,6 +574,149 @@ const Products = () => {
                   className="flex-1 bg-gradient-to-r from-[#2542ff] to-[#1e3a8a] text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold hover:from-[#1e3a8a] hover:to-[#1e40af] transition-all duration-200 shadow-lg"
                 >
                   Add Product
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Product Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-4 lg:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-4 lg:mb-6">Edit Product</h2>
+            <form onSubmit={handleEditSubmit} className="space-y-4 lg:space-y-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
+                <input
+                  type="text"
+                  value={editProduct.name}
+                  onChange={(e) => setEditProduct({...editProduct, name: e.target.value})}
+                  className="w-full border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
+                  placeholder="Enter product name"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                <textarea
+                  value={editProduct.description}
+                  onChange={(e) => setEditProduct({...editProduct, description: e.target.value})}
+                  className="w-full border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200 resize-none"
+                  placeholder="Enter product description"
+                  rows="3"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
+                <select 
+                  value={editProduct.category}
+                  onChange={(e) => setEditProduct({...editProduct, category: e.target.value})}
+                  className="w-full border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
+                  required
+                >
+                  <option value="">Select category</option>
+                  <option value="Electronics">Electronics</option>
+                  <option value="Furniture">Furniture</option>
+                  <option value="Vehicles">Vehicles</option>
+                  <option value="Sports">Sports</option>
+                  <option value="Tools">Tools</option>
+                  <option value="Events">Events</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
+                <input
+                  type="number"
+                  value={editProduct.stock}
+                  onChange={(e) => setEditProduct({...editProduct, stock: parseInt(e.target.value) || 1})}
+                  className="w-full border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
+                  placeholder="1"
+                  min="1"
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3 lg:gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Hourly Rate</label>
+                  <input
+                    type="number"
+                    value={editProduct.pricing.hour}
+                    onChange={(e) => setEditProduct({
+                      ...editProduct, 
+                      pricing: {...editProduct.pricing, hour: e.target.value}
+                    })}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
+                    placeholder="₹"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Daily Rate</label>
+                  <input
+                    type="number"
+                    value={editProduct.pricing.day}
+                    onChange={(e) => setEditProduct({
+                      ...editProduct, 
+                      pricing: {...editProduct.pricing, day: e.target.value}
+                    })}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
+                    placeholder="₹"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Weekly Rate</label>
+                  <input
+                    type="number"
+                    value={editProduct.pricing.week}
+                    onChange={(e) => setEditProduct({
+                      ...editProduct, 
+                      pricing: {...editProduct.pricing, week: e.target.value}
+                    })}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
+                    placeholder="₹"
+                    min="0"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Monthly Rate</label>
+                  <input
+                    type="number"
+                    value={editProduct.pricing.month}
+                    onChange={(e) => setEditProduct({
+                      ...editProduct, 
+                      pricing: {...editProduct.pricing, month: e.target.value}
+                    })}
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
+                    placeholder="₹"
+                    min="0"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4 lg:pt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setEditingProduct(null)
+                  }}
+                  className="flex-1 bg-gray-100 text-gray-700 px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-gradient-to-r from-[#2542ff] to-[#1e3a8a] text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold hover:from-[#1e3a8a] hover:to-[#1e40af] transition-all duration-200 shadow-lg"
+                >
+                  Update Product
                 </button>
               </div>
             </form>

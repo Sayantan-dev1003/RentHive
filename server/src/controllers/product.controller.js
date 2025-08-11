@@ -267,7 +267,7 @@ const updateProduct = asyncHandler(async (req, res) => {
 });
 
 /**
- * Delete product
+ * Delete product (Soft delete - production)
  * DELETE /api/products/:id
  */
 const deleteProduct = asyncHandler(async (req, res) => {
@@ -285,6 +285,47 @@ const deleteProduct = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     message: 'Product deleted successfully'
+  });
+});
+
+/**
+ * Hard delete product (Development only)
+ * DELETE /api/dev/products/:id
+ */
+const hardDeleteProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  const product = await Product.findByIdAndDelete(id);
+
+  if (!product) {
+    throw createNotFoundError('Product');
+  }
+
+  res.status(200).json({
+    success: true,
+    message: 'Product permanently deleted from database'
+  });
+});
+
+/**
+ * Get all products including inactive (Development only)
+ * GET /api/dev/products/all
+ */
+const getAllProductsIncludingInactive = asyncHandler(async (req, res) => {
+  const allProducts = await Product.find({});
+  const activeProducts = await Product.find({ isActive: true });
+  const inactiveProducts = await Product.find({ isActive: false });
+  
+  res.status(200).json({
+    success: true,
+    data: {
+      total: allProducts.length,
+      active: activeProducts.length,
+      inactive: inactiveProducts.length,
+      allProducts,
+      activeProducts,
+      inactiveProducts
+    }
   });
 });
 
@@ -454,6 +495,8 @@ module.exports = {
   getProductById,
   updateProduct,
   deleteProduct,
+  hardDeleteProduct,
+  getAllProductsIncludingInactive,
   checkAvailability,
   getAvailabilityCalendar,
   getCategories,
