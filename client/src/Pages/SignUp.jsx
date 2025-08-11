@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FiEye, FiEyeOff, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FaArrowLeft } from "react-icons/fa";
 
 const gradientButtonClass =
   "inline-flex w-full items-center justify-center rounded-full bg-blue-600 px-6 py-3 font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-200";
@@ -69,6 +70,10 @@ const SignUp = () => {
 
   return (
     <div className="h-[100vh] w-full bg-white text-slate-800">
+      <div onClick={() => navigate("/")} className="absolute top-6 left-6 z-10">
+        <p className="cursor-pointer font-semibold text-lg"><FaArrowLeft /></p>
+      </div>
+
       <div className="w-full h-full flex">
         {/* Left: Form */}
         <div className="w-1/2 h-full flex items-center justify-center px-6 py-12 sm:px-10">
