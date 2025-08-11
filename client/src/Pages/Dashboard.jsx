@@ -1,5 +1,32 @@
 import { useEffect, useState } from "react";
 
+// Clean and simple animation styles
+const simpleAnimationStyles = `
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+`;
+
 const Dashboard = () => {
   const [animateStats, setAnimateStats] = useState(false);
   // const [selectedFilter, setSelectedFilter] = useState("All");
@@ -12,11 +39,11 @@ const Dashboard = () => {
       name: "TA 2173 XRQ",
       brand: "Tata Ace",
       category: "Medium",
-      status: "Active",
-      performance: "90%",
+      status: "Reserved",
+      performance: 90,
       performanceType: "Good Performance",
-      image: "🚛",
-      bgGradient: "from-blue-600 to-purple-600",
+      image: "/images/vehicles/tata-ace.jpg",
+     
       highlight: "Chandan Bishoyi",
     },
     {
@@ -24,55 +51,55 @@ const Dashboard = () => {
       name: "MJ 3928 XRS",
       brand: "Mahindra Jeeto",
       category: "Medium",
-      status: "Idle",
-      performance: "50%",
+      status: "PickedUp",
+      performance: 50,
       performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-indigo-600 to-blue-600",
+      image: "/images/vehicles/mahindra-jeeto.jpg",
+      
     },
     {
       id: 3,
       name: "BMC 5568 XRW",
       brand: "Bajaj Maxima",
       category: "Medium",
-      status: "Idle",
-      performance: "0%",
+      status: "Quotation Sent",
+      performance: 0,
       performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-purple-600 to-indigo-600",
+      image: "/images/vehicles/bajaj-maxima.jpg",
+     
     },
     {
       id: 4,
       name: "MJ 3928 XRS",
       brand: "Mahindra Jeeto",
       category: "Medium",
-      status: "Idle",
-      performance: "50%",
+      status: "Returned",
+      performance: 50,
       performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-blue-700 to-purple-700",
+      image: "/images/vehicles/mahindra-jeeto-2.jpg",
+     
     },
     {
       id: 5,
       name: "TA 2173 XRQ",
       brand: "Tata Ace",
       category: "Medium",
-      status: "Active",
-      performance: "90%",
+      status: "Reserved",
+      performance: 90,
       performanceType: "Good Performance",
-      image: "🚛",
-      bgGradient: "from-green-600 to-blue-600",
+      image: "/images/vehicles/tata-ace-2.jpg",
+     
     },
     {
       id: 6,
       name: "MJ 3928 XRS",
       brand: "Mahindra Jeeto",
       category: "Medium",
-      status: "Idle",
-      performance: "50%",
+      status: "PickedUp",
+      performance: 50,
       performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-indigo-600 to-purple-600",
+      image: "/images/vehicles/mahindra-jeeto-3.jpg",
+      
     },
     {
       id: 7,
@@ -80,94 +107,102 @@ const Dashboard = () => {
       brand: "Bajaj Maxima",
       category: "Medium",
       status: "Maintenance",
-      performance: "0%",
+      performance: 0,
       performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-orange-600 to-red-600",
+      image: "/images/vehicles/bajaj-maxima-2.jpg",
+   
     },
     {
       id: 8,
       name: "MJ 3928 XRS",
       brand: "Mahindra Jeeto",
       category: "Medium",
-      status: "Idle",
-      performance: "50%",
+      status: "Quotation Sent",
+      performance: 50,
       performanceType: "Bad Performance",
-      image: "🚛",
-      bgGradient: "from-purple-700 to-indigo-700",
+      image: "/images/vehicles/tata-ace.jpg",
+   
     },
   ];
 
-  const rentalStatusData = [
-    { label: "Reserved", count: 16, color: "bg-green-500" },
-    { label: "Quotation", count: 1, color: "bg-orange-500" },
-  ];
-
-  const invoiceStatusData = [
-    { label: "Fully Invoice", count: 16, color: "bg-blue-500" },
-    { label: "Partly to Issue", count: 3, color: "bg-purple-500" },
-    { label: "To Invoice", count: 8, color: "bg-gray-500" },
-  ];
-
-  const pickupReturnData = [
-    { label: "Picked Up", count: 4, color: "bg-green-600" },
-    { label: "Returned", count: 1, color: "bg-blue-600" },
-  ];
-
+  
   useEffect(() => {
     const timer = setTimeout(() => setAnimateStats(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  const getStatusColor = (status) => {
+  const getStatusConfig = (status) => {
     switch (status) {
-      case "Active":
-        return "bg-green-500";
-      case "Idle":
-        return "bg-gray-500";
+      case "Reserved":
+        return {
+          bgColor: "bg-emerald-50/90",
+          textColor: "text-emerald-700",
+          dotColor: "bg-emerald-500",
+          label: "Reserved"
+        };
+      case "PickedUp":
+        return {
+          bgColor: "bg-rose-50/90",
+          textColor: "text-rose-700",
+          dotColor: "bg-rose-500",
+          label: "PickedUp"
+        };
+      case "Quotation Sent":
+        return {
+          bgColor: "bg-violet-50/90",
+          textColor: "text-violet-700",
+          dotColor: "bg-violet-500",
+          label: "Quotation Sent"
+        };
+      case "Returned":
+        return {
+          bgColor: "bg-red-50/90",
+          textColor: "text-red-700",
+          dotColor: "bg-red-500",
+          label: "Returned"
+        };
       case "Maintenance":
-        return "bg-red-500";
+        return {
+          bgColor: "bg-orange-50/90",
+          textColor: "text-orange-700",
+          dotColor: "bg-orange-500",
+          label: "Maintenance"
+        };
       default:
-        return "bg-gray-500";
+        return {
+          bgColor: "bg-slate-50/90",
+          textColor: "text-slate-700",
+          dotColor: "bg-slate-500",
+          label: status
+        };
     }
   };
 
   return (
-    <div className="w-full space-y-6 animate-fadeIn">
+    <>
+      {/* Inject clean animation styles */}
+      <style>{simpleAnimationStyles}</style>
+      
+      <div className="w-full space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-        <button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-semibold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all duration-300 hover-lift shadow-lg hover:shadow-xl">
-          <svg
-            className="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-            />
-          </svg>
-          Create
-        </button>
-
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Rental Orders</h1>
+        <div className="animate-in slide-in-from-left-5 duration-500">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Rental Orders
+          </h1>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 animate-in slide-in-from-right-5 duration-500 delay-200">
           {/* Search */}
           <div className="relative">
             <input
               type="text"
               placeholder="Search here..."
-              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80 bg-white"
+              className="pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-80 bg-white transition-all duration-200 focus:scale-105"
             />
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <svg
-                className="h-5 w-5 text-gray-400"
+                className="h-5 w-5 text-gray-400 transition-colors duration-200"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -186,24 +221,24 @@ const Dashboard = () => {
           <div className="flex bg-gray-100 rounded-lg p-1">
             <button
               onClick={() => setViewMode("Card")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "Card"
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 hover:scale-105 ${viewMode === "Card"
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-gray-600 hover:text-gray-900"
                 }`}
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
               </svg>
               Card View
             </button>
             <button
               onClick={() => setViewMode("List")}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 ${viewMode === "List"
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 flex items-center gap-2 hover:scale-105 ${viewMode === "List"
                 ? "bg-white text-blue-600 shadow-sm"
                 : "text-gray-600 hover:text-gray-900"
                 }`}
             >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <svg className="w-4 h-4 transition-transform duration-200" fill="currentColor" viewBox="0 0 20 20">
                 <path
                   fillRule="evenodd"
                   d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
@@ -219,77 +254,130 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="w-full">
         {viewMode === "Card" ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {rentalProducts.map((product, index) => (
-              <div
-                key={product.id}
-                className={`bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-transform transform hover:-translate-y-1 ${animateStats
-                    ? "translate-y-0 opacity-100"
-                    : "translate-y-8 opacity-0"
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {rentalProducts.map((product, index) => {
+              const statusConfig = getStatusConfig(product.status);
+              
+              return (
+                <div
+                  key={product.id}
+                  className={`bg-gradient-to-br from-white to-gray-50 rounded-2xl border border-gray-200 shadow-lg overflow-hidden card-hover relative ${animateStats
+                    ? "animate-fade-in-up"
+                    : "opacity-0"
                   }`}
-                style={{ transitionDelay: `${index * 100}ms` }}
-              >
-                {/* Image */}
-                <div className="relative">
-                  <img
-                    src={`https://via.placeholder.com/400x250?text=${encodeURIComponent(
-                      product.brand
-                    )}`}
-                    alt={product.name}
-                    className="w-full h-48 object-cover"
-                  />
-                  <span
-                    className={`absolute top-3 left-3 px-3 py-1 text-xs font-semibold rounded-full ${product.status === "Active"
-                        ? "bg-green-100 text-green-800"
-                        : product.status === "Idle"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                  >
-                    ● {product.status}
-                  </span>
-                </div>
+                  style={{ 
+                    animationDelay: `${index * 100}ms`
+                  }}
+                >
+                  {/* Background Pattern */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-50/20 via-transparent to-purple-50/20 pointer-events-none"></div>
+                  
+                  <div className="relative p-6">
+                    {/* Status Badge */}
+                    <div className="flex justify-end mb-6">
+                      <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold shadow-md border backdrop-blur-sm ${statusConfig.bgColor} ${statusConfig.textColor} border-white/30`}>
+                        <div className={`w-2.5 h-2.5 rounded-full ${statusConfig.dotColor} animate-pulse`}></div>
+                        {statusConfig.label}
+                      </span>
+                    </div>
 
-                {/* Content */}
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-gray-500">
-                    {product.brand}, {product.category}
-                  </p>
+                    {/* Main Content Layout */}
+                    <div className="flex items-center justify-between">
+                      {/* Left Section - Vehicle Info */}
+                      <div className="flex-1 pr-4">
+                        <div className="mb-6">
+                          <h3 className="text-xl font-bold text-gray-900 mb-2 leading-tight">
+                            {product.name}
+                          </h3>
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className="text-gray-700 font-medium text-sm">{product.brand}</span>
+                            <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
+                            <span className="text-gray-500 text-sm">{product.category}</span>
+                          </div>
+                        </div>
 
-                  {/* Stats Row */}
-                  <div className="flex justify-between text-gray-600 text-sm mt-3">
-                    <div className="flex items-center gap-1">
-                      ⚙️ <span>{product.performance}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      📊 <span>{product.performanceType}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      🏷 <span>{product.id}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      🧑‍🔧 <span>{product.highlight || "N/A"}</span>
+                        {/* Performance Section */}
+                        <div className="bg-white/50 rounded-xl p-4 border border-gray-100 backdrop-blur-sm">
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-gray-700 font-medium">Performance</span>
+                            <span className={`font-bold text-lg ${
+                              product.performance >= 70 
+                                ? 'text-green-600' 
+                                : product.performance >= 40 
+                                ? 'text-yellow-600' 
+                                : 'text-red-600'
+                            }`}>{product.performance}%</span>
+                          </div>
+                          
+                          {/* Performance Bar */}
+                          <div className="w-full bg-gray-200 rounded-full h-3 shadow-inner">
+                            <div 
+                              className={`h-3 rounded-full transition-all duration-1000 shadow-sm ${
+                                product.performance >= 70 
+                                  ? 'bg-gradient-to-r from-green-400 to-green-600' 
+                                  : product.performance >= 40 
+                                  ? 'bg-gradient-to-r from-yellow-400 to-orange-500' 
+                                  : 'bg-gradient-to-r from-red-400 to-red-600'
+                              }`}
+                              style={{ 
+                                width: animateStats ? `${product.performance}%` : '0%',
+                                transitionDelay: `${index * 100 + 300}ms`
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+
+                        {/* Performance Type & Action */}
+                        <div className="flex items-center justify-between mt-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-3 h-3 rounded-full shadow-sm ${
+                              product.performanceType === "Good Performance" 
+                                ? 'bg-green-500' 
+                                : 'bg-red-500'
+                            }`}></div>
+                            <span className="text-gray-700 text-sm font-medium">
+                              {product.performanceType === "Good Performance" ? "Good Performance" : "Poor Performance"}
+                            </span>
+                          </div>
+                          
+                          {/* Action Button */}
+                          <button className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border border-blue-200 hover:border-blue-300 rounded-xl p-3 transition-all duration-300 shadow-sm hover:shadow-md group">
+                            <svg className="w-4 h-4 text-blue-600 group-hover:text-blue-700 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Right Section - Vehicle Image */}
+                      <div className="flex-shrink-0">
+                        <div className="relative w-28 h-24 bg-gradient-to-br from-white to-gray-100 rounded-2xl border-2 border-gray-200 overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 group">
+                          {/* Image Border Glow */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-100/50 to-purple-100/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                          
+                          <img
+                            src={product.image || "/public/truck.png"}
+                            alt={`${product.brand} ${product.name}`}
+                            className="w-full h-full object-cover transition-all duration-300 group-hover:scale-110 relative z-10"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          {/* Fallback emoji */}
+                          <div className="absolute inset-0 text-3xl text-gray-400 hidden items-center justify-center bg-gray-50">
+                            🚛
+                          </div>
+                          
+                          {/* Image Overlay on Hover */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300 z-20"></div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-
-                  {/* Price Section (Placeholder) */}
-                  <div className="mt-4 flex justify-between items-center">
-                    <div>
-                      <p className="text-xs text-gray-500">Estimated Value</p>
-                      <p className="text-lg font-bold text-green-600">$50,000</p>
-                    </div>
-                    <div className="flex flex-col items-end text-xs text-gray-600">
-                      <span>Token price: $500</span>
-                      <span>Projected IRR: 12%</span>
-                      <span>Projected APR: 8%</span>
-                    </div>
-                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -455,7 +543,8 @@ const Dashboard = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

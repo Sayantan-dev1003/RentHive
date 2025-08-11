@@ -437,146 +437,283 @@ const Products = () => {
 
       {/* Add Product Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-4 lg:p-8 w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <h2 className="text-xl lg:text-2xl font-bold text-gray-900 mb-4 lg:mb-6">Add New Product</h2>
-            <form 
-              onSubmit={(e) => {
-                e.preventDefault()
-                createProduct(newProduct)
-              }}
-              className="space-y-4 lg:space-y-6"
-            >
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[95vh] overflow-hidden relative">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 px-8 py-6 relative overflow-hidden">
+              {/* Background Pattern */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-white/10 rounded-full"></div>
+              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-white/5 rounded-full"></div>
+              
+              <div className="relative flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-white mb-1">Add New Product</h2>
+                  <p className="text-blue-100 text-sm">Create a new rental product for your inventory</p>
+                </div>
+                <button
+                  onClick={() => setShowAddModal(false)}
+                  className="text-white/80 hover:text-white hover:bg-white/20 rounded-full p-2 transition-all duration-200"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-8 max-h-[calc(95vh-120px)] overflow-y-auto">
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  createProduct(newProduct)
+                }}
+                className="space-y-6"
+              >
+                {/* Basic Information Section */}
+                <div className="bg-gradient-to-br from-gray-50 to-white border border-gray-200 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    Basic Information
+                  </h3>
+                  
+                  <div className="space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Product Name *</label>
+                      <div className="relative">
                 <input
                   type="text"
-                  value={newProduct.name}
-                  onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
-                  className="w-full border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
-                  placeholder="Enter product name"
-                  required
-                />
+                          value={newProduct.name}
+                          onChange={(e) => setNewProduct({...newProduct, name: e.target.value})}
+                          className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                          placeholder="Enter an attractive product name"
+                          required
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                          📝
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Description *</label>
+                      <div className="relative">
+                        <textarea
+                          value={newProduct.description}
+                          onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
+                          className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100 transition-all duration-300 resize-none bg-white/50 backdrop-blur-sm"
+                          placeholder="Describe what makes this product special..."
+                          rows="4"
+                          required
+                        />
+                        <div className="absolute right-3 bottom-3 text-gray-400">
+                          💬
+                        </div>
+                      </div>
+                    </div>
+                  </div>
               </div>
+                {/* Category & Stock Section */}
+                <div className="bg-gradient-to-br from-purple-50 to-white border border-purple-200 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                      </svg>
+                    </div>
+                    Category & Inventory
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                <textarea
-                  value={newProduct.description}
-                  onChange={(e) => setNewProduct({...newProduct, description: e.target.value})}
-                  className="w-full border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200 resize-none"
-                  placeholder="Enter product description"
-                  rows="3"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                <select 
-                  value={newProduct.category}
-                  onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                  className="w-full border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
-                  required
-                >
-                  <option value="">Select category</option>
-                  <option value="Electronics">Electronics</option>
-                  <option value="Furniture">Furniture</option>
-                  <option value="Vehicles">Vehicles</option>
-                  <option value="Sports">Sports</option>
-                  <option value="Tools">Tools</option>
-                  <option value="Events">Events</option>
-                  <option value="Other">Other</option>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
+                      <div className="relative">
+                        <select 
+                          value={newProduct.category}
+                          onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                          className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 bg-white/50 backdrop-blur-sm appearance-none"
+                          required
+                        >
+                          <option value="">Choose a category</option>
+                          <option value="Electronics">📱 Electronics</option>
+                          <option value="Furniture">🪑 Furniture</option>
+                          <option value="Vehicles">🚗 Vehicles</option>
+                          <option value="Sports">⚽ Sports</option>
+                          <option value="Tools">🔨 Tools</option>
+                          <option value="Events">🎉 Events</option>
+                          <option value="Other">📦 Other</option>
                 </select>
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
-                <input
-                  type="number"
-                  value={newProduct.stock}
-                  onChange={(e) => setNewProduct({...newProduct, stock: parseInt(e.target.value) || 1})}
-                  className="w-full border border-gray-200 rounded-xl px-3 lg:px-4 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
-                  placeholder="1"
-                  min="1"
-                  required
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3 lg:gap-4">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Hourly Rate</label>
-                  <input
-                    type="number"
-                    value={newProduct.pricing.hour}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct, 
-                      pricing: {...newProduct.pricing, hour: e.target.value}
-                    })}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
-                    placeholder="₹"
-                    min="0"
-                    required
-                  />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity *</label>
+                      <div className="relative">
+                        <input
+                          type="number"
+                          value={newProduct.stock}
+                          onChange={(e) => setNewProduct({...newProduct, stock: parseInt(e.target.value) || 1})}
+                          className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                          placeholder="Enter quantity"
+                          min="1"
+                          required
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                          📦
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Daily Rate</label>
-                  <input
-                    type="number"
-                    value={newProduct.pricing.day}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct, 
-                      pricing: {...newProduct.pricing, day: e.target.value}
-                    })}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
-                    placeholder="₹"
-                    min="0"
-                    required
-                  />
+                              {/* Pricing Section */}
+                <div className="bg-gradient-to-br from-green-50 to-white border border-green-200 rounded-2xl p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                      <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                      </svg>
+                    </div>
+                    Pricing Strategy
+                  </h3>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Hourly Rate *</label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600 font-semibold">₹</div>
+                        <input
+                          type="number"
+                          value={newProduct.pricing.hour}
+                          onChange={(e) => setNewProduct({
+                            ...newProduct, 
+                            pricing: {...newProduct.pricing, hour: e.target.value}
+                          })}
+                          className="w-full border-2 border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                          placeholder="100"
+                          min="0"
+                          required
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
+                          /hr
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Daily Rate *</label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600 font-semibold">₹</div>
+                        <input
+                          type="number"
+                          value={newProduct.pricing.day}
+                          onChange={(e) => setNewProduct({
+                            ...newProduct, 
+                            pricing: {...newProduct.pricing, day: e.target.value}
+                          })}
+                          className="w-full border-2 border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                          placeholder="500"
+                          min="0"
+                          required
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
+                          /day
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Weekly Rate *</label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600 font-semibold">₹</div>
+                        <input
+                          type="number"
+                          value={newProduct.pricing.week}
+                          onChange={(e) => setNewProduct({
+                            ...newProduct, 
+                            pricing: {...newProduct.pricing, week: e.target.value}
+                          })}
+                          className="w-full border-2 border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                          placeholder="2500"
+                          min="0"
+                          required
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
+                          /week
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Monthly Rate *</label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-green-600 font-semibold">₹</div>
+                        <input
+                          type="number"
+                          value={newProduct.pricing.month}
+                          onChange={(e) => setNewProduct({
+                            ...newProduct, 
+                            pricing: {...newProduct.pricing, month: e.target.value}
+                          })}
+                          className="w-full border-2 border-gray-200 rounded-xl pl-8 pr-4 py-3 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100 transition-all duration-300 bg-white/50 backdrop-blur-sm"
+                          placeholder="8000"
+                          min="0"
+                          required
+                        />
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm">
+                          /month
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Pricing Tips */}
+                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-xl">
+                    <p className="text-sm text-green-700 flex items-center">
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      💡 Tip: Longer rental periods typically offer better value for customers
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Weekly Rate</label>
-                  <input
-                    type="number"
-                    value={newProduct.pricing.week}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct, 
-                      pricing: {...newProduct.pricing, week: e.target.value}
-                    })}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
-                    placeholder="₹"
-                    min="0"
-                    required
-                  />
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddModal(false)}
+                    className="flex-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 px-6 py-4 rounded-xl font-semibold hover:from-gray-200 hover:to-gray-300 transition-all duration-300 transform hover:scale-105 border border-gray-300"
+                  >
+                    <span className="flex items-center justify-center">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Cancel
+                    </span>
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-700 hover:via-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
+                  >
+                    <span className="flex items-center justify-center">
+                      <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      Create Product
+                    </span>
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Monthly Rate</label>
-                  <input
-                    type="number"
-                    value={newProduct.pricing.month}
-                    onChange={(e) => setNewProduct({
-                      ...newProduct, 
-                      pricing: {...newProduct.pricing, month: e.target.value}
-                    })}
-                    className="w-full border border-gray-200 rounded-xl px-3 py-2 lg:py-3 focus:outline-none focus:ring-2 focus:ring-[#2542ff] transition-all duration-200"
-                    placeholder="₹"
-                    min="0"
-                    required
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 pt-4 lg:pt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowAddModal(false)}
-                  className="flex-1 bg-gray-100 text-gray-700 px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold hover:bg-gray-200 transition-all duration-200"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-gradient-to-r from-[#2542ff] to-[#1e3a8a] text-white px-4 lg:px-6 py-2 lg:py-3 rounded-xl font-semibold hover:from-[#1e3a8a] hover:to-[#1e40af] transition-all duration-200 shadow-lg"
-                >
-                  Add Product
-                </button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
       )}
