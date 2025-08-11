@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { toast } from 'react-toastify'
 import apiService from '../services/api'
 
 // Optimized minimal styles
@@ -44,6 +45,7 @@ const Orders = () => {
   const [selectedOrder, setSelectedOrder] = useState(null)
   const [generatingInvoice, setGeneratingInvoice] = useState(false)
   const [downloadingInvoice, setDownloadingInvoice] = useState(false)
+  const [viewingInvoice, setViewingInvoice] = useState(false)
   const [newOrder, setNewOrder] = useState({
     customer: '',
     product: '',
@@ -109,15 +111,231 @@ const Orders = () => {
       const response = await apiService.generateInvoice(order.id)
       
       if (response.success) {
-        alert(`Invoice generated for order ${order.orderId}`)
+        toast.success(`Invoice generated successfully for order ${order.orderId}`, {
+          position: "top-right",
+          autoClose: 3000
+        })
+        
+        // If the invoice has a download URL, automatically download it
+        if (response.data && response.data.downloadUrl) {
+          setTimeout(() => {
+            handleDownloadInvoice(order)
+          }, 1000)
+        }
       } else {
         throw new Error(response.message || 'Failed to generate invoice')
       }
     } catch (err) {
       console.error('Error generating invoice:', err)
-      alert('Failed to generate invoice: ' + err.message)
+      toast.error(`Failed to generate invoice: ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000
+      })
     } finally {
       setGeneratingInvoice(false)
+    }
+  }
+
+  // Handle view invoice (opens in new tab without downloading)
+  const handleViewInvoice = async (order) => {
+    try {
+      setViewingInvoice(true)
+      
+      const response = await apiService.downloadInvoice(order.id)
+      
+      if (response.success && response.data) {
+        const blob = response.data instanceof Blob ? response.data : new Blob([response.data], { type: 'application/pdf' })
+        const url = window.URL.createObjectURL(blob)
+        
+        // Open the invoice in a new tab with a better viewer
+        const newTab = window.open()
+        if (newTab) {
+          // Check if it's HTML content or PDF
+          const isHtmlContent = blob.type.includes('text/html')
+          
+          if (isHtmlContent) {
+            // For HTML content (mock invoices), display it directly with enhanced styling
+            blob.text().then(htmlContent => {
+              const enhancedHtml = htmlContent.replace(
+                '<head>',
+                `<head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <style>
+                    @media print { .no-print { display: none; } }
+                    .invoice-controls {
+                      position: fixed;
+                      top: 10px;
+                      right: 10px;
+                      z-index: 1000;
+                      background: white;
+                      padding: 10px;
+                      border-radius: 8px;
+                      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    }
+                    .invoice-controls button {
+                      background: #3b82f6;
+                      color: white;
+                      border: none;
+                      padding: 8px 16px;
+                      margin: 0 4px;
+                      border-radius: 4px;
+                      cursor: pointer;
+                      font-size: 14px;
+                    }
+                    .invoice-controls button:hover { background: #2563eb; }
+                    .btn-success { background: #10b981 !important; }
+                    .btn-success:hover { background: #059669 !important; }
+                    .btn-secondary { background: #6b7280 !important; }
+                    .btn-secondary:hover { background: #4b5563 !important; }
+                  </style>`
+              ).replace(
+                '<body>',
+                `<body>
+                  <div class="invoice-controls no-print">
+                    <button onclick="window.print()">🖨️ Print</button>
+                    <button class="btn-success" onclick="downloadHtml()">💾 Download</button>
+                    <button class="btn-secondary" onclick="window.close()">✕ Close</button>
+                  </div>
+                  <script>
+                    function downloadHtml() {
+                      const content = document.documentElement.outerHTML;
+                      const blob = new Blob([content], { type: 'text/html' });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'invoice-${order.orderId}.html';
+                      a.click();
+                      URL.revokeObjectURL(url);
+                    }
+                  </script>`
+              )
+              
+              newTab.document.write(enhancedHtml)
+              newTab.document.close()
+            })
+          } else {
+            // For PDF content, use iframe viewer
+            newTab.document.write(`
+              <html>
+                <head>
+                  <title>Invoice ${order.orderId} - RentHive</title>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <style>
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body { 
+                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                      background: #f8fafc;
+                      min-height: 100vh;
+                    }
+                    .header { 
+                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                      color: white; 
+                      padding: 1rem; 
+                      text-align: center;
+                      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    }
+                    .header h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+                    .header p { opacity: 0.9; }
+                    .controls { 
+                      background: white;
+                      padding: 1rem; 
+                      text-align: center; 
+                      border-bottom: 1px solid #e2e8f0;
+                      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                    }
+                    .btn { 
+                      background: #3b82f6; 
+                      color: white; 
+                      border: none; 
+                      padding: 0.75rem 1.5rem; 
+                      margin: 0 0.5rem; 
+                      border-radius: 0.5rem; 
+                      cursor: pointer; 
+                      font-weight: 500;
+                      transition: all 0.2s;
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 0.5rem;
+                    }
+                    .btn:hover { background: #2563eb; transform: translateY(-1px); }
+                    .btn-success { background: #10b981; }
+                    .btn-success:hover { background: #059669; }
+                    .btn-secondary { background: #6b7280; }
+                    .btn-secondary:hover { background: #4b5563; }
+                    .pdf-container { 
+                      padding: 1rem; 
+                      height: calc(100vh - 150px); 
+                    }
+                    iframe { 
+                      width: 100%; 
+                      height: 100%; 
+                      border: 1px solid #e2e8f0; 
+                      border-radius: 0.5rem; 
+                      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+                    }
+                  </style>
+                </head>
+                <body>
+                  <div class="header">
+                    <h1>📄 Invoice Viewer</h1>
+                    <p>Order ${order.orderId} • ${new Date().toLocaleDateString()}</p>
+                  </div>
+                  <div class="controls">
+                    <button class="btn" onclick="window.print()">
+                      🖨️ Print
+                    </button>
+                    <button class="btn btn-success" onclick="downloadPdf()">
+                      💾 Download
+                    </button>
+                    <button class="btn btn-secondary" onclick="window.close()">
+                      ✕ Close
+                    </button>
+                  </div>
+                  <div class="pdf-container">
+                    <iframe src="${url}" type="application/pdf"></iframe>
+                  </div>
+                  <script>
+                    function downloadPdf() {
+                      const a = document.createElement('a');
+                      a.href = '${url}';
+                      a.download = 'invoice-${order.orderId}.pdf';
+                      a.click();
+                    }
+                    
+                    // Clean up URL when window closes
+                    window.addEventListener('beforeunload', function() {
+                      URL.revokeObjectURL('${url}');
+                    });
+                  </script>
+                </body>
+              </html>
+            `)
+            newTab.document.close()
+          }
+          
+          toast.success(`Invoice opened in new tab for viewing`, {
+            position: "top-right",
+            autoClose: 2000
+          })
+        } else {
+          toast.error('Unable to open new tab. Please check your browser settings.', {
+            position: "top-right",
+            autoClose: 5000
+          })
+        }
+      } else {
+        throw new Error(response.message || 'Failed to load invoice')
+      }
+    } catch (err) {
+      console.error('Error viewing invoice:', err)
+      toast.error(`Failed to view invoice: ${err.message || 'Unknown error occurred'}`, {
+        position: "top-right",
+        autoClose: 5000
+      })
+    } finally {
+      setViewingInvoice(false)
     }
   }
 
@@ -139,13 +357,63 @@ const Orders = () => {
         a.click()
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
-        alert('Invoice downloaded successfully!')
+        
+        toast.success(`Invoice downloaded successfully! Check your downloads folder.`, {
+          position: "top-right",
+          autoClose: 4000
+        })
+        
+        // Also open the PDF in a new tab so user can view it
+        const newTab = window.open()
+        if (newTab) {
+          newTab.document.write(`
+            <html>
+              <head>
+                <title>Invoice ${order.orderId}</title>
+                <style>
+                  body { margin: 0; padding: 20px; font-family: Arial, sans-serif; }
+                  .header { text-align: center; margin-bottom: 20px; }
+                  .controls { text-align: center; margin-bottom: 20px; }
+                  .controls button { 
+                    background: #3b82f6; color: white; border: none; 
+                    padding: 10px 20px; margin: 0 10px; border-radius: 5px; 
+                    cursor: pointer; 
+                  }
+                  .controls button:hover { background: #2563eb; }
+                  iframe { border: 1px solid #ddd; border-radius: 8px; }
+                </style>
+              </head>
+              <body>
+                <div class="header">
+                  <h2>Invoice for Order ${order.orderId}</h2>
+                </div>
+                <div class="controls">
+                  <button onclick="window.print()">Print</button>
+                  <button onclick="downloadPdf()">Download</button>
+                  <button onclick="window.close()">Close</button>
+                </div>
+                <iframe src="${url}" width="100%" height="80%" type="application/pdf"></iframe>
+                <script>
+                  function downloadPdf() {
+                    const a = document.createElement('a');
+                    a.href = '${url}';
+                    a.download = 'invoice-${order.orderId}.pdf';
+                    a.click();
+                  }
+                </script>
+              </body>
+            </html>
+          `)
+        }
       } else {
         throw new Error(response.message || 'Failed to download invoice')
       }
     } catch (err) {
       console.error('Error downloading invoice:', err)
-      alert('Failed to download invoice: ' + err.message)
+      toast.error(`Failed to download invoice: ${err.message || 'Unknown error occurred'}`, {
+        position: "top-right",
+        autoClose: 5000
+      })
     } finally {
       setDownloadingInvoice(false)
     }
@@ -167,12 +435,20 @@ const Orders = () => {
         a.click()
         document.body.removeChild(a)
         window.URL.revokeObjectURL(url)
+        
+        toast.success('Orders exported successfully! Check your downloads folder.', {
+          position: "top-right",
+          autoClose: 3000
+        })
       } else {
         throw new Error(response.message || 'Failed to export orders')
       }
     } catch (err) {
       console.error('Error exporting orders:', err)
-      alert('Failed to export orders: ' + err.message)
+      toast.error(`Failed to export orders: ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000
+      })
     }
   }
 
@@ -183,7 +459,10 @@ const Orders = () => {
       const response = await apiService.createOrder(newOrder)
       
       if (response.success) {
-        alert('Order created successfully!')
+        toast.success('Order created successfully!', {
+          position: "top-right",
+          autoClose: 3000
+        })
         setShowNewOrderModal(false)
         setNewOrder({
           customer: '',
@@ -198,7 +477,10 @@ const Orders = () => {
       }
     } catch (err) {
       console.error('Error creating order:', err)
-      alert('Failed to create order: ' + err.message)
+      toast.error(`Failed to create order: ${err.message}`, {
+        position: "top-right",
+        autoClose: 5000
+      })
     }
   }
 
@@ -291,13 +573,13 @@ const Orders = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500 mb-1">Total Orders</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900">
                 {loading ? (
                   <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
                 ) : (
                   orderStats.total
                 )}
-              </p>
+              </div>
               <p className="text-xs text-gray-400 mt-1">All time orders</p>
             </div>
           </div>
@@ -315,13 +597,13 @@ const Orders = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500 mb-1">Confirmed</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900">
                 {loading ? (
                   <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
                 ) : (
                   orderStats.confirmed
                 )}
-              </p>
+              </div>
               <p className="text-xs text-gray-400 mt-1">Successfully processed</p>
             </div>
           </div>
@@ -339,13 +621,13 @@ const Orders = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500 mb-1">Pending</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900">
                 {loading ? (
                   <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
                 ) : (
                   orderStats.pending
                 )}
-              </p>
+              </div>
               <p className="text-xs text-gray-400 mt-1">Awaiting approval</p>
             </div>
           </div>
@@ -363,13 +645,13 @@ const Orders = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-500 mb-1">Cancelled</p>
-              <p className="text-2xl font-bold text-gray-900">
+              <div className="text-2xl font-bold text-gray-900">
                 {loading ? (
                   <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
                 ) : (
                   orderStats.cancelled
                 )}
-              </p>
+              </div>
               <p className="text-xs text-gray-400 mt-1">Cancelled orders</p>
             </div>
           </div>
@@ -484,11 +766,18 @@ const Orders = () => {
                           View Details
                         </button>
                         <button 
+                          onClick={() => handleViewInvoice(order)}
+                          disabled={viewingInvoice}
+                          className="px-4 py-2 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-lg hover:from-purple-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-md text-sm disabled:opacity-50 disabled:transform-none"
+                        >
+                          {viewingInvoice ? 'Opening...' : '👁️ View Invoice'}
+                        </button>
+                        <button 
                           onClick={() => handleGenerateInvoice(order)}
                           disabled={generatingInvoice}
                           className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-md text-sm disabled:opacity-50 disabled:transform-none"
                         >
-                          {generatingInvoice ? 'Generating...' : 'Invoice'}
+                          {generatingInvoice ? 'Generating...' : '📄 Generate'}
                         </button>
                         <button 
                           onClick={() => handleEditOrder(order)}
@@ -644,6 +933,17 @@ const Orders = () => {
                       Invoice Actions
                     </h3>
                     <div className="space-y-3">
+                      <button 
+                        onClick={() => handleViewInvoice(selectedOrder)}
+                        disabled={viewingInvoice}
+                        className="w-full px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl hover:from-purple-700 hover:to-purple-800 transition-all duration-300 transform hover:scale-105 font-semibold shadow-lg hover:shadow-xl disabled:opacity-50 disabled:transform-none disabled:cursor-not-allowed flex items-center justify-center"
+                      >
+                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        {viewingInvoice ? 'Opening...' : 'View Invoice'}
+                      </button>
                       <button 
                         onClick={() => handleGenerateInvoice(selectedOrder)}
                         disabled={generatingInvoice}

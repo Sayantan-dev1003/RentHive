@@ -8,9 +8,13 @@ class ApiService {
   // Helper method for making API requests
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`
+    // Get auth token
+    const token = localStorage.getItem('token')
+    
     // Default headers, to be overridden if a FormData body is used
     const defaultHeaders = {
       'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
       ...options.headers,
     }
 
@@ -218,26 +222,46 @@ class ApiService {
       return response
     } catch (error) {
       console.error('Error generating invoice:', error)
-      // Return mock success for development
-      return {
-        success: true,
-        message: 'Invoice generated successfully (mock)',
-        data: { invoiceId: `INV-${orderId}-${Date.now()}` }
+      
+      // If it's a mock order (starts with "mock-"), return a mock response
+      if (orderId.startsWith('mock-')) {
+        return {
+          success: true,
+          message: 'Mock invoice generated successfully',
+          data: { 
+            invoiceId: `INV-${orderId}-${Date.now()}`,
+            downloadUrl: `/api/orders/${orderId}/invoice/download`
+          }
+        }
       }
+      
+      throw error
     }
   }
 
   async downloadInvoice(orderId) {
     try {
+      const token = localStorage.getItem('token')
       const url = `${this.baseURL}/orders/${orderId}/invoice`
       const response = await fetch(url, {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token') || ''}`,
+          ...(token && { 'Authorization': `Bearer ${token}` }),
         }
       })
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
+        // If it's a mock order, generate a mock PDF
+        if (orderId.startsWith('mock-')) {
+          return this.generateMockInvoicePDF(orderId)
+        }
+        
+        // Try to get error message from response
+        try {
+          const errorData = await response.json()
+          throw new Error(errorData.message || `HTTP error! status: ${response.status}`)
+        } catch (parseError) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
       }
       
       // Check if response is JSON (error) or PDF
@@ -256,10 +280,103 @@ class ApiService {
       }
     } catch (error) {
       console.error('Error downloading invoice:', error)
-      return {
-        success: false,
-        message: error.message || 'Failed to download invoice'
+      
+      // If it's a mock order, generate a mock PDF
+      if (orderId.startsWith('mock-')) {
+        return this.generateMockInvoicePDF(orderId)
       }
+      
+      throw error
+    }
+  }
+
+  // Generate a mock PDF for demonstration purposes
+  generateMockInvoicePDF(orderId) {
+    // Create a simple HTML document and convert it to PDF-like content
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Invoice ${orderId}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+            .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 20px; margin-bottom: 30px; }
+            .invoice-details { display: flex; justify-content: space-between; margin-bottom: 30px; }
+            .details-section { width: 45%; }
+            .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+            .items-table th, .items-table td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            .items-table th { background-color: #f5f5f5; }
+            .total-section { text-align: right; }
+            .total-line { margin: 5px 0; }
+            .grand-total { font-weight: bold; font-size: 1.2em; border-top: 2px solid #333; padding-top: 10px; }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <h1>RentHive Invoice</h1>
+            <p>Professional Equipment Rental Services</p>
+          </div>
+          
+          <div class="invoice-details">
+            <div class="details-section">
+              <h3>Bill To:</h3>
+              <p><strong>Customer Name</strong><br>
+              123 Customer Street<br>
+              City, State 12345<br>
+              customer@email.com</p>
+            </div>
+            <div class="details-section">
+              <h3>Invoice Details:</h3>
+              <p><strong>Invoice #:</strong> INV-${orderId}<br>
+              <strong>Order #:</strong> ${orderId}<br>
+              <strong>Date:</strong> ${new Date().toLocaleDateString()}<br>
+              <strong>Due Date:</strong> ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString()}</p>
+            </div>
+          </div>
+          
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Item Description</th>
+                <th>Rental Period</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Professional Camera Equipment</td>
+                <td>3 days</td>
+                <td>1</td>
+                <td>₹450.00</td>
+                <td>₹450.00</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <div class="total-section">
+            <div class="total-line">Subtotal: ₹450.00</div>
+            <div class="total-line">Tax (18%): ₹81.00</div>
+            <div class="total-line">Deposit: ₹200.00</div>
+            <div class="total-line grand-total">Total Amount: ₹531.00</div>
+          </div>
+          
+          <div style="margin-top: 40px; text-align: center; color: #666; font-size: 0.9em;">
+            <p>Thank you for choosing RentHive!</p>
+            <p>For support, contact us at support@renthive.com | +91-xxx-xxx-xxxx</p>
+          </div>
+        </body>
+      </html>
+    `
+    
+    // Convert HTML to blob (simulating PDF)
+    const blob = new Blob([htmlContent], { type: 'text/html' })
+    
+    return {
+      success: true,
+      data: blob,
+      message: 'Mock invoice generated successfully'
     }
   }
 
