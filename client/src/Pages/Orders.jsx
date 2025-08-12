@@ -2,17 +2,65 @@ import { useState, useEffect } from 'react'
 import { toast } from 'react-toastify'
 import apiService from '../services/api'
 
-// Optimized minimal styles
+// Enhanced modern styles for Orders
 const optimizedOrderStyles = `
-  .simple-card {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    transition: box-shadow 0.2s ease;
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
   }
 
-  .simple-card:hover {
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  }
+
+  @keyframes fade-in-up {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse-scale {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-right 0.6s ease-out;
+  }
+
+  .animate-pulse-scale {
+    animation: pulse-scale 2s ease-in-out infinite;
   }
 
   .loading-skeleton {
@@ -595,7 +643,7 @@ const Orders = () => {
   return (
     <>
       <style>{optimizedOrderStyles}</style>
-      <div className="min-h-screen bg-gray-50 space-y-6 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 space-y-8 p-6">
       {/* Error Message */}
       {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
@@ -611,171 +659,242 @@ const Orders = () => {
         </div>
       )}
 
-        {/* Header */}
-        <div className="py-4">
-          <div className="flex justify-between items-center mb-4">
-            <div></div>
-            <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                {/* Enhanced Header */}
+        <div className="glassmorphism rounded-3xl p-4 card-hover animate-fade-in-up">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-3">
                 Order Management
               </h1>
-              <p className="text-gray-600">
-                Track and manage all rental orders
+              <p className="text-gray-600 text-md">
+                Track and manage all rental orders with real-time insights
               </p>
-            </div>
-            <button
-              onClick={() => {
-                console.log('🔄 Force refreshing orders data...');
-                fetchOrdersData();
-              }}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
-            >
-              <span>🔄</span>
-              Refresh
-            </button>
-          </div>
-        </div>
-
-      {/* Order Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="simple-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-blue-500 rounded-lg">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-            </div>
-              <span className="text-blue-500 text-xs font-medium bg-blue-50 px-2 py-1 rounded">
-                Total
-              </span>
-            </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500 mb-1">Total Orders</p>
-              <div className="text-2xl font-bold text-gray-900">
-                {loading ? (
-                  <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
-                ) : (
-                  orderStats.total
-                )}
-          </div>
-              <p className="text-xs text-gray-400 mt-1">All time orders</p>
-        </div>
-            </div>
-
-          <div className="simple-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-green-500 rounded-lg">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-            </div>
-              <span className="text-green-500 text-xs font-medium bg-green-50 px-2 py-1 rounded">
-                Confirmed
-              </span>
-          </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500 mb-1">Confirmed</p>
-              <div className="text-2xl font-bold text-gray-900">
-                {loading ? (
-                  <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
-                ) : (
-                  orderStats.confirmed
-                )}
-        </div>
-              <p className="text-xs text-gray-400 mt-1">Successfully processed</p>
-            </div>
-            </div>
-
-          <div className="simple-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-yellow-500 rounded-lg">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-          </div>
-              <span className="text-yellow-600 text-xs font-medium bg-yellow-50 px-2 py-1 rounded">
-                Pending
-              </span>
-        </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500 mb-1">Pending</p>
-              <div className="text-2xl font-bold text-gray-900">
-                {loading ? (
-                  <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
-                ) : (
-                  orderStats.pending
-                )}
-            </div>
-              <p className="text-xs text-gray-400 mt-1">Awaiting approval</p>
-            </div>
-          </div>
-
-          <div className="simple-card p-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 bg-red-500 rounded-lg">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <div className="flex items-center gap-4 mt-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                  <span className="text-sm text-gray-600">Total Orders: {orderStats.total}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-600"></div>
+                  <span className="text-sm text-gray-600">Active: {orderStats.confirmed}</span>
+                </div>
               </div>
-              <span className="text-red-500 text-xs font-medium bg-red-50 px-2 py-1 rounded">
-                Cancelled
-              </span>
             </div>
-            <div>
-              <p className="text-sm font-medium text-gray-500 mb-1">Cancelled</p>
-              <div className="text-2xl font-bold text-gray-900">
-                {loading ? (
-                  <div className="w-12 h-6 bg-gray-200 rounded loading-skeleton"></div>
-                ) : (
-                  orderStats.cancelled
-                )}
-              </div>
-              <p className="text-xs text-gray-400 mt-1">Cancelled orders</p>
-            </div>
-        </div>
-      </div>
-
-        {/* Orders Section */}
-        <div className="simple-card p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 mb-1">Recent Orders</h2>
-              <p className="text-gray-600 text-sm">Track and manage rental orders</p>
-        </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  console.log('🔄 Force refreshing orders data...');
+                  fetchOrdersData();
+                }}
+                className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center gap-2"
+              >
+                <span>🔄</span>
+                Refresh
+              </button>
               <button 
                 onClick={handleExportOrders}
-                className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm"
+                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-semibold hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center gap-2"
               >
+                <span>📊</span>
                 Export
               </button>
               <button 
                 onClick={() => setShowNewOrderModal(true)}
-                className="px-3 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition-colors text-sm"
+                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl font-semibold hover:from-purple-600 hover:to-purple-700 transition-all duration-300 shadow-lg transform hover:scale-105 flex items-center gap-2"
               >
+                <span>➕</span>
                 New Order
               </button>
             </div>
           </div>
+      </div>
+
+            {/* Enhanced Order Stats - Medium Size */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-blue-400 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-white rounded-2xl p-4 h-full shadow-lg border border-blue-100/50 hover:shadow-xl transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+              <div className="flex items-start justify-between mb-3">
+                <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300 animate-pulse-scale">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+            </div>
+                <div className="flex flex-col items-end">
+                  <div className="text-blue-600 text-xs font-bold bg-blue-50 px-2 py-1 rounded-full border border-blue-200">
+                    📋 Total
+            </div>
+                  <span className="text-xs text-gray-400 mt-1">all time</span>
+          </div>
+        </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Total Orders</p>
+                <p className="text-2xl font-bold text-gray-900 mb-1">
+                  {loading ? (
+                    <div className="w-16 h-6 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    orderStats.total
+                  )}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <p className="text-xs text-gray-500 font-medium">All time orders</p>
+            </div>
+            </div>
+          </div>
+        </div>
+
+                              <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-600 to-emerald-400 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-white rounded-2xl p-4 h-full shadow-lg border border-emerald-100/50 hover:shadow-xl transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+              <div className="flex items-start justify-between mb-3">
+                <div className="p-3 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300 animate-pulse-scale">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+            </div>
+                <div className="flex flex-col items-end">
+                  <div className="text-emerald-600 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-full border border-emerald-200">
+                    ✅ Active
+            </div>
+                  <span className="text-xs text-gray-400 mt-1">confirmed</span>
+          </div>
+        </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Confirmed Orders</p>
+                <p className="text-2xl font-bold text-gray-900 mb-1">
+                  {loading ? (
+                    <div className="w-16 h-6 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    orderStats.confirmed
+                  )}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+                  <p className="text-xs text-gray-500 font-medium">Successfully processed</p>
+            </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-white rounded-2xl p-4 h-full shadow-lg border border-yellow-100/50 hover:shadow-xl transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+              <div className="flex items-start justify-between mb-3">
+                <div className="p-3 bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300 animate-pulse-scale">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex flex-col items-end">
+                  <div className="text-yellow-600 text-xs font-bold bg-yellow-50 px-2 py-1 rounded-full border border-yellow-200">
+                    ⏳ Pending
+                  </div>
+                  <span className="text-xs text-gray-400 mt-1">waiting</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Pending Orders</p>
+                <p className="text-2xl font-bold text-gray-900 mb-1">
+                  {loading ? (
+                    <div className="w-16 h-6 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    orderStats.pending
+                  )}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                  <p className="text-xs text-gray-500 font-medium">Awaiting approval</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+          <div className="relative group">
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-red-600 to-red-400 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+            <div className="relative bg-white rounded-2xl p-4 h-full shadow-lg border border-red-100/50 hover:shadow-xl transition-all duration-300 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+              <div className="flex items-start justify-between mb-3">
+                <div className="p-3 bg-gradient-to-br from-red-500 to-red-600 rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300 animate-pulse-scale">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+        </div>
+                <div className="flex flex-col items-end">
+                  <div className="text-red-600 text-xs font-bold bg-red-50 px-2 py-1 rounded-full border border-red-200">
+                    ❌ Cancelled
+                  </div>
+                  <span className="text-xs text-gray-400 mt-1">declined</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">Cancelled Orders</p>
+                <p className="text-2xl font-bold text-gray-900 mb-1">
+        {loading ? (
+                    <div className="w-16 h-6 bg-gray-200 rounded animate-pulse"></div>
+                  ) : (
+                    orderStats.cancelled
+                  )}
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse"></div>
+                  <p className="text-xs text-gray-500 font-medium">Cancelled orders</p>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+
+        {/* Enhanced Orders Section */}
+        <div className="glassmorphism rounded-3xl p-8 card-hover animate-fade-in-up">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-4">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">Recent Orders</h2>
+              <p className="text-gray-600 text-lg">Track and manage all rental orders with advanced filtering</p>
+              {!loading && (
+                <div className="flex items-center gap-4 mt-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-r from-blue-500 to-purple-600"></div>
+                    <span className="text-sm text-gray-600">Showing {transformedOrders.length} orders</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-gradient-to-r from-emerald-500 to-teal-600"></div>
+                    <span className="text-sm text-gray-600">Real-time updates</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
         {loading ? (
-            <div className="h-32 flex items-center justify-center">
+            <div className="h-96 flex items-center justify-center">
               <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-3 border-blue-600 border-t-transparent mx-auto mb-3"></div>
-                <p className="text-gray-600">Loading orders...</p>
+                <div className="relative">
+                  <div className="animate-spin rounded-full h-16 w-16 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+                  <div className="absolute inset-0 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1s' }}></div>
+                </div>
+                <p className="text-gray-600 font-medium text-lg">Loading orders...</p>
+                <p className="text-sm text-gray-400 mt-1">Fetching latest data from database</p>
               </div>
           </div>
         ) : transformedOrders.length === 0 ? (
-            <div className="text-center py-8">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+            <div className="text-center py-16">
+              <div className="relative">
+                <div className="w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div className="absolute -top-2 -right-2 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs">📋</span>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Orders Yet</h3>
-              <p className="text-gray-600 mb-4">Orders will appear here once customers place them.</p>
-              <button className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors">
-                Create Order
+              <h3 className="text-2xl font-bold text-gray-900 mb-3">No Orders Yet</h3>
+              <p className="text-gray-600 mb-6 max-w-md mx-auto">Orders will appear here once customers place them. Start by creating your first order or wait for customer bookings.</p>
+              <button 
+                onClick={() => setShowNewOrderModal(true)}
+                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl font-semibold hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg transform hover:scale-105"
+              >
+                ✨ Create First Order
               </button>
           </div>
         ) : (
@@ -850,13 +969,7 @@ const Orders = () => {
                         >
                           {viewingInvoice ? 'Opening...' : '👁️ View Invoice'}
                       </button>
-                      <button 
-                        onClick={() => handleGenerateInvoice(order)}
-                        disabled={generatingInvoice}
-                          className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg hover:from-emerald-600 hover:to-emerald-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-md text-sm disabled:opacity-50 disabled:transform-none"
-                      >
-                          {generatingInvoice ? 'Generating...' : '📄 Generate'}
-                      </button>
+                
                       <button 
                         onClick={() => handleEditOrder(order)}
                           className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg hover:from-gray-600 hover:to-gray-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-md text-sm"
