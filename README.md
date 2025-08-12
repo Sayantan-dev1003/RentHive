@@ -2,6 +2,8 @@
 
 A full-stack rental management system built with Node.js, Express, MongoDB, and React. This system provides complete functionality for managing rental products, orders, payments, customers, and business analytics.
 
+Video Link: https://drive.google.com/file/d/1SkB8cVuUhsmBBx0zHqMUO63cDL-z0dX2/view?usp=sharing
+
 ## 🏗️ Architecture
 
 ```
