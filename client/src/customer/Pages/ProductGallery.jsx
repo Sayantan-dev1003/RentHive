@@ -5,52 +5,61 @@ import { useAuth } from '../../context/AuthContext';
 import { useWishlist } from '../../context/WishlistContext';
 import apiService from '../../services/api';
 
-// Beautiful Admin-Style Dashboard Design for Product Gallery
-const adminDashboardStyles = `
-  @keyframes slideInUp {
-    0% {
-      opacity: 0;
-      transform: translateY(30px);
-    }
-    100% {
+// Modern Orders-Style Design for Product Gallery
+const modernGalleryStyles = `
+  .glassmorphism {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  }
+
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .fade-in-up {
+    opacity: 0;
+    transform: translateY(30px);
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+
+  .slide-in-right {
+    opacity: 0;
+    transform: translateX(30px);
+    animation: slideInRight 0.6s ease-out forwards;
+  }
+
+  .pulse-scale {
+    animation: pulseScale 2s ease-in-out infinite;
+  }
+
+  @keyframes fadeInUp {
+    to {
       opacity: 1;
       transform: translateY(0);
     }
   }
 
-  @keyframes bounceIn {
-    0% {
-      opacity: 0;
-      transform: scale(0.3) translateY(30px);
-    }
-    50% {
+  @keyframes slideInRight {
+    to {
       opacity: 1;
-      transform: scale(1.05) translateY(-10px);
-    }
-    70% {
-      transform: scale(0.9) translateY(0);
-    }
-    100% {
-      opacity: 1;
-      transform: scale(1) translateY(0);
+      transform: translateX(0);
     }
   }
 
-  @keyframes float3D {
+  @keyframes pulseScale {
     0%, 100% {
-      transform: translateY(0px) rotateX(0deg);
+      transform: scale(1);
     }
     50% {
-      transform: translateY(-15px) rotateX(3deg);
-    }
-  }
-
-  @keyframes glow {
-    0%, 100% {
-      box-shadow: 0 0 20px rgba(59, 130, 246, 0.3), 0 0 40px rgba(59, 130, 246, 0.1);
-    }
-    50% {
-      box-shadow: 0 0 30px rgba(59, 130, 246, 0.6), 0 0 60px rgba(59, 130, 246, 0.3);
+      transform: scale(1.05);
     }
   }
 
@@ -63,39 +72,10 @@ const adminDashboardStyles = `
     }
   }
 
-  @keyframes pulseGlow {
-    0%, 100% {
-      box-shadow: 0 0 5px rgba(139, 92, 246, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(139, 92, 246, 0.8), 0 0 30px rgba(139, 92, 246, 0.4);
-    }
-  }
-
-  .animate-slide-in-up {
-    animation: slideInUp 0.8s ease-out forwards;
-  }
-
-  .animate-bounce-in {
-    animation: bounceIn 0.6s ease-out forwards;
-  }
-
-  .animate-float-3d {
-    animation: float3D 4s ease-in-out infinite;
-  }
-
-  .animate-glow {
-    animation: glow 2s ease-in-out infinite;
-  }
-
   .animate-shimmer {
     animation: shimmer 2s infinite;
     background: linear-gradient(90deg, transparent 25%, rgba(255,255,255,0.3) 50%, transparent 75%);
     background-size: 200px 100%;
-  }
-
-  .animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
   }
 
   .simple-card {
@@ -413,130 +393,132 @@ const ProductGallery = () => {
 
   return (
     <>
-      <style>{adminDashboardStyles}</style>
-      <div className="min-h-screen bg-gray-50 space-y-6 p-6">
-        {/* Header - Admin Dashboard Style */}
-        <div className="text-center py-6 animate-slide-in-up">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Equipment Gallery
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Premium construction equipment rental with real-time availability
-          </p>
+      <style>{modernGalleryStyles}</style>
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 space-y-8 p-1">
+        {/* Enhanced Header */}
+        <div>
           
-          {/* Beautiful Search Bar */}
-          <div className="max-w-xl mx-auto mt-8">
+          {/* Enhanced Search Bar */}
+          <div className="max-w-2xl mx-auto ">
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
                 <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
               <input
                 type="text"
-                placeholder="Search equipment, brands, or categories..."
+                placeholder="🔍 Search equipment, brands, or categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-gray-900 placeholder-gray-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-300 text-lg shadow-sm"
+                className="w-full pl-14 pr-6 py-4 border border-gray-200/50 rounded-2xl text-gray-900 placeholder-gray-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 text-lg bg-white/70 backdrop-blur-sm hover:bg-white/90 shadow-lg"
         />
       </div>
           </div>
         </div>
 
-        {/* Error Message */}
+        {/* Enhanced Error Message */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-6 py-4 rounded-xl">
+          <div className="glassmorphism border border-red-200/50 text-red-700 px-6 py-4 rounded-2xl fade-in-up">
             <div className="flex items-center gap-3">
-              <svg className="w-6 h-6 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <div className="w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-xs">!</span>
+              </div>
               <div>
                 <h3 className="font-semibold">Error Loading Products</h3>
                 <p className="text-sm">{error}</p>
               </div>
               <button 
                 onClick={fetchProducts}
-                className="ml-auto px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                className="ml-auto px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 text-sm font-medium shadow-lg"
               >
-                Retry
+                🔄 Retry
               </button>
             </div>
           </div>
         )}
 
-        {/* Dashboard Stats - Admin Style */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 animate-bounce-in">
+        {/* Enhanced Stats Cards - Medium Size */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {dashboardStats.map((stat, index) => (
-            <div key={index} className="dashboard-stat-card" style={{ animationDelay: `${index * 100}ms` }}>
-              <div className="flex items-center justify-between mb-4">
-                <div className={`p-3 ${stat.color} rounded-xl`}>
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={stat.icon} />
-                  </svg>
+            <div key={index} className="relative group">
+              <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-purple-400 rounded-2xl blur opacity-20 group-hover:opacity-30 transition duration-1000 group-hover:duration-200"></div>
+              <div className="relative bg-white rounded-2xl p-4 h-full shadow-lg border border-gray-100/50 hover:shadow-xl transition-all duration-300 fade-in-up" style={{ animationDelay: `${index * 0.1}s` }}>
+                <div className="flex items-start justify-between mb-3">
+                  <div className={`p-3 ${stat.color} rounded-xl shadow-lg group-hover:shadow-xl transition-shadow duration-300 pulse-scale`}>
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={stat.icon} />
+                    </svg>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className={`${stat.textColor} text-xs font-bold ${stat.bgColor} px-2 py-1 rounded-full border`}>
+                      {stat.label}
+                    </div>
+                  </div>
                 </div>
-                <span className={`${stat.textColor} text-sm font-medium ${stat.bgColor} px-3 py-1 rounded-full`}>
-                  {stat.label}
-                </span>
-              </div>
-              <div>
-                <p className="text-sm font-medium text-gray-500 mb-2">{stat.title}</p>
-                <p className="text-3xl font-bold text-gray-900">
-                  {isLoading ? (
-                    <div className="w-16 h-8 bg-gray-200 rounded loading-skeleton"></div>
-                  ) : (
-                    stat.value
-                  )}
-                </p>
-                <p className="text-sm text-gray-400 mt-1">Equipment inventory</p>
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 mb-1 uppercase tracking-wide">{stat.title}</p>
+                  <p className="text-2xl font-bold text-gray-900 mb-1">
+                    {isLoading ? (
+                      <div className="w-16 h-6 bg-gray-200 rounded animate-pulse"></div>
+                    ) : (
+                      stat.value
+                    )}
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                    <p className="text-xs text-gray-500 font-medium">Equipment inventory</p>
+                  </div>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Controls Section - Admin Style */}
-        <div className="simple-card p-6">
-          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        {/* Enhanced Controls Section */}
+        <div className="glassmorphism rounded-3xl p-6 card-hover fade-in-up">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
             {/* Category Filter */}
             <div className="flex items-center gap-4">
-              <span className="text-sm font-medium text-gray-700">Category:</span>
+              <span className="text-sm font-bold text-gray-700">📂 Category:</span>
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-4 py-2 border border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all duration-200"
+                className="px-4 py-3 border border-gray-200/50 rounded-xl focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 bg-white/70 backdrop-blur-sm hover:bg-white/90 font-medium shadow-lg"
               >
-                <option value="All">All Categories</option>
-                <option value="Heavy Machinery">Heavy Machinery</option>
-                <option value="Lifting Equipment">Lifting Equipment</option>
-                <option value="Construction">Construction</option>
-                <option value="Earthmoving">Earthmoving</option>
-                <option value="High-Rise Construction">High-Rise Construction</option>
+                <option value="All">🏗️ All Categories</option>
+                <option value="Heavy Machinery">⚙️ Heavy Machinery</option>
+                <option value="Lifting Equipment">🏗️ Lifting Equipment</option>
+                <option value="Construction">🔨 Construction</option>
+                <option value="Earthmoving">🚜 Earthmoving</option>
+                <option value="High-Rise Construction">🏢 High-Rise Construction</option>
               </select>
       </div>
 
-            {/* View Toggle */}
-            <div className="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
+            {/* Enhanced View Toggle */}
+            <div className="flex bg-white/50 backdrop-blur-sm rounded-xl p-1 border border-gray-200/50">
               <button
                 onClick={() => setViewMode("Card")}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
                   viewMode === "Card"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-white/70"
                 }`}
               >
-                <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>
                 Cards
               </button>
           <button
                 onClick={() => setViewMode("List")}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
                   viewMode === "List"
-                    ? "bg-white text-blue-600 shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
+                    ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-lg transform scale-105"
+                    : "text-gray-600 hover:text-gray-900 hover:bg-white/70"
                 }`}
               >
-                <svg className="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                 </svg>
                 List
@@ -545,38 +527,59 @@ const ProductGallery = () => {
           </div>
         </div>
 
-        {/* Products Section - Admin Dashboard Style */}
-        <div className="simple-card p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Equipment Gallery</h2>
-            <div className="text-sm text-gray-500">
-              {filteredProducts.length} equipment available
+        {/* Enhanced Products Section */}
+        <div className="glassmorphism rounded-3xl p-8 card-hover fade-in-up">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-4">
+            <div className="flex-1">
+              <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
+                🏗️ Equipment Gallery
+              </h2>
+              <p className="text-gray-600">Browse our premium construction equipment collection</p>
+              <div className="flex items-center gap-6 mt-4 text-sm text-gray-500">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <span>{filteredProducts.length} equipment available</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <span>Real-time availability</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-lg flex items-center gap-2">
+                <span>🔍</span> Filter
+              </button>
+              <button className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-lg flex items-center gap-2">
+                <span>📊</span> Sort
+              </button>
             </div>
           </div>
 
           {isLoading ? (
-            /* Loading State */
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="simple-card p-4">
-                  <div className="w-full h-48 bg-gray-200 rounded-lg loading-skeleton mb-4"></div>
-                  <div className="w-3/4 h-4 bg-gray-200 rounded loading-skeleton mb-2"></div>
-                  <div className="w-1/2 h-4 bg-gray-200 rounded loading-skeleton"></div>
+            /* Enhanced Loading State */
+            <div className="h-48 flex items-center justify-center">
+              <div className="text-center">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <div className="animate-spin rounded-full h-8 w-8 border-3 border-blue-600 border-t-transparent"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 border-3 border-purple-500 border-t-transparent" style={{ animationDelay: '0.1s' }}></div>
                 </div>
-              ))}
+                <p className="text-xl font-medium text-gray-700 mb-2">Loading Equipment...</p>
+                <p className="text-gray-500">Fetching premium construction equipment</p>
+              </div>
             </div>
           ) : viewMode === "Card" ? (
-            /* Card View - Admin Style */
+            /* Enhanced Card View */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product, index) => {
                 const statusConfig = getStatusConfig(product.status);
                 return (
                   <div
                     key={product.id}
-                    className={`simple-card overflow-hidden cursor-pointer group ${
-                      animateCards ? 'animate-slide-in-up' : 'opacity-0'
-                    } ${product.stock <= 0 ? 'opacity-75 grayscale' : ''}`}
-                    style={{ animationDelay: `${index * 100}ms` }}
+                    className={`relative group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 card-hover cursor-pointer ${
+                      animateCards ? 'fade-in-up' : 'opacity-0'
+                    } ${product.stock <= 0 ? 'opacity-75 grayscale' : ''} border border-gray-100`}
+                    style={{ animationDelay: `${index * 0.1}s` }}
                     onClick={() => product.stock > 0 && handleProductClick(product)}
                   >
                     {/* Image Section */}
@@ -591,122 +594,116 @@ const ProductGallery = () => {
                         }}
                       />
                       
-                                             {/* Status Badge */}
-                       <div className="absolute top-3 left-3">
-                         <div className={`flex items-center gap-2 ${
-                           product.stock <= 0 
-                             ? 'bg-red-500/90 text-white' 
-                             : product.stock <= 5 
-                               ? 'bg-orange-500/90 text-white'
-                               : statusConfig.bgColor
-                         } backdrop-blur-sm px-3 py-1 rounded-full`}>
-                           <div className={`w-2 h-2 ${
-                             product.stock <= 0 
-                               ? 'bg-white' 
-                               : product.stock <= 5 
-                                 ? 'bg-white'
-                                 : statusConfig.dotColor
-                           } rounded-full`}></div>
-                           <span className={`${
-                             product.stock <= 0 || product.stock <= 5 
-                               ? 'text-white' 
-                               : statusConfig.textColor
-                           } text-xs font-medium`}>
-                             {product.stock <= 0 
-                               ? 'Out of Stock' 
-                               : product.stock <= 5 
-                                 ? `Only ${product.stock} left`
-                                 : statusConfig.label
-                             }
-                           </span>
-                         </div>
-                       </div>
- 
-                       {/* Highlight Badge */}
-                       <div className="absolute top-3 right-3">
-                         <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs font-medium">
-                           {product.highlight}
-                         </span>
-                       </div>
- 
-                       {/* Wishlist Heart Button */}
-                       <div className="absolute top-12 left-3">
-                         <button
-                           onClick={(e) => handleWishlistToggle(product, e)}
-                           className={`p-2 rounded-full backdrop-blur-sm transition-all duration-200 shadow-lg ${
-                             isInWishlist(product.id)
-                               ? 'bg-red-500 text-white hover:bg-red-600'
-                               : 'bg-white/90 text-gray-600 hover:bg-white hover:text-red-500'
-                           }`}
-                         >
-                           <svg className="w-4 h-4" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
-                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                           </svg>
-                         </button>
-                       </div>
+                      {/* Enhanced Status Badge */}
+                      <div className="absolute top-3 right-3">
+                        <span className={`px-3 py-1 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm ${
+                          product.stock <= 0 
+                            ? 'bg-red-500/90 text-white' 
+                            : product.stock <= 5 
+                              ? 'bg-orange-500/90 text-white'
+                              : 'bg-green-500/90 text-white'
+                        }`}>
+                          {product.stock <= 0 
+                            ? '❌ Out of Stock' 
+                            : product.stock <= 5 
+                              ? `⚠️ ${product.stock} left`
+                              : '✅ Available'
+                          }
+                        </span>
+                      </div>
+
+                      {/* Highlight Badge */}
+                      <div className="absolute top-3 left-3">
+                        <span className="bg-blue-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                          ⭐ {product.highlight}
+                        </span>
+                      </div>
+
+                      {/* Enhanced Wishlist Button */}
+                      <div className="absolute bottom-3 left-3">
+                        <button
+                          onClick={(e) => handleWishlistToggle(product, e)}
+                          className={`p-3 rounded-full backdrop-blur-sm transition-all duration-300 shadow-lg transform hover:scale-110 ${
+                            isInWishlist(product.id)
+                              ? 'bg-red-500 text-white hover:bg-red-600'
+                              : 'bg-white/90 text-gray-600 hover:bg-white hover:text-red-500'
+                          }`}
+                        >
+                          <svg className="w-5 h-5" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                          </svg>
+                        </button>
+                      </div>
 
                       {/* Performance Badge */}
-                      <div className="absolute bottom-3 left-3">
-                        <span className="bg-white/90 backdrop-blur-sm text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
-                          {product.performance} Performance
+                      <div className="absolute bottom-3 right-3">
+                        <span className="bg-black/80 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
+                          📊 {product.performance}
                         </span>
                       </div>
                     </div>
 
-                    {/* Content Section */}
-                    <div className="p-4">
-                      {/* Category */}
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
-                          {product.category}
+                    {/* Enhanced Content Section */}
+                    <div className="p-5">
+                      {/* Category and Rating */}
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
+                          📂 {product.category}
                         </span>
-                        <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-1 bg-yellow-50 px-2 py-1 rounded-full border border-yellow-200">
                           <span className="text-yellow-500 text-sm">⭐</span>
-                          <span className="text-sm text-gray-600 font-medium">{product.rating}</span>
+                          <span className="text-sm text-gray-700 font-bold">{product.rating}</span>
                         </div>
                       </div>
 
                       {/* Equipment Name */}
-                      <h3 className="font-bold text-gray-900 mb-2 text-lg leading-tight group-hover:text-blue-600 transition-colors duration-300">
+                      <h3 className="font-bold text-gray-900 mb-2 text-xl leading-tight group-hover:text-blue-600 transition-colors duration-300">
                         {product.name}
                       </h3>
 
                       {/* Brand */}
-                      <p className="text-sm text-gray-600 mb-3">{product.brand}</p>
+                      <div className="flex items-center gap-2 mb-4">
+                        <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium">🏢 {product.brand}</span>
+                      </div>
 
-                      {/* Pricing */}
-                      <div className="flex items-baseline gap-2 mb-3">
-                        <span className="text-2xl font-bold text-green-600">
-                          {product.price}
-              </span>
-                        <span className="text-sm text-gray-500 line-through">{product.originalPrice}</span>
-                        <span className="text-sm text-gray-600 ml-auto bg-gray-100 px-2 py-1 rounded-full">{product.period}</span>
+                      {/* Enhanced Pricing */}
+                      <div className="bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-xl p-4 mb-4 border border-gray-100">
+                        <div className="flex items-baseline justify-between">
+                          <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mb-1">Daily Rate</p>
+                            <span className="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-700 bg-clip-text text-transparent">
+                              {product.price}
+                            </span>
+                            <span className="text-sm text-gray-500 line-through ml-2">{product.originalPrice}</span>
+                          </div>
+                          <span className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-bold">{product.period}</span>
+                        </div>
                       </div>
 
                       {/* Location */}
-                      <div className="flex items-center gap-2 mb-4 text-sm text-gray-600">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <div className="flex items-center gap-2 mb-4 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
+                        <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                        <span>{product.location}</span>
+                        <span className="font-medium">{product.location}</span>
                       </div>
 
-                      {/* Action Buttons */}
-                      <div className="flex gap-2">
+                      {/* Enhanced Action Buttons */}
+                      <div className="flex gap-3">
                         {product.stock <= 0 ? (
                           <button
                             disabled
-                            className="flex-1 bg-gray-400 text-white py-2 px-3 rounded-lg cursor-not-allowed text-sm font-medium"
+                            className="flex-1 bg-gray-400 text-white py-3 px-4 rounded-xl cursor-not-allowed text-sm font-bold"
                           >
-                            Out of Stock
+                            ❌ Out of Stock
                           </button>
                         ) : (
                           <button
-                            className="flex-1 bg-blue-600 text-white py-2 px-3 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                            className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-sm font-bold shadow-lg"
                             onClick={(e) => handleRentNow(product, e)}
                           >
-                            Rent Now
+                            🚀 Rent Now
                           </button>
                         )}
                         <button
@@ -717,15 +714,15 @@ const ProductGallery = () => {
                             }
                           }}
                           disabled={product.stock <= 0}
-                          className={`px-3 py-2 rounded-lg font-medium transition-all duration-300 text-sm ${
+                          className={`px-4 py-3 rounded-xl font-bold transition-all duration-300 text-sm transform hover:scale-105 shadow-lg ${
                             product.stock <= 0
                               ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                               : isInCart(product.id)
-                                ? 'bg-green-500 text-white'
-                                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                                : 'bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 hover:from-gray-200 hover:to-gray-300'
                           }`}
                         >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             {isInCart(product.id) ? (
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                             ) : (
