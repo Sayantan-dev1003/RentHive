@@ -12,6 +12,9 @@ RentHive/
 ```
 
 ## 🚀 Features
+### 🎨 Frontend Design (Figma)
+We designed the frontend prototype in Figma to visualize the UI/UX before development.
+You can explore the complete design here: https://www.figma.com/design/ltQnjW8Mz3gxDjIDoOeena/Odoo-hackathon-car-rental-system?node-id=2-68&t=zYEn2FJF0o2W2PAW-1
 
 ### Backend Features
 - **User Management**: Customer and admin roles with JWT authentication
