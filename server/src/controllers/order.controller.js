@@ -123,7 +123,7 @@ const createQuote = asyncHandler(async (req, res) => {
  * POST /api/orders
  */
 const confirmOrder = asyncHandler(async (req, res) => {
-  const { customerId, items, depositAmount = 0, notes, pricelistId } = req.body;
+  const { customerId, items, depositAmount = 0, notes, pricelistId, billingDetails } = req.body;
 
   // Validate required fields
   if (!customerId || !items || !Array.isArray(items) || items.length === 0) {
@@ -201,7 +201,8 @@ const confirmOrder = asyncHandler(async (req, res) => {
     depositAmount: parseFloat(depositAmount),
     totalAmount: pricingResult.summary.total,
     notes: notes ? notes.trim() : '',
-    createdBy: req.user._id
+    createdBy: req.user._id,
+    billingDetails: billingDetails || null
   });
 
   // Determine payment status

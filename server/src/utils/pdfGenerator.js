@@ -32,7 +32,7 @@ const generateInvoicePDF = async (order, invoice) => {
     
     // Add company and customer details
     addCompanyDetails(doc, invoice);
-    addCustomerDetails(doc, order.customerId, invoice);
+    addCustomerDetails(doc, order.customerId, invoice, order);
     
     // Add invoice details
     addInvoiceDetails(doc, invoice, order);
@@ -116,25 +116,32 @@ const addCompanyDetails = (doc, invoice) => {
 /**
  * Add customer details
  */
-const addCustomerDetails = (doc, customer, invoice) => {
-  const billingAddress = invoice.billingAddress || {
-    name: customer.name,
-    email: customer.email,
-    phone: customer.phone
-  };
+const addCustomerDetails = (doc, customer, invoice, order) => {
+  // Use billing details from order first, then customer data as fallback
+  const billingInfo = order?.billingDetails || {};
+  const customerInfo = customer || {};
+  
+  const name = billingInfo.fullName || customerInfo.name || 'N/A';
+  const email = billingInfo.email || customerInfo.email || 'N/A';
+  const phone = billingInfo.phone || customerInfo.phone || 'N/A';
+  const address = billingInfo.address || 'N/A';
+  const city = billingInfo.city || 'N/A';
 
   doc.fontSize(12)
      .font('Helvetica-Bold')
      .text('Bill To:', 300, 150)
      .fontSize(10)
      .font('Helvetica')
-     .text(billingAddress.name, 300, 170)
-     .text(billingAddress.email, 300, 185)
-     .text(billingAddress.phone, 300, 200);
+     .text(name, 300, 170)
+     .text(email, 300, 185)
+     .text(phone, 300, 200);
 
-  if (billingAddress.address) {
-    doc.text(billingAddress.address.street, 300, 220)
-       .text(`${billingAddress.address.city}, ${billingAddress.address.state} ${billingAddress.address.zipCode}`, 300, 235);
+  // Add address if available
+  if (address !== 'N/A') {
+    doc.text(`Address: ${address}`, 300, 220);
+  }
+  if (city !== 'N/A') {
+    doc.text(`City: ${city}`, 300, 235);
   }
 };
 

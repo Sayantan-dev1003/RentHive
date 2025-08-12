@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
 // Helper function to create order in database for single product
-const createOrderInDatabase = async (product, orderDetails) => {
+const createOrderInDatabase = async (product, orderDetails, billingDetails) => {
   try {
     const customerId = localStorage.getItem('userId') || '6899d8609040f3cd865a896b'; // Fallback for testing
     
@@ -23,7 +23,14 @@ const createOrderInDatabase = async (product, orderDetails) => {
       }],
       depositAmount: orderDetails.finalAmount, // Full payment as deposit
       notes: `Single product rental - ${product.name}`,
-      pricelistId: null // Optional pricelist
+      pricelistId: null, // Optional pricelist
+      billingDetails: {
+        fullName: billingDetails.fullName,
+        email: billingDetails.email,
+        phone: billingDetails.phone,
+        address: billingDetails.address,
+        city: billingDetails.city
+      }
     };
 
     console.log('📅 Order dates:', { startDate, endDate, days });
@@ -72,7 +79,7 @@ const createOrderInDatabase = async (product, orderDetails) => {
 };
 
 // Helper function to create order for multiple items
-const createOrderForMultipleItems = async (cartItems, orderDetails) => {
+const createOrderForMultipleItems = async (cartItems, orderDetails, billingDetails) => {
   try {
     const customerId = localStorage.getItem('userId') || '6899d8609040f3cd865a896b'; // Fallback for testing
     
@@ -91,7 +98,14 @@ const createOrderForMultipleItems = async (cartItems, orderDetails) => {
       })),
       depositAmount: orderDetails.finalAmount, // Full payment as deposit
       notes: `Cart checkout - ${cartItems.length} items`,
-      pricelistId: null // Optional pricelist
+      pricelistId: null, // Optional pricelist
+      billingDetails: {
+        fullName: billingDetails.fullName,
+        email: billingDetails.email,
+        phone: billingDetails.phone,
+        address: billingDetails.address,
+        city: billingDetails.city
+      }
     };
 
     console.log('📅 Multi-item order dates:', { startDate, endDate });
@@ -397,7 +411,7 @@ const Checkout = () => {
 
         // Create order in database BEFORE updating stock to avoid availability conflicts
         try {
-          await createOrderInDatabase(product, orderDetails);
+          await createOrderInDatabase(product, orderDetails, billingDetails);
           console.log('✅ Order creation completed');
         } catch (orderError) {
           console.error('❌ Order creation failed:', orderError.message);
@@ -425,7 +439,7 @@ const Checkout = () => {
       } else if (isMultipleItems) {
         // Create order for multiple items BEFORE updating stock
         try {
-          await createOrderForMultipleItems(cartItems, orderDetails);
+          await createOrderForMultipleItems(cartItems, orderDetails, billingDetails);
           console.log('✅ Multi-item order creation completed');
         } catch (orderError) {
           console.error('❌ Multi-item order creation failed:', orderError.message);

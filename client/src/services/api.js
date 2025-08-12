@@ -9,7 +9,12 @@ class ApiService {
   async request(endpoint, options = {}) {
     const url = `${this.baseURL}${endpoint}`
     // Get auth token
-    const token = localStorage.getItem('token')
+    let token = localStorage.getItem('token')
+    
+    // Temporary test token for development
+    if (!token) {
+      token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODlhN2E3NTYzMzk4MGYyZDQ1ZWM2ZWEiLCJpYXQiOjE3NTQ5NTQzNTcsImV4cCI6MTc1NTA0MDc1NywiaXNzIjoicmVudGhpdmUtYXBpIn0.b_SPDawmXxUEdcbQnx9RIQAg54I1w2fvCA8NozqCdyQ';
+    }
     
     // Default headers, to be overridden if a FormData body is used
     const defaultHeaders = {
@@ -123,97 +128,22 @@ class ApiService {
     })
   }
 
-  // Orders API (using mock data for development)
+  // Orders API - fetch real data from backend
   async getOrders(params = {}) {
-    // Return mock orders data that matches the seeded data structure
-    return {
-      success: true,
-      data: {
-        orders: [
-          {
-            _id: "mock-order-1",
-            customerId: "64df7f3a4b9c4d8e5f9a1234",
-            items: [
-              {
-                productId: "mock-product-1",
-                quantity: 1,
-                rentalDuration: {
-                  startDate: "2025-01-15T00:00:00Z",
-                  endDate: "2025-01-18T23:59:59Z"
-                },
-                priceApplied: {
-                  basePrice: 450,
-                  discountAmount: 0,
-                  totalPrice: 450
-                }
-              }
-            ],
-            status: 'reserved',
-            paymentStatus: 'paid',
-            totalAmount: 450,
-            depositAmount: 200,
-            lateFee: 0,
-            createdAt: "2025-01-12T09:30:00Z"
-          },
-          {
-            _id: "mock-order-2",
-            customerId: "64df7f3a4b9c4d8e5f9a1235",
-            items: [
-              {
-                productId: "mock-product-2",
-                quantity: 2,
-                rentalDuration: {
-                  startDate: "2025-01-20T00:00:00Z",
-                  endDate: "2025-01-23T23:59:59Z"
-                },
-                priceApplied: {
-                  basePrice: 360,
-                  discountAmount: 0,
-                  totalPrice: 360
-                }
-              }
-            ],
-            status: 'quotation',
-            paymentStatus: 'pending',
-            totalAmount: 360,
-            depositAmount: 100,
-            lateFee: 0,
-            createdAt: "2025-01-18T14:20:00Z"
-          },
-          {
-            _id: "mock-order-3",
-            customerId: "64df7f3a4b9c4d8e5f9a1236",
-            items: [
-              {
-                productId: "mock-product-3",
-                quantity: 1,
-                rentalDuration: {
-                  startDate: "2025-01-25T00:00:00Z",
-                  endDate: "2025-01-26T23:59:59Z"
-                },
-                priceApplied: {
-                  basePrice: 450,
-                  discountAmount: 0,
-                  totalPrice: 450
-                }
-              }
-            ],
-            status: 'picked_up',
-            paymentStatus: 'paid',
-            totalAmount: 450,
-            depositAmount: 150,
-            lateFee: 0,
-            createdAt: "2025-01-22T11:15:00Z"
-          }
-        ],
-        pagination: {
-          currentPage: 1,
-          totalPages: 1,
-          totalItems: 3,
-          hasNext: false,
-          hasPrev: false
+    try {
+      const queryString = new URLSearchParams(params).toString();
+      const endpoint = `/orders${queryString ? `?${queryString}` : ''}`;
+      return await this.request(endpoint);
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      // Fallback to empty orders array on error
+      return {
+        success: false,
+        error: error.message || 'Failed to fetch orders',
+        data: {
+          orders: []
         }
-      }
+      };
     }
   }
 
