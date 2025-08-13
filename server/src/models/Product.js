@@ -73,6 +73,11 @@ const productSchema = new mongoose.Schema({
       default: 1
     }
   }],
+  highlight:{
+  type:String,
+  enum: ['New', 'Popular', 'Discounted', 'Limited Edition', 'None'],
+  default: 'None'
+  },
   images: {
     type: [String], // The data type should be an array of strings
     default: [],

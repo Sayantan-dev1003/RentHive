@@ -1004,6 +1004,31 @@ const Products = () => {
                     </div>
 
                     <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Category *</label>
+                      <div className="relative">
+                        <select 
+                          value={editProduct.highlight}
+                          onChange={(e) => setEditProduct({...editProduct, category: e.target.value})}
+                          className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-4 focus:ring-purple-100 transition-all duration-300 bg-white/50 backdrop-blur-sm appearance-none"
+                          required
+                        >
+                          <option value="">Choose a highlight</option>
+                          <option value="New">New</option>
+                          <option value="Popular">Popular</option>
+                          <option value="Discounted">Discounted</option>
+                          <option value="Limited-Edition">Limited-Edition</option>
+                          <option value="None">None</option>
+                          
+                        </select>
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                          <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity *</label>
                       <div className="relative">
                         <input

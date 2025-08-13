@@ -150,11 +150,11 @@ const ProductGallery = () => {
     try {
       setIsLoading(true);
       setError(null);
-      
+
       const response = await apiService.getProducts();
-      
-      if (response.success && response.data.products) {
-        // Transform products to match the expected format
+      console.log('Backend Response:', response.data.products); // Debug log to inspect backend data
+
+      if (response.success && Array.isArray(response.data.products)) {
         const transformedProducts = response.data.products.map((product, index) => ({
           id: product._id,
           name: product.name,
@@ -168,29 +168,29 @@ const ProductGallery = () => {
           performanceType: product.stock > 5 ? "Excellent" : "Good",
           image: product.images?.[0] || `https://images.unsplash.com/photo-${1581092918056 + index}?w=400&h=300&fit=crop&crop=center`,
           bgGradient: [`from-blue-600 to-purple-600`, `from-indigo-600 to-blue-600`, `from-purple-600 to-indigo-600`, `from-orange-600 to-red-600`][index % 4],
-          highlight: index % 3 === 0 ? "Popular" : index % 3 === 1 ? "Premium" : "Eco-Friendly",
+          highlight: product.highlight || "Standard", // Use backend highlight with fallback
           rating: (4.0 + Math.random() * 1).toFixed(1),
           location: ["Mumbai, Maharashtra", "Delhi, NCR", "Pune, Maharashtra", "Bangalore, Karnataka"][index % 4],
           features: [
             "GPS Tracking",
-            "Fuel Efficient", 
+            "Fuel Efficient",
             "Expert Operator",
-            "24/7 Support"
+            "24/7 Support",
           ],
           description: product.description,
           stock: product.stock,
           currentAvailableStock: product.currentAvailableStock,
           isActive: product.isActive,
-          originalData: product
+          originalData: product,
         }));
-        
+
         setProducts(transformedProducts);
       } else {
         throw new Error(response.message || 'Failed to fetch products');
       }
     } catch (err) {
       console.error('Error fetching products:', err);
-      setError(err.message);
+      setError(err.message || 'Failed to fetch products');
     } finally {
       setIsLoading(false);
       setAnimateCards(true);
@@ -199,14 +199,13 @@ const ProductGallery = () => {
 
   useEffect(() => {
     fetchProducts();
-    
-    // Listen for focus events to refresh products when returning from checkout
+
     const handleWindowFocus = () => {
       fetchProducts();
     };
-    
+
     window.addEventListener('focus', handleWindowFocus);
-    
+
     return () => {
       window.removeEventListener('focus', handleWindowFocus);
     };
@@ -227,7 +226,7 @@ const ProductGallery = () => {
   // Handle wishlist toggle
   const handleWishlistToggle = async (product, event) => {
     event?.stopPropagation();
-    
+
     if (!user) {
       alert('Please log in to add items to wishlist');
       return;
@@ -236,13 +235,11 @@ const ProductGallery = () => {
     try {
       const result = await toggleWishlist(product);
       if (result.success) {
-        // Show success message
         const isAdding = !isInWishlist(product.id);
-        const message = isAdding ? 
-          `${product.name} added to wishlist! ❤️` : 
-          `${product.name} removed from wishlist`;
-        
-        // Create a simple toast notification
+        const message = isAdding
+          ? `${product.name} added to wishlist! ❤️`
+          : `${product.name} removed from wishlist`;
+
         showToast(message, isAdding ? 'success' : 'info');
       } else {
         showToast(result.message || 'Failed to update wishlist', 'error');
@@ -255,7 +252,6 @@ const ProductGallery = () => {
 
   // Simple toast notification function
   const showToast = (message, type = 'info') => {
-    // Create toast element
     const toast = document.createElement('div');
     toast.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white font-medium transition-all duration-300 transform translate-x-full ${
       type === 'success' ? 'bg-green-500' :
@@ -263,16 +259,13 @@ const ProductGallery = () => {
       'bg-blue-500'
     }`;
     toast.textContent = message;
-    
-    // Add to DOM
+
     document.body.appendChild(toast);
-    
-    // Animate in
+
     setTimeout(() => {
       toast.classList.remove('translate-x-full');
     }, 100);
-    
-    // Remove after 3 seconds
+
     setTimeout(() => {
       toast.classList.add('translate-x-full');
       setTimeout(() => {
@@ -286,7 +279,7 @@ const ProductGallery = () => {
   // Handle rent now - redirects to checkout page
   const handleRentNow = (product, event) => {
     event?.stopPropagation();
-    
+
     if (!user) {
       alert('Please log in to rent equipment');
       return;
@@ -297,23 +290,21 @@ const ProductGallery = () => {
       return;
     }
 
-    // Close modal if open
     if (showModal) {
       closeModal();
     }
 
-    // Redirect to checkout page with product data
-    navigate('/customer/checkout', { 
-      state: { 
-        product: product 
-      } 
+    navigate('/customer/checkout', {
+      state: {
+        product: product,
+      },
     });
   };
 
-  // Dashboard Statistics (Admin style) - Now using dynamic data
+  // Dashboard Statistics
   const getDashboardStats = () => {
     if (products.length === 0) return [];
-    
+
     return [
       {
         title: "Total Equipment",
@@ -322,7 +313,7 @@ const ProductGallery = () => {
         color: "bg-blue-500",
         bgColor: "bg-blue-50",
         textColor: "text-blue-600",
-        label: "Available"
+        label: "Available",
       },
       {
         title: "Available Now",
@@ -331,7 +322,7 @@ const ProductGallery = () => {
         color: "bg-green-500",
         bgColor: "bg-green-50",
         textColor: "text-green-600",
-        label: "Ready"
+        label: "Ready",
       },
       {
         title: "Currently Rented",
@@ -340,7 +331,7 @@ const ProductGallery = () => {
         color: "bg-orange-500",
         bgColor: "bg-orange-50",
         textColor: "text-orange-600",
-        label: "Active"
+        label: "Active",
       },
       {
         title: "Categories",
@@ -349,8 +340,8 @@ const ProductGallery = () => {
         color: "bg-purple-500",
         bgColor: "bg-purple-50",
         textColor: "text-purple-600",
-        label: "Types"
-      }
+        label: "Types",
+      },
     ];
   };
 
@@ -372,21 +363,21 @@ const ProductGallery = () => {
           bgColor: "bg-green-50/90",
           textColor: "text-green-700",
           dotColor: "bg-green-500",
-          label: "Available"
+          label: "Available",
         };
       case "Rented":
         return {
           bgColor: "bg-orange-50/90",
           textColor: "text-orange-700",
           dotColor: "bg-orange-500",
-          label: "In Use"
+          label: "In Use",
         };
       default:
         return {
           bgColor: "bg-slate-50/90",
           textColor: "text-slate-700",
           dotColor: "bg-slate-500",
-          label: status
+          label: status,
         };
     }
   };
@@ -395,25 +386,21 @@ const ProductGallery = () => {
     <>
       <style>{modernGalleryStyles}</style>
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/20 space-y-8 p-1">
-        {/* Enhanced Header */}
-        <div>
-          
-          {/* Enhanced Search Bar */}
-          <div className="max-w-2xl mx-auto ">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
-                <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="🔍 Search equipment, brands, or categories..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-14 pr-6 py-4 border border-gray-200/50 rounded-2xl text-gray-900 placeholder-gray-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 text-lg bg-white/70 backdrop-blur-sm hover:bg-white/90 shadow-lg"
-        />
-      </div>
+        {/* Enhanced Search Bar */}
+        <div className="max-w-2xl mx-auto">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+              <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="🔍 Search equipment, brands, or categories..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-14 pr-6 py-4 border border-gray-200/50 rounded-2xl text-gray-900 placeholder-gray-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/30 transition-all duration-300 text-lg bg-white/70 backdrop-blur-sm hover:bg-white/90 shadow-lg"
+            />
           </div>
         </div>
 
@@ -428,7 +415,7 @@ const ProductGallery = () => {
                 <h3 className="font-semibold">Error Loading Products</h3>
                 <p className="text-sm">{error}</p>
               </div>
-              <button 
+              <button
                 onClick={fetchProducts}
                 className="ml-auto px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 text-sm font-medium shadow-lg"
               >
@@ -438,7 +425,7 @@ const ProductGallery = () => {
           </div>
         )}
 
-        {/* Enhanced Stats Cards - Medium Size */}
+        {/* Enhanced Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {dashboardStats.map((stat, index) => (
             <div key={index} className="relative group">
@@ -467,7 +454,7 @@ const ProductGallery = () => {
                   </p>
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                    <p className="text-xs text-gray-500 font-medium">Equipment inventory</p>
+                    <p className="text-xs text-gray-500 font-medium">Products inventory</p>
                   </div>
                 </div>
               </div>
@@ -478,7 +465,6 @@ const ProductGallery = () => {
         {/* Enhanced Controls Section */}
         <div className="glassmorphism rounded-3xl p-6 card-hover fade-in-up">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-            {/* Category Filter */}
             <div className="flex items-center gap-4">
               <span className="text-sm font-bold text-gray-700">📂 Category:</span>
               <select
@@ -493,9 +479,8 @@ const ProductGallery = () => {
                 <option value="Earthmoving">🚜 Earthmoving</option>
                 <option value="High-Rise Construction">🏢 High-Rise Construction</option>
               </select>
-      </div>
+            </div>
 
-            {/* Enhanced View Toggle */}
             <div className="flex bg-white/50 backdrop-blur-sm rounded-xl p-1 border border-gray-200/50">
               <button
                 onClick={() => setViewMode("Card")}
@@ -510,7 +495,7 @@ const ProductGallery = () => {
                 </svg>
                 Cards
               </button>
-          <button
+              <button
                 onClick={() => setViewMode("List")}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 ${
                   viewMode === "List"
@@ -528,17 +513,17 @@ const ProductGallery = () => {
         </div>
 
         {/* Enhanced Products Section */}
-        <div className="glassmorphism rounded-3xl p-8 card-hover fade-in-up">
+        <div className="glassmorphism rounded-2xl p-6 card-hover fade-in-up">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-4">
             <div className="flex-1">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                🏗️ Equipment Gallery
+                Products Gallery
               </h2>
-              <p className="text-gray-600">Browse our premium construction equipment collection</p>
+              <p className="text-gray-600">Browse our premium Products collection</p>
               <div className="flex items-center gap-6 mt-4 text-sm text-gray-500">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                  <span>{filteredProducts.length} equipment available</span>
+                  <span>{filteredProducts.length} Products available</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
@@ -546,30 +531,20 @@ const ProductGallery = () => {
                 </div>
               </div>
             </div>
-            <div className="flex gap-3">
-              <button className="px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-lg flex items-center gap-2">
-                <span>🔍</span> Filter
-              </button>
-              <button className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all duration-300 transform hover:scale-105 font-medium shadow-lg flex items-center gap-2">
-                <span>📊</span> Sort
-              </button>
-            </div>
           </div>
 
           {isLoading ? (
-            /* Enhanced Loading State */
             <div className="h-48 flex items-center justify-center">
               <div className="text-center">
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <div className="animate-spin rounded-full h-8 w-8 border-3 border-blue-600 border-t-transparent"></div>
                   <div className="animate-spin rounded-full h-6 w-6 border-3 border-purple-500 border-t-transparent" style={{ animationDelay: '0.1s' }}></div>
                 </div>
-                <p className="text-xl font-medium text-gray-700 mb-2">Loading Equipment...</p>
-                <p className="text-gray-500">Fetching premium construction equipment</p>
+                <p className="text-xl font-medium text-gray-700 mb-2">Loading Products...</p>
+                <p className="text-gray-500">Fetching premium Products</p>
               </div>
             </div>
           ) : viewMode === "Card" ? (
-            /* Enhanced Card View */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredProducts.map((product, index) => {
                 const statusConfig = getStatusConfig(product.status);
@@ -582,7 +557,6 @@ const ProductGallery = () => {
                     style={{ animationDelay: `${index * 0.1}s` }}
                     onClick={() => product.stock > 0 && handleProductClick(product)}
                   >
-                    {/* Image Section */}
                     <div className="relative overflow-hidden">
                       <div className={`absolute inset-0 bg-gradient-to-br ${product.bgGradient} opacity-10`}></div>
                       <img
@@ -593,33 +567,27 @@ const ProductGallery = () => {
                           e.target.src = `https://via.placeholder.com/400x300/f3f4f6/6b7280?text=${encodeURIComponent(product.name)}`;
                         }}
                       />
-                      
-                      {/* Enhanced Status Badge */}
                       <div className="absolute top-3 right-3">
                         <span className={`px-3 py-1 text-xs font-bold rounded-full shadow-lg backdrop-blur-sm ${
-                          product.stock <= 0 
-                            ? 'bg-red-500/90 text-white' 
-                            : product.stock <= 5 
+                          product.stock <= 0
+                            ? 'bg-red-500/90 text-white'
+                            : product.stock <= 5
                               ? 'bg-orange-500/90 text-white'
                               : 'bg-green-500/90 text-white'
                         }`}>
-                          {product.stock <= 0 
-                            ? '❌ Out of Stock' 
-                            : product.stock <= 5 
+                          {product.stock <= 0
+                            ? '❌ Out of Stock'
+                            : product.stock <= 5
                               ? `⚠️ ${product.stock} left`
                               : '✅ Available'
                           }
                         </span>
                       </div>
-
-                      {/* Highlight Badge */}
                       <div className="absolute top-3 left-3">
                         <span className="bg-blue-500/90 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                           ⭐ {product.highlight}
                         </span>
                       </div>
-
-                      {/* Enhanced Wishlist Button */}
                       <div className="absolute bottom-3 left-3">
                         <button
                           onClick={(e) => handleWishlistToggle(product, e)}
@@ -634,18 +602,13 @@ const ProductGallery = () => {
                           </svg>
                         </button>
                       </div>
-
-                      {/* Performance Badge */}
                       <div className="absolute bottom-3 right-3">
                         <span className="bg-black/80 backdrop-blur-sm text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg">
                           📊 {product.performance}
                         </span>
                       </div>
                     </div>
-
-                    {/* Enhanced Content Section */}
                     <div className="p-5">
-                      {/* Category and Rating */}
                       <div className="flex items-center justify-between mb-3">
                         <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
                           📂 {product.category}
@@ -655,18 +618,12 @@ const ProductGallery = () => {
                           <span className="text-sm text-gray-700 font-bold">{product.rating}</span>
                         </div>
                       </div>
-
-                      {/* Equipment Name */}
                       <h3 className="font-bold text-gray-900 mb-2 text-xl leading-tight group-hover:text-blue-600 transition-colors duration-300">
                         {product.name}
                       </h3>
-
-                      {/* Brand */}
                       <div className="flex items-center gap-2 mb-4">
                         <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium">🏢 {product.brand}</span>
                       </div>
-
-                      {/* Enhanced Pricing */}
                       <div className="bg-gradient-to-br from-gray-50 to-blue-50/50 rounded-xl p-4 mb-4 border border-gray-100">
                         <div className="flex items-baseline justify-between">
                           <div>
@@ -679,8 +636,6 @@ const ProductGallery = () => {
                           <span className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-sm font-bold">{product.period}</span>
                         </div>
                       </div>
-
-                      {/* Location */}
                       <div className="flex items-center gap-2 mb-4 text-sm text-gray-600 bg-gray-50 px-3 py-2 rounded-lg">
                         <svg className="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -688,22 +643,20 @@ const ProductGallery = () => {
                         </svg>
                         <span className="font-medium">{product.location}</span>
                       </div>
-
-                      {/* Enhanced Action Buttons */}
                       <div className="flex gap-3">
                         {product.stock <= 0 ? (
                           <button
                             disabled
                             className="flex-1 bg-gray-400 text-white py-3 px-4 rounded-xl cursor-not-allowed text-sm font-bold"
                           >
-                            ❌ Out of Stock
+                            Out of Stock
                           </button>
                         ) : (
                           <button
                             className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 transform hover:scale-105 text-sm font-bold shadow-lg"
                             onClick={(e) => handleRentNow(product, e)}
                           >
-                            🚀 Rent Now
+                            Rent Now
                           </button>
                         )}
                         <button
@@ -737,13 +690,12 @@ const ProductGallery = () => {
               })}
             </div>
           ) : (
-            /* List View - Admin Style */
             <div className="bg-white rounded-lg overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Equipment</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -779,7 +731,7 @@ const ProductGallery = () => {
                               <div className={`w-2 h-2 ${statusConfig.dotColor} rounded-full`}></div>
                               <span className={`${statusConfig.textColor} text-xs font-medium`}>
                                 {statusConfig.label}
-              </span>
+                              </span>
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -804,14 +756,14 @@ const ProductGallery = () => {
                               >
                                 {isInCart(product.id) ? 'Added' : 'Add'}
                               </button>
-                                                             <button
-                                 onClick={(e) => handleWishlistToggle(product, e)}
-                                 className={`p-2 rounded-lg transition-colors ${
-                                   isInWishlist(product.id)
-                                     ? 'bg-red-500 text-white hover:bg-red-600'
-                                     : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500'
-                                 }`}
-                               >
+                              <button
+                                onClick={(e) => handleWishlistToggle(product, e)}
+                                className={`p-2 rounded-lg transition-colors ${
+                                  isInWishlist(product.id)
+                                    ? 'bg-red-500 text-white hover:bg-red-600'
+                                    : 'bg-gray-100 text-gray-600 hover:bg-red-50 hover:text-red-500'
+                                }`}
+                              >
                                 <svg className="w-4 h-4" fill={isInWishlist(product.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                                 </svg>
@@ -830,18 +782,17 @@ const ProductGallery = () => {
 
         {/* Product Detail Modal */}
         {showModal && selectedProduct && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 p-4 overflow-y-auto"
             onClick={closeModal}
           >
             <div className="flex items-center justify-center min-h-full py-4">
-              <div 
+              <div
                 className={`bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto transform transition-all duration-300 ${
                   showModal ? 'scale-100 opacity-100' : 'scale-95 opacity-0'
                 }`}
                 onClick={(e) => e.stopPropagation()}
               >
-                {/* Modal Header */}
                 <div className={`bg-gradient-to-r ${selectedProduct.bgGradient} p-6 rounded-t-2xl text-white`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -856,25 +807,22 @@ const ProductGallery = () => {
                         </div>
                       </div>
                     </div>
-                    <button 
+                    <button
                       onClick={closeModal}
                       className="bg-white/20 backdrop-blur-sm hover:bg-white/30 p-2 rounded-full transition-all duration-200"
                     >
                       <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-          </button>
+                    </button>
                   </div>
                 </div>
-
-                {/* Modal Content */}
                 <div className="p-6">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Image & Features */}
                     <div className="space-y-4">
                       <div className="relative">
-                        <img 
-                          src={selectedProduct.image} 
+                        <img
+                          src={selectedProduct.image}
                           alt={selectedProduct.name}
                           className="w-full h-64 object-cover rounded-xl"
                           onError={(e) => {
@@ -882,8 +830,6 @@ const ProductGallery = () => {
                           }}
                         />
                       </div>
-                      
-                      {/* Features */}
                       <div className="bg-gray-50 rounded-xl p-4">
                         <h4 className="font-semibold text-gray-900 mb-3">Key Features</h4>
                         <div className="grid grid-cols-2 gap-2">
@@ -892,14 +838,11 @@ const ProductGallery = () => {
                               <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                               <span>{feature}</span>
                             </div>
-        ))}
-      </div>
-    </div>
+                          ))}
+                        </div>
+                      </div>
                     </div>
-
-                    {/* Details & Actions */}
                     <div className="space-y-4">
-                      {/* Pricing */}
                       <div className="bg-green-50 rounded-xl p-4">
                         <h3 className="font-semibold text-gray-900 mb-3">Rental Price</h3>
                         <div className="flex items-baseline gap-2 mb-2">
@@ -909,10 +852,8 @@ const ProductGallery = () => {
                         </div>
                         <p className="text-sm text-gray-600">📍 {selectedProduct.location}</p>
                       </div>
-
-                      {/* Equipment Details */}
                       <div className="bg-gray-50 rounded-xl p-4">
-                        <h4 className="font-semibold text-gray-900 mb-3">Equipment Details</h4>
+                        <h4 className="font-semibold text-gray-900 mb-3">Product Details</h4>
                         <div className="space-y-2">
                           <div className="flex justify-between">
                             <span className="text-gray-600">Brand:</span>
@@ -930,18 +871,20 @@ const ProductGallery = () => {
                             <span className="text-gray-600">Status:</span>
                             <span className="font-medium">{selectedProduct.status}</span>
                           </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-600">Highlight:</span>
+                            <span className="font-medium">{selectedProduct.highlight}</span>
+                          </div>
                         </div>
                       </div>
-
-                      {/* Action Buttons */}
                       <div className="flex gap-3">
-                        <button 
+                        <button
                           onClick={(e) => handleRentNow(selectedProduct, e)}
                           className="flex-1 bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
                         >
                           Rent Now
                         </button>
-                        <button 
+                        <button
                           onClick={() => addToCart(selectedProduct)}
                           className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-colors ${
                             isInCart(selectedProduct.id)
@@ -951,14 +894,14 @@ const ProductGallery = () => {
                         >
                           {isInCart(selectedProduct.id) ? 'Added to Cart' : 'Add to Cart'}
                         </button>
-                                                 <button
-                           onClick={(e) => handleWishlistToggle(selectedProduct, e)}
-                           className={`py-3 px-4 rounded-xl font-semibold transition-colors ${
-                             isInWishlist(selectedProduct.id)
-                               ? 'bg-red-500 text-white hover:bg-red-600'
-                               : 'bg-gray-100 text-gray-700 hover:bg-red-50'
-                           }`}
-                         >
+                        <button
+                          onClick={(e) => handleWishlistToggle(selectedProduct, e)}
+                          className={`py-3 px-4 rounded-xl font-semibold transition-colors ${
+                            isInWishlist(selectedProduct.id)
+                              ? 'bg-red-500 text-white hover:bg-red-600'
+                              : 'bg-gray-100 text-gray-700 hover:bg-red-50'
+                          }`}
+                        >
                           <svg className="w-5 h-5" fill={isInWishlist(selectedProduct.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                           </svg>

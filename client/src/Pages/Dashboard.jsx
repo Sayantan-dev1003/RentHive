@@ -436,7 +436,7 @@ const Dashboard = () => {
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-4">
             <div className="flex-1">
               <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-2">
-                🏗️ Equipment Inventory
+                Products Inventory
               </h2>
               <p className="text-gray-600">Manage your rental equipment with real-time availability</p>
               <div className="flex items-center gap-6 mt-4 text-sm text-gray-500">
