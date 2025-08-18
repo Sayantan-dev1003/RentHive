@@ -63,6 +63,12 @@ const createPickupReminders = async () => {
     let created = 0;
 
     for (const order of orders) {
+      // Skip orders with invalid customer references
+      if (!order.customerId || !order.customerId._id) {
+        console.warn(`⚠️ Order ${order._id} has invalid customerId, skipping notification`);
+        continue;
+      }
+
       // Check if reminder already sent
       const existingNotification = await Notification.findOne({
         recipientId: order.customerId._id,

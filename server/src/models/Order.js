@@ -87,6 +87,20 @@ const orderSchema = new mongoose.Schema({
     },
     reason: String
   }],
+  pickupSlot: {
+    slotId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'PickupSlot'
+    },
+    confirmedAt: {
+      type: Date
+    },
+    status: {
+      type: String,
+      enum: ['pending', 'confirmed', 'completed', 'missed'],
+      default: 'pending'
+    }
+  },
   pickupDate: {
     type: Date
   },

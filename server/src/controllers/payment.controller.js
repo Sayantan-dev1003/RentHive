@@ -1,7 +1,9 @@
 const Payment = require('../models/Payment');
 const Order = require('../models/Order');
+const PickupSlot = require('../models/PickupSlot');
 const { asyncHandler, createValidationError, createNotFoundError } = require('../middlewares/errorHandler');
 const { processPayment, processRefund, getPaymentStats } = require('../utils/dummyPayment');
+const { emitOrderUpdate } = require('../utils/socket');
 
 /**
  * Process payment for an order
@@ -52,13 +54,47 @@ const processOrderPayment = asyncHandler(async (req, res) => {
       forceFail
     });
 
+    // If payment is successful and order is now fully paid, get available pickup slots
+    let availablePickupSlots = null;
+    const updatedOrder = await Order.findById(orderId);
+    
+    if (paymentResult.success && updatedOrder.paymentStatus === 'paid') {
+      // Get available pickup slots for the next 7 days
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      
+      const nextWeek = new Date();
+      nextWeek.setDate(nextWeek.getDate() + 8);
+      
+      availablePickupSlots = await PickupSlot.findAvailableSlots(
+        tomorrow.toISOString().split('T')[0],
+        nextWeek.toISOString().split('T')[0]
+      );
+
+      // Emit real-time update about payment success and pickup availability
+      emitOrderUpdate(orderId, {
+        status: updatedOrder.status,
+        paymentStatus: updatedOrder.paymentStatus,
+        message: 'Payment successful - Please select pickup slot',
+        availablePickupSlots: availablePickupSlots.length
+      });
+    }
+
     res.status(paymentResult.success ? 200 : 400).json({
       success: paymentResult.success,
       message: paymentResult.message,
       data: {
         payment: paymentResult.paymentRecord,
         transactionId: paymentResult.transactionId,
-        gatewayResponse: paymentResult.gatewayResponse
+        gatewayResponse: paymentResult.gatewayResponse,
+        order: updatedOrder,
+        ...(availablePickupSlots && {
+          pickupSlots: {
+            available: availablePickupSlots,
+            message: 'Payment successful! Please select a pickup slot to complete your order.',
+            nextStep: 'pickup_slot_selection'
+          }
+        })
       }
     });
   } catch (error) {
