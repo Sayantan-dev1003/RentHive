@@ -376,6 +376,8 @@ const Checkout = () => {
     setIsProcessing(true);
 
     try {
+      let orderResult = null; // Declare orderResult in the main scope
+      
       // Process the order and update stock
       if (isSingleProduct) {
         // Use fresh product data from orderDetails if available, otherwise fetch
@@ -411,7 +413,7 @@ const Checkout = () => {
 
         // Create order in database BEFORE updating stock to avoid availability conflicts
         try {
-          await createOrderInDatabase(product, orderDetails, billingDetails);
+          orderResult = await createOrderInDatabase(product, orderDetails, billingDetails);
           console.log('✅ Order creation completed');
         } catch (orderError) {
           console.error('❌ Order creation failed:', orderError.message);
@@ -439,7 +441,7 @@ const Checkout = () => {
       } else if (isMultipleItems) {
         // Create order for multiple items BEFORE updating stock
         try {
-          await createOrderForMultipleItems(cartItems, orderDetails, billingDetails);
+          orderResult = await createOrderForMultipleItems(cartItems, orderDetails, billingDetails);
           console.log('✅ Multi-item order creation completed');
         } catch (orderError) {
           console.error('❌ Multi-item order creation failed:', orderError.message);
@@ -490,19 +492,36 @@ const Checkout = () => {
       // Simulate payment processing
       await new Promise(resolve => setTimeout(resolve, 1500));
 
-      // Navigate to order confirmation
-      navigate('/customer/order-confirmation', {
-        state: {
-          order: {
-            id: `ORD-${Date.now()}`,
-            billingDetails,
-            paymentMethod: 'Direct Payment',
-            ...orderDetails
-          },
-          product: isSingleProduct ? product : null,
-          cartItems: isMultipleItems ? cartItems : null
-        }
-      });
+      // Check if order was created successfully and navigate to pickup slot selection
+      if (orderResult?.data?.order) {
+        // Navigate to pickup slot selection with order data
+        navigate('/customer/pickup-slot-selection', {
+          state: {
+            order: orderResult.data.order,
+            paymentData: {
+              amount: orderDetails.finalAmount,
+              method: 'Direct Payment',
+              status: 'completed'
+            },
+            product: isSingleProduct ? product : null,
+            cartItems: isMultipleItems ? cartItems : null
+          }
+        });
+      } else {
+        // Fallback to order confirmation if no order data
+        navigate('/customer/order-confirmation', {
+          state: {
+            order: {
+              id: `ORD-${Date.now()}`,
+              billingDetails,
+              paymentMethod: 'Direct Payment',
+              ...orderDetails
+            },
+            product: isSingleProduct ? product : null,
+            cartItems: isMultipleItems ? cartItems : null
+          }
+        });
+      }
     } catch (error) {
       console.error('Order failed:', error);
       alert('Order processing failed. Please try again.');

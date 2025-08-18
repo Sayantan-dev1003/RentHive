@@ -8,6 +8,8 @@ const OrderConfirmation = () => {
   // Get order and product data from location state
   const order = location.state?.order;
   const product = location.state?.product;
+  const pickupSlot = location.state?.pickupSlot;
+  const isPickupScheduled = location.state?.isPickupScheduled;
   
   // Generate order ID if not provided
   const orderId = order?.orderId || `RH-${Date.now().toString(36).toUpperCase()}`;
@@ -52,27 +54,40 @@ const OrderConfirmation = () => {
           </div>
 
           {/* Progress Indicator */}
-          <div className="flex items-center justify-center space-x-8 mb-12">
+          <div className="flex items-center justify-center space-x-4 mb-12 overflow-x-auto">
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
                 ✓
               </div>
-              <span className="text-green-600 font-medium">Equipment Selected</span>
+              <span className="text-green-600 font-medium text-sm">Equipment Selected</span>
             </div>
-            <div className="w-8 h-1 bg-green-500 rounded"></div>
+            <div className="w-6 h-1 bg-green-500 rounded"></div>
             <div className="flex items-center space-x-2">
               <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
                 ✓
               </div>
-              <span className="text-green-600 font-medium">Payment Completed</span>
+              <span className="text-green-600 font-medium text-sm">Payment Completed</span>
             </div>
-            <div className="w-8 h-1 bg-green-500 rounded"></div>
+            <div className="w-6 h-1 bg-green-500 rounded"></div>
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
+              <div className={`w-10 h-10 ${isPickupScheduled ? 'bg-green-500' : 'bg-green-500'} rounded-full flex items-center justify-center text-sm font-bold text-white`}>
                 ✓
               </div>
-              <span className="text-green-600 font-medium">Booking Confirmed</span>
+              <span className={`${isPickupScheduled ? 'text-green-600' : 'text-green-600'} font-medium text-sm`}>
+                {isPickupScheduled ? 'Pickup Scheduled' : 'Booking Confirmed'}
+              </span>
             </div>
+            {isPickupScheduled && (
+              <>
+                <div className="w-6 h-1 bg-green-500 rounded"></div>
+                <div className="flex items-center space-x-2">
+                  <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-sm font-bold text-white">
+                    📅
+                  </div>
+                  <span className="text-blue-600 font-medium text-sm">Ready for Pickup</span>
+                </div>
+              </>
+            )}
           </div>
 
           {/* Main Content - Order Confirmation Cards */}
@@ -99,7 +114,7 @@ const OrderConfirmation = () => {
               </div>
 
               {/* Rental Period */}
-              <div className="bg-blue-50 rounded-xl p-4">
+              <div className="bg-blue-50 rounded-xl p-4 mb-4">
                 <h4 className="font-semibold text-gray-900 mb-3">Rental Period</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -116,6 +131,57 @@ const OrderConfirmation = () => {
                   <p className="font-semibold">{order.duration} day(s)</p>
                 </div>
               </div>
+
+              {/* Pickup Information */}
+              {isPickupScheduled && pickupSlot ? (
+                <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    🕐 Pickup Schedule
+                    <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Confirmed</span>
+                  </h4>
+                  <div className="space-y-3">
+                    <div>
+                      <span className="text-sm text-gray-600">Pickup Date</span>
+                      <p className="font-semibold text-green-700">
+                        {new Date(pickupSlot.date).toLocaleDateString('en-US', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Time Slot</span>
+                      <p className="font-semibold text-green-700">
+                        {pickupSlot.timeSlot.startTime} - {pickupSlot.timeSlot.endTime}
+                      </p>
+                    </div>
+                    <div>
+                      <span className="text-sm text-gray-600">Location</span>
+                      <p className="font-semibold">{pickupSlot.location.name}</p>
+                      <p className="text-sm text-gray-500">{pickupSlot.location.address}</p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="bg-yellow-50 rounded-xl p-4 border border-yellow-200">
+                  <h4 className="font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                    ⏳ Next Step: Schedule Pickup
+                  </h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Your payment is confirmed! Please schedule a pickup slot to complete your booking.
+                  </p>
+                  <button
+                    onClick={() => navigate('/customer/pickup-slot-selection', {
+                      state: { order, product }
+                    })}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                  >
+                    Schedule Pickup Time
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Order Summary Card */}
@@ -169,9 +235,20 @@ const OrderConfirmation = () => {
             <h3 className="text-lg font-semibold text-yellow-800 mb-3">📋 Important Information</h3>
             <ul className="text-yellow-700 space-y-2 text-sm">
               <li>• A confirmation email has been sent to your registered email address</li>
-              <li>• Our team will contact you within 2-4 hours to coordinate delivery</li>
-              <li>• Please ensure someone is available at the delivery address during the scheduled time</li>
+              {isPickupScheduled ? (
+                <>
+                  <li>• <strong>Pickup scheduled:</strong> Please arrive during your selected time slot</li>
+                  <li>• Bring a valid ID and this confirmation for equipment pickup</li>
+                  <li>• Contact us immediately if you need to reschedule your pickup</li>
+                </>
+              ) : (
+                <>
+                  <li>• <strong>Next step:</strong> Schedule your pickup time to complete the booking</li>
+                  <li>• Pickup slots are available Monday to Saturday, 9 AM to 6 PM</li>
+                </>
+              )}
               <li>• Security deposit will be refunded after equipment return in good condition</li>
+              <li>• Equipment must be returned on or before the end date to avoid late fees</li>
               <li>• For any queries, contact our support team at support@renthive.com</li>
             </ul>
           </div>

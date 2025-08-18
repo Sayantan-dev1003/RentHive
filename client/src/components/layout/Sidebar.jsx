@@ -1,7 +1,81 @@
 import { IoIosArrowForward, IoIosArrowBack } from "react-icons/io";
 import { FiLogOut } from "react-icons/fi";
+import { useState, useEffect } from "react";
+import apiService from "../../services/api";
 
 const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
+  const [sidebarStats, setSidebarStats] = useState({
+    orders: {
+      reserved: 0,
+      quotation: 0,
+      pickedUp: 0,
+      returned: 0
+    },
+    pickupSlots: {
+      totalToday: 0,
+      bookedToday: 0
+    },
+    invoices: {
+      fullyInvoiced: 0,
+      partiallyInvoiced: 0,
+      toInvoice: 0
+    }
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchSidebarData();
+    // Refresh data every 30 seconds
+    const interval = setInterval(fetchSidebarData, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchSidebarData = async () => {
+    try {
+      // Fetch orders data
+      const ordersResponse = await apiService.getOrders();
+      const orders = ordersResponse.success ? ordersResponse.data.orders : [];
+
+      // Fetch pickup slots for today
+      const today = new Date().toISOString().split('T')[0];
+      const slotsResponse = await apiService.getPickupSlotsByDate(today);
+      const todaySlots = slotsResponse.success ? slotsResponse.data.slots : [];
+
+      // Calculate order statistics
+      const orderStats = {
+        reserved: orders.filter(order => order.status === 'reserved').length,
+        quotation: orders.filter(order => order.status === 'quotation').length,
+        pickedUp: orders.filter(order => order.status === 'picked_up').length,
+        returned: orders.filter(order => order.status === 'returned').length
+      };
+
+      // Calculate pickup slot statistics
+      const slotStats = {
+        totalToday: todaySlots.length,
+        bookedToday: todaySlots.reduce((sum, slot) => sum + slot.currentBookings, 0)
+      };
+
+      // Calculate invoice statistics (mock for now - can be enhanced later)
+      const invoiceStats = {
+        fullyInvoiced: orders.filter(order => order.paymentStatus === 'paid').length,
+        partiallyInvoiced: orders.filter(order => order.paymentStatus === 'partial').length,
+        toInvoice: orders.filter(order => order.paymentStatus === 'pending').length
+      };
+
+      setSidebarStats({
+        orders: orderStats,
+        pickupSlots: slotStats,
+        invoices: invoiceStats
+      });
+
+    } catch (error) {
+      console.error('Error fetching sidebar data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       className={`h-full ${
@@ -51,14 +125,18 @@ const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
                   <span className="text-xs text-slate-300 flex-1">
                     Reserved
                   </span>
-                  <span className="text-xs font-semibold text-white">16</span>
+                  <span className="text-xs font-semibold text-white">
+                    {loading ? '...' : sidebarStats.orders.reserved}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-orange-500"></div>
                   <span className="text-xs text-slate-300 flex-1">
                     Quotation
                   </span>
-                  <span className="text-xs font-semibold text-white">1</span>
+                  <span className="text-xs font-semibold text-white">
+                    {loading ? '...' : sidebarStats.orders.quotation}
+                  </span>
                 </div>
               </div>
             </div>
@@ -67,12 +145,26 @@ const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
             <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-600/30">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-green-600 p-3 rounded-lg text-center text-white">
-                  <div className="text-lg font-bold">4</div>
+                  <div className="text-lg font-bold">
+                    {loading ? '...' : sidebarStats.orders.pickedUp}
+                  </div>
                   <div className="text-xs opacity-90">Picked Up</div>
                 </div>
                 <div className="bg-blue-600 p-3 rounded-lg text-center text-white">
-                  <div className="text-lg font-bold">1</div>
+                  <div className="text-lg font-bold">
+                    {loading ? '...' : sidebarStats.orders.returned}
+                  </div>
                   <div className="text-xs opacity-90">Returned</div>
+                </div>
+              </div>
+              {/* Today's Pickup Slots */}
+              <div className="mt-3 pt-3 border-t border-slate-600/50">
+                <div className="text-xs text-slate-300 text-center mb-2">Today's Pickup Slots</div>
+                <div className="flex justify-between text-xs">
+                  <span className="text-slate-400">Booked:</span>
+                  <span className="text-yellow-400 font-semibold">
+                    {loading ? '...' : `${sidebarStats.pickupSlots.bookedToday}/${sidebarStats.pickupSlots.totalToday}`}
+                  </span>
                 </div>
               </div>
             </div>
@@ -101,19 +193,25 @@ const Sidebar = ({ sidebarCollapsed, setSidebarCollapsed }) => {
               </div>
               <div className="grid grid-cols-3 gap-2 mb-4">
                 <div className="bg-blue-500 p-2 rounded-lg text-center text-white">
-                  <div className="text-sm font-bold">16</div>
+                  <div className="text-sm font-bold">
+                    {loading ? '...' : sidebarStats.invoices.fullyInvoiced}
+                  </div>
                   <div className="text-xs opacity-90">Fully</div>
-                  <div className="text-xs opacity-90">Invoice</div>
+                  <div className="text-xs opacity-90">Paid</div>
                 </div>
                 <div className="bg-purple-500 p-2 rounded-lg text-center text-white">
-                  <div className="text-sm font-bold">3</div>
-                  <div className="text-xs opacity-90">Partly</div>
-                  <div className="text-xs opacity-90">to Issue</div>
+                  <div className="text-sm font-bold">
+                    {loading ? '...' : sidebarStats.invoices.partiallyInvoiced}
+                  </div>
+                  <div className="text-xs opacity-90">Partial</div>
+                  <div className="text-xs opacity-90">Payment</div>
                 </div>
                 <div className="bg-gray-500 p-2 rounded-lg text-center text-white">
-                  <div className="text-sm font-bold">8</div>
-                  <div className="text-xs opacity-90">To</div>
-                  <div className="text-xs opacity-90">Invoice</div>
+                  <div className="text-sm font-bold">
+                    {loading ? '...' : sidebarStats.invoices.toInvoice}
+                  </div>
+                  <div className="text-xs opacity-90">Pending</div>
+                  <div className="text-xs opacity-90">Payment</div>
                 </div>
               </div>
               <div className="space-y-2">

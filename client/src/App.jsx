@@ -9,6 +9,7 @@ import Dashboard from './Pages/Dashboard'
 import Products from './Pages/Products'
 import Bookings from './Pages/Bookings'
 import Orders from './Pages/Orders'
+import PickupSlots from './Pages/PickupSlots'
 import SignUp from './Pages/SignUp'
 import SignIn from './Pages/SignIn'
 import Reports from './Pages/Reports'
@@ -19,6 +20,7 @@ import WishlistItems from './customer/Pages/wishlistItems'
 import BillingDetails from './customer/Pages/BillingDetails'
 import Cart from './customer/Pages/Cart'
 import Checkout from './customer/Pages/Checkout'
+import PickupSlotSelection from './customer/Pages/PickupSlotSelection'
 import OrderConfirmation from './customer/Pages/OrderConfirmation'
 
 function App() {
@@ -39,6 +41,7 @@ function App() {
         <Route path="/products" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Products /></Layout></ProtectedRoute>} />
         <Route path="/bookings" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Bookings /></Layout></ProtectedRoute>} />
         <Route path="/orders" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Orders /></Layout></ProtectedRoute>} />
+        <Route path="/pickup-slots" element={<ProtectedRoute allowedRoles={['admin']}><Layout><PickupSlots /></Layout></ProtectedRoute>} />
         <Route path="/reports" element={<ProtectedRoute allowedRoles={['admin']}><Layout><Reports /></Layout></ProtectedRoute>} />
         
         {/* Protected Customer Routes */}
@@ -47,6 +50,7 @@ function App() {
         <Route path="/customer/billing-details" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><BillingDetails /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/cart" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><Cart /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/checkout" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><Checkout /></CustomerLayout></ProtectedRoute>} />
+        <Route path="/customer/pickup-slot-selection" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><PickupSlotSelection /></CustomerLayout></ProtectedRoute>} />
         <Route path="/customer/order-confirmation" element={<ProtectedRoute allowedRoles={['customer']}><CustomerLayout><OrderConfirmation /></CustomerLayout></ProtectedRoute>} />
         </Routes>
         </Router>

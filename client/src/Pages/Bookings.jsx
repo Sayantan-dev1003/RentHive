@@ -24,6 +24,7 @@ const Bookings = () => {
   // Calendar state
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [calendarView, setCalendarView] = useState("month");
+  const [pickupSlotsCache, setPickupSlotsCache] = useState({});
 
   // Calendar helper functions
   const getBookingsForDate = (date) => {
@@ -39,6 +40,46 @@ const Bookings = () => {
 
   const getBookingCountForDate = (date) => {
     return getBookingsForDate(date).length;
+  };
+
+  // Enhanced calendar functions for pickup slots
+  const getPickupSlotsForDate = async (date) => {
+    try {
+      const dateStr = date.toISOString().split('T')[0];
+      
+      // Check cache first
+      if (pickupSlotsCache[dateStr]) {
+        return pickupSlotsCache[dateStr];
+      }
+      
+      const response = await apiService.getPickupSlotsByDate(dateStr);
+      const slots = response.success ? response.data.slots : [];
+      
+      // Cache the result
+      setPickupSlotsCache(prev => ({
+        ...prev,
+        [dateStr]: slots
+      }));
+      
+      return slots;
+    } catch (error) {
+      console.error('Error fetching pickup slots for date:', error);
+      return [];
+    }
+  };
+
+  const hasPickupSlotsOnDate = (date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    const slots = pickupSlotsCache[dateStr] || [];
+    return slots.length > 0;
+  };
+
+  const getPickupSlotStatsForDate = (date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    const slots = pickupSlotsCache[dateStr] || [];
+    const totalCapacity = slots.reduce((sum, slot) => sum + slot.maxCapacity, 0);
+    const currentBookings = slots.reduce((sum, slot) => sum + slot.currentBookings, 0);
+    return { totalCapacity, currentBookings, slotsCount: slots.length };
   };
 
   // Fetch bookings (orders) data
@@ -112,6 +153,34 @@ const Bookings = () => {
       if (productsResponse.success) {
         setProducts(productsResponse.data.products || []);
       }
+
+      // Preload pickup slots for the current month
+      const today = new Date();
+      const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+      const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+      
+      const slotsResponse = await apiService.getAllPickupSlots({
+        startDate: startOfMonth.toISOString().split('T')[0],
+        endDate: endOfMonth.toISOString().split('T')[0],
+        limit: 50
+      });
+
+      if (slotsResponse.success) {
+        const slots = slotsResponse.data.slots || [];
+        const slotsCache = {};
+        
+        // Group slots by date
+        slots.forEach(slot => {
+          const dateStr = new Date(slot.date).toISOString().split('T')[0];
+          if (!slotsCache[dateStr]) {
+            slotsCache[dateStr] = [];
+          }
+          slotsCache[dateStr].push(slot);
+        });
+        
+        setPickupSlotsCache(slotsCache);
+      }
+
     } catch (err) {
       setError("Failed to fetch bookings data: " + err.message);
       console.error("Bookings data fetch error:", err);
@@ -397,13 +466,29 @@ const Bookings = () => {
                 tileContent={({ date, view }) => {
                   if (view === "month") {
                     const bookingCount = getBookingCountForDate(date);
-                    if (bookingCount > 0) {
-                      return (
-                        <div className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-sm">
-                          {bookingCount}
-                        </div>
-                      );
-                    }
+                    const slotStats = getPickupSlotStatsForDate(date);
+                    const hasSlots = slotStats.slotsCount > 0;
+                    
+                    return (
+                      <div className="absolute inset-0 pointer-events-none">
+                        {/* Booking indicator */}
+                        {bookingCount > 0 && (
+                          <div className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold shadow-sm">
+                            {bookingCount}
+                          </div>
+                        )}
+                        
+                        {/* Pickup slot indicator */}
+                        {hasSlots && (
+                          <div className="absolute bottom-1 left-1 flex items-center space-x-1">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <span className="text-xs text-blue-600 font-semibold">
+                              {slotStats.currentBookings}/{slotStats.totalCapacity}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    );
                   }
                   return null;
                 }}
@@ -420,14 +505,18 @@ const Bookings = () => {
             </div>
 
             {/* Legend */}
-            <div className="flex items-center justify-center space-x-6 text-sm text-gray-600 my-4">
+            <div className="grid grid-cols-2 gap-3 text-sm text-gray-600 my-4">
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-blue-700 rounded"></div>
                 <span>Today</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                <span>Has Bookings</span>
+                <span>Orders</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
+                <span>Pickup Slots</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-purple-500 rounded"></div>
@@ -459,7 +548,7 @@ const Bookings = () => {
               {/* Selected Date Info */}
               {selectedDate && (
                 <div className="w-full bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg border border-blue-200 mb-4">
-                  <h4 className="font-semibold text-blue-900 mb-2">
+                  <h4 className="font-semibold text-blue-900 mb-3">
                     {selectedDate.toLocaleDateString("en-US", {
                       weekday: "long",
                       year: "numeric",
@@ -467,31 +556,74 @@ const Bookings = () => {
                       day: "numeric",
                     })}
                   </h4>
-                  {getBookingsForDate(selectedDate).length > 0 ? (
-                    <div className="space-y-2">
-                      <p className="text-sm text-blue-700">
-                        {getBookingsForDate(selectedDate).length} booking(s) on
-                        this date:
-                      </p>
-                      {getBookingsForDate(selectedDate).map(
-                        (booking, index) => (
-                          <div
-                            key={index}
-                            className="text-sm bg-white p-2 rounded border border-blue-200"
-                          >
-                            <span className="font-medium">
-                              {booking.customer}
-                            </span>{" "}
-                            - {booking.product}
+                  
+                  {/* Orders Section */}
+                  <div className="mb-3">
+                    <h5 className="text-sm font-semibold text-blue-800 mb-2">📋 Orders</h5>
+                    {getBookingsForDate(selectedDate).length > 0 ? (
+                      <div className="space-y-2">
+                        <p className="text-sm text-blue-700">
+                          {getBookingsForDate(selectedDate).length} order(s):
+                        </p>
+                        {getBookingsForDate(selectedDate).map(
+                          (booking, index) => (
+                            <div
+                              key={index}
+                              className="text-sm bg-white p-2 rounded border border-blue-200"
+                            >
+                              <span className="font-medium">
+                                {booking.customer}
+                              </span>{" "}
+                              - {booking.product}
+                            </div>
+                          )
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-blue-700">No orders on this date</p>
+                    )}
+                  </div>
+
+                  {/* Pickup Slots Section */}
+                  <div>
+                    <h5 className="text-sm font-semibold text-blue-800 mb-2">🕐 Pickup Slots</h5>
+                    {(() => {
+                      const slotStats = getPickupSlotStatsForDate(selectedDate);
+                      const dateStr = selectedDate.toISOString().split('T')[0];
+                      const slots = pickupSlotsCache[dateStr] || [];
+                      
+                      if (slots.length > 0) {
+                        return (
+                          <div className="space-y-2">
+                            <p className="text-sm text-blue-700">
+                              {slots.length} slot(s) - {slotStats.currentBookings}/{slotStats.totalCapacity} booked:
+                            </p>
+                            {slots.map((slot, index) => (
+                              <div
+                                key={index}
+                                className="text-sm bg-white p-2 rounded border border-blue-200 flex justify-between items-center"
+                              >
+                                <span>
+                                  {slot.timeSlot.startTime} - {slot.timeSlot.endTime}
+                                </span>
+                                <span className={`text-xs px-2 py-1 rounded ${
+                                  slot.currentBookings === slot.maxCapacity 
+                                    ? 'bg-red-100 text-red-800' 
+                                    : slot.currentBookings > slot.maxCapacity * 0.7 
+                                    ? 'bg-yellow-100 text-yellow-800' 
+                                    : 'bg-green-100 text-green-800'
+                                }`}>
+                                  {slot.currentBookings}/{slot.maxCapacity}
+                                </span>
+                              </div>
+                            ))}
                           </div>
-                        )
-                      )}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-blue-700">
-                      No bookings on this date
-                    </p>
-                  )}
+                        );
+                      } else {
+                        return <p className="text-sm text-blue-700">No pickup slots on this date</p>;
+                      }
+                    })()}
+                  </div>
                 </div>
               )}
             </div>

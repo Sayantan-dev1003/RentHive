@@ -572,6 +572,63 @@ mock-order-3,Customer 3,450,picked_up,2025-01-22`
     }
     return icons[category] || '📦'
   }
+
+  // Pickup Slots API
+  async getAvailablePickupSlots(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    const endpoint = queryString ? `/pickup-slots/available?${queryString}` : '/pickup-slots/available'
+    return this.request(endpoint)
+  }
+
+  async bookPickupSlot(slotId, orderId) {
+    return this.request(`/pickup-slots/${slotId}/book`, {
+      method: 'POST',
+      body: JSON.stringify({ orderId })
+    })
+  }
+
+  async cancelPickupSlot(slotId, orderId) {
+    return this.request(`/pickup-slots/${slotId}/booking/${orderId}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async getPickupSlotsByDate(date) {
+    return this.request(`/pickup-slots/date/${date}`)
+  }
+
+  async getAllPickupSlots(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    const endpoint = queryString ? `/pickup-slots?${queryString}` : '/pickup-slots'
+    return this.request(endpoint)
+  }
+
+  async createPickupSlots(slotData) {
+    return this.request('/pickup-slots/bulk', {
+      method: 'POST',
+      body: JSON.stringify(slotData)
+    })
+  }
+
+  async updatePickupSlot(slotId, updateData) {
+    return this.request(`/pickup-slots/${slotId}`, {
+      method: 'PUT',
+      body: JSON.stringify(updateData)
+    })
+  }
+
+  async deletePickupSlot(slotId) {
+    return this.request(`/pickup-slots/${slotId}`, {
+      method: 'DELETE'
+    })
+  }
+
+  async markPickupCompleted(slotId, orderId, notes = '') {
+    return this.request(`/pickup-slots/${slotId}/complete/${orderId}`, {
+      method: 'POST',
+      body: JSON.stringify({ notes })
+    })
+  }
 }
 
 // Create and export a singleton instance
