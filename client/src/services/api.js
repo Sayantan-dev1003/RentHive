@@ -629,6 +629,37 @@ mock-order-3,Customer 3,450,picked_up,2025-01-22`
       body: JSON.stringify({ notes })
     })
   }
+
+  // Enhanced Reporting API
+  async getRevenueReport(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    const endpoint = queryString ? `/reports/total-revenue?${queryString}` : '/reports/total-revenue'
+    return this.request(endpoint)
+  }
+
+  async getMostRentedProducts(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    const endpoint = queryString ? `/reports/most-rented-products?${queryString}` : '/reports/most-rented-products'
+    return this.request(endpoint)
+  }
+
+  async getTopCustomersReport(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    const endpoint = queryString ? `/reports/top-customers?${queryString}` : '/reports/top-customers'
+    return this.request(endpoint)
+  }
+
+  async getInventoryReport(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    const endpoint = queryString ? `/reports/inventory?${queryString}` : '/reports/inventory'
+    return this.request(endpoint)
+  }
+
+  async exportReport(params = {}) {
+    const queryString = new URLSearchParams(params).toString()
+    const endpoint = queryString ? `/reports/export?${queryString}` : '/reports/export'
+    return this.request(endpoint)
+  }
 }
 
 // Create and export a singleton instance
